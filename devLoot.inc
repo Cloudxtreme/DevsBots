@@ -1,91 +1,94 @@
 | ======================================================================================================
 | 																		devLoot.inc v1.37
 | 																	Written By - Devestator
-| 
+|
 | Description:
 |  devLoot is an include file meant to handle any looting situation.  INI is created and auto populated
 |   as new items are found.  Change the settings of an item and that action will be taken automatically
 |   the next time the item is found.
-| 
+|
 | USAGE:  This is primarily intended for use in macros.  /call Loot <corpseID>
 |   This will automatically loot the specified corpseID, or you can leave corpseID blank and it will
 |    loot all corpses within the INI set CorpseRadius.
-| 
+|
 | v1.37 Update Notes
 |  -Updated for 09082017 MQ2 Patch that makes a lot of changes with undefined variables and breaks function calls relying on Not defined to set defaults
-| 
+|
 | v1.36 Update Notes
 |  -Added auto ignoring of lore items that the character already has
-| 
+|
 | v1.35 Update Notes
 |  -Added INI Setting CorpseZRadius=50 and Z Radius checking to corpse detection
-|  
+|
 | v1.34 Update Notes
 |  -Added a delay after looting a no drop item with confirmation dialogue turned on
-| 
+|
 | v1.33 Update Notes
 |  -Added [Settings] ConfirmNoDrop=TRUE/FALSE so that you can disable waiting on the confirmation dialogue
 |    if you have it turned off for no drop items
-| 
+|
 | v1.32 Update Notes
 |  -Added the command /lootupdate "ItemName" ACTION, this will add or update ItemName with the specified
 |    ACTION
-| 
+|
 | v1.31 Update Notes
 |  -Corrected a bug in sell routine that was not selling the correct items.
 |  -Corrected debug statements in the loot routine that were outputting null values
 |  -Added setting [Settings] UseValueOnly=TRUE/FALSE, this will cause looting to be based only on the value
 |    of the item and your MinValueKeep setting.  It will ignore all other settings in the INI.
-| 
+|
 | v1.30 Update Notes
 |  -Fixed it to not try tokeep looting a corpse that you cannot loot.
-| 
+|
 | v1.29 Update Notes
 |  -Added support for Ignore settings so that NinjaAdvLoot loot.ini's could be used.
-| 
+|
 | v1.28 Update Notes
 |  -Added loot retry settings to support multiple looters
 |  -Fixed a typo in LootSell and LootBank routines
-| 
+|
 | v1.27 Update Notes
 |  -Added more echo messages when looting to help with tracking and debugging in the future
-| 
+|
 | v1.26 Update Notes
 |  -Updated echo settings to use devCommon EchoLog if it is loaded
-|  
+|
 | v1.25 Update Notes
 |  -Corrected a problem that could cause some items on a corpse to be ignored
 |  -Changed LootInit routine LootInit(bool silentLoad,string devLootINI)
 |  -Added a delay after opening the corpse to help account for lag slowing down the loading of all items
-| 
+|
 | v1.24 Update Notes
 |  -Corrected a typo in moving routine that could sometimes cause it to error out and end the macro
-| 
+|
 | v1.23 Update Notes
 |  -Corrected a few typing errors that could cause problems with loading INIs
 |  -Changed a few variable names that were conflicting with other macros
 |  -Added [Settings] LootInCombat INI setting, if FALSE and you enter combat while looting it will stop looting
 |  -Changed move to corpse routine for greater compatability with all macros.
-| 
+|
 | v1.22 Update Notes
 |  -Corrected some bugs with looting
 |  -Made looting routine faster
 |  -Changed to devMovement.inc movement routines because /moveto sucks arse
-| 
+|
 | v1.21 Update Notes
 |  -Added INI Setting [Settings] MinValueKeep=0, this setting if set to a value in copper will automatically
 |   keep any items above this price.  If they are not in the INI alreayd it will set their settings to SELL.
 |   Items below the value threshold will follow their setting or the default settingin the INI
-|  
+|
 | v1.20 Update Notes
 |  -Added a check to make sure the include is properly initialized no matter what sub is called first
 |  -Fixed a few looting bugs and checks to ensure higher rate of success at looting
-| 
+|
 | =======================================================================================================
 
-#event cannotLoot "You may not loot this corpse at this time."
-#event iniUpdate "#*#LOOT INIUpdate Setting: #1#"
+	#event cannotLoot "You may not loot this corpse at this time."
+	#event iniUpdate "#*#LOOT INIUpdate Setting: #1#"
 
+| --------------------------------------------------------------------------------------------
+| SUB: BuildCorpseArray
+| --------------------------------------------------------------------------------------------
 Sub BuildCorpseArray
 	/declare corpseCountDL		int local
 	/declare cArray						int local
@@ -93,7 +96,7 @@ Sub BuildCorpseArray
 	/declare cCount						int local 0
 	/declare sStr							string local
 	/declare mReturn					string local
-	
+
 	/for cArray 1 to 100
 		/varset cpArray[${cArray}] 0
 	/next cArray
@@ -110,17 +113,20 @@ Sub BuildCorpseArray
 				}
 			} else {
 				/squelch /alert add 199 ID ${cID}
-			}	
+			}
 		} else {
 			/goto :doneBuilding
 		}
 	/next cArray
-	:doneBuilding
+:doneBuilding
 /return
 
+| --------------------------------------------------------------------------------------------
+| SUB: BuildINI
+| --------------------------------------------------------------------------------------------
 Sub BuildINI(string iniBuild)
 	/if (${iniBuild.Equal[NULL]}) /varset iniBuild ${lootINI}
-	
+
 	/ini ${iniBuild} Settings CorpseRadius ${corpseRadius}
 	/ini ${iniBuild} Settings LinkChannel ${linkChannel}
 	/ini ${iniBuild} Settings LinkLeave	${linkLeave}
@@ -133,7 +139,7 @@ Sub BuildINI(string iniBuild)
 	/ini ${iniBuild} Settings LootAttempts ${lootAttempts}
 	/ini ${iniBuild} Settings LootAttemptDly ${lootAttemptDly}
 	/ini ${iniBuild} Settings ConfirmNoDrop ${nodropConfirm}
-	
+
 	/ini ${iniBuild} 0 0 ${unknownDefault}
 	/ini ${iniBuild} 1 1 ${unknownDefault}
 	/ini ${iniBuild} 2 2 ${unknownDefault}
@@ -172,6 +178,9 @@ Sub BuildINI(string iniBuild)
 	/ini ${iniBuild} Z Z ${unknownDefault}
 /return
 
+| --------------------------------------------------------------------------------------------
+| SUB: Close_Packs
+| --------------------------------------------------------------------------------------------
 Sub Close_Packs
 	/declare packLoop	int local
 
@@ -180,6 +189,9 @@ Sub Close_Packs
 	/next packLoop
 /return
 
+| --------------------------------------------------------------------------------------------
+| SUB: Event_cannotLoot
+| --------------------------------------------------------------------------------------------
 Sub Event_cannotLoot
 	/varset cannotLoot TRUE
 	/if (${Target.ID} && ${Target.Type.Equal[Corpse]}) {
@@ -187,40 +199,46 @@ Sub Event_cannotLoot
 	}
 /return
 
+| --------------------------------------------------------------------------------------------
+| SUB: Loot
+| --------------------------------------------------------------------------------------------
 Sub Loot(int corpseID)
 	/if (!${Defined[devLootFirstRun]}) /call LootInit
 	/if (${corpseID} == NULL) /varset corpseID 0
 	/if (!${Defined[clArray]}) /declare clArray						int outer 0
-	
+
 	/if (${Cursor.ID}) {
 		/call LootEcho "Cannot loot when something is on the Cursor"
-		/return LOOT_CURSORFULL
-	}
+	/return LOOT_CURSORFULL
+}
 	/call LootTrackerClean
 	/if (${corpseID}) {
 		/call LootCorpse ${corpseID}
-		/return ${Macro.Return}
-	} else {
-		/call BuildCorpseArray
-		/for clArray 1 to 100
-			/if (${cpArray[${clArray}]}) {
-				/call LootCorpse ${cpArray[${clArray}]}
-				/if (${Macro.Return.Equal[LOOT_ABORT_COMBAT]}) /return LOOT_ABORT_COMBAT
-			} else {
-				/goto :doneLooting
-			}
-		/next clArray
-		:doneLooting
-	}
+	/return ${Macro.Return}
+} else {
+	/call BuildCorpseArray
+	/for clArray 1 to 100
+		/if (${cpArray[${clArray}]}) {
+			/call LootCorpse ${cpArray[${clArray}]}
+			/if (${Macro.Return.Equal[LOOT_ABORT_COMBAT]}) /return LOOT_ABORT_COMBAT
+		} else {
+			/goto :doneLooting
+		}
+	/next clArray
+:doneLooting
+}
 /return COMPLETED_SUCCESS
 
+| --------------------------------------------------------------------------------------------
+| SUB: LootBank
+| --------------------------------------------------------------------------------------------
 Sub LootBank(string bankerName)
 	/if (!${Defined[devLootFirstRun]}) /call LootInit
 	/declare invItem						int local 0
 	/declare cItemAction				string local
 	/declare bankType						string local BIGB
 	/declare bankPrefix					string local Big
-	
+
 	/if (${bankerName.NotEqual[NULL]}) {
 		/squelch /target ${bankerName}
 		/delay 1s ${Target.Name.Find[${bankerName}]}
@@ -232,27 +250,27 @@ Sub LootBank(string bankerName)
 	}
 	/if (${Target.ID} && ${Target.Distance} > 19) {
 		/call LootEcho "You are to far away from the banker to Bank"
-		/return LOOTBANK_TOOFAR
-	} else /if (!${Target.ID}) {
-		/call LootEcho "A banker Target could not be found"
-		/return LOOTBANK_NOTARGET
-	}
+	/return LOOTBANK_TOOFAR
+} else /if (!${Target.ID}) {
+	/call LootEcho "A banker Target could not be found"
+/return LOOTBANK_NOTARGET
+}
 	/if (!${Window[BankWnd].Open} && !${Window[BigBankWnd].Open}) {
 		/click Right Target
 		/delay 5s (${Window[BankWnd].Open} || ${Window[BigBankWnd].Open})
 		/if (!${Window[BankWnd].Open} && !${Window[BigBankWnd].Open}) {
 			/call LootEcho "Failed to Open the Bank Window"
-			/return LOOTBANK_NOWINDOW
-		}
+		/return LOOTBANK_NOWINDOW
 	}
+}
 	/if (${Cursor.ID}) {
 		/autoinv
 		/delay 1s !${Cursor.ID}
 		/if (${Cursor.ID}) {
 			/call LootEcho "There is something on your Cursor and we cannot get it off, cannot Bank with an Item on your Cursor."
-			/return LOOTBANK_CURSORFULL
-		}
+		/return LOOTBANK_CURSORFULL
 	}
+}
 	/if (${Window[BankWnd].Open}) {
 		/varset bankType BW
 		/varset bankPrefix
@@ -269,12 +287,12 @@ Sub LootBank(string bankerName)
 				/call LootEcho "There is still an Item on your Cursor, the Bank must be full."
 				/autoinv
 				/delay 1s !${Cursor.ID}
-				/return LOOTBANK_BANKFULL
-			}
-			/delay 3
+			/return LOOTBANK_BANKFULL
 		}
-	/next invItem
-	
+		/delay 3
+	}
+/next invItem
+
 	/call Open_Packs
 	/declare pLoop					int local
 	/for pLoop 1 to 10
@@ -291,17 +309,20 @@ Sub LootBank(string bankerName)
 						/call LootEcho "There is still an Item on your Cursor, the Bank must be full."
 						/autoinv
 						/delay 1s !${Cursor.ID}
-						/return LOOTBANK_BANKFULL
-					}
-					/delay 3
+					/return LOOTBANK_BANKFULL
 				}
-			/next invItem
-		}
-	/next pLoop
+				/delay 3
+			}
+		/next invItem
+	}
+/next pLoop
 	/call Close_Packs
 	/notify ${bankPrefix}BankWnd ${bankType}_DoneButton leftmouseup
 /return LOOTBANK_SUCCESS
 
+| --------------------------------------------------------------------------------------------
+| SUB: LootCorpse
+| --------------------------------------------------------------------------------------------
 Sub LootCorpse(int corpseID)
 	/if (!${Defined[devLootFirstRun]}) /call LootInit
 	/declare cItems									int local
@@ -320,121 +341,124 @@ Sub LootCorpse(int corpseID)
 		/if (${Target.Distance} > 15) {
 			/call MoveToCorpse ${corpseID} 12
 			/if (${Macro.Return.NotEqual[COMPLETED_SUCCESS]}) {
-				/return LOOT_${Macro.Return}
-			}
-			/delay 3
+			/return LOOT_${Macro.Return}
 		}
-		:lootAttempt
-			/varcalc lAttempt ${lAttempt} + 1
-			/loot
-			/delay 2s ${Window[LootWnd].Open}
-			/doevents
-			/if (${cannotLoot}) /return LOOT_CANNOTLOOT
-			/if (!${Window[LootWnd].Open} && ${lAttempt} < ${lootAttempts}) {
-				/delay ${lootAttemptDly}
-				/goto :lootAttempt
+		/delay 3
+	}
+:lootAttempt
+	/varcalc lAttempt ${lAttempt} + 1
+	/loot
+	/delay 2s ${Window[LootWnd].Open}
+	/doevents
+	/if (${cannotLoot}) /return LOOT_CANNOTLOOT
+	/if (!${Window[LootWnd].Open} && ${lAttempt} < ${lootAttempts}) {
+		/delay ${lootAttemptDly}
+		/goto :lootAttempt
+	}
+	/if (!${Window[LootWnd].Open}) /return LOOT_NOLOOTWINDOW
+
+:lagDelay
+	/varset tItems ${Corpse.Items}
+	/delay 1s ${tItems}!=${Corpse.Items}
+	/if (${tItems}!=${Corpse.Items}) /goto :lagDelay
+
+	/for nA 1 to 100
+		/varset leftItems[${nA}] NULL
+	/next nA
+	/varset leftCount 0
+	/varset cItems ${Corpse.Items}
+	/call LootEcho "LOOT: ${cItems} item${If[${cItems}!=1,s,]} on the corpse" TRUE
+	/if (${cItems}) {
+		/for cItem 1 to ${cItems}
+			/if (${Corpse.Item[${cItem}].Lore} && ${FindItem[${Corpse.Item[${cItem}].Name}].ID} && ${FindItem[${Corpse.Item[${cItem}].Name}].ID} == ${Corpse.Item[${cItem}].ID}) {
+				/call LootEcho "LOOT:  Item ${cItem} - ${Corpse.Item[${cItem}].Name} | Lore: ${Corpse.Item[${cItem}].Lore} | No Drop: ${Corpse.Item[${cItem}].NoDrop} | Action: IGNORING DUPLICATE LORE ITEM" TRUE
+			/next cItem
+		}
+		/varset cItemAction NULL
+		/for nA 1 to 1000
+			/if (${overrides[1,${nA}].Equal[${Corpse.Item[${cItem}].Name}]}) {
+				/varset cItemAction ${overrides[2,${nA}]}
 			}
-			/if (!${Window[LootWnd].Open}) /return LOOT_NOLOOTWINDOW
-		
-		:lagDelay
-		/varset tItems ${Corpse.Items}
-		/delay 1s ${tItems}!=${Corpse.Items}
-		/if (${tItems}!=${Corpse.Items}) /goto :lagDelay
-		
-		/for nA 1 to 100
-			/varset leftItems[${nA}] NULL
-		/next nA
-		/varset leftCount 0
-		/varset cItems ${Corpse.Items}
-		/call LootEcho "LOOT: ${cItems} item${If[${cItems}!=1,s,]} on the corpse" TRUE
-		/if (${cItems}) {
-			/for cItem 1 to ${cItems}
-				/if (${Corpse.Item[${cItem}].Lore} && ${FindItem[${Corpse.Item[${cItem}].Name}].ID} && ${FindItem[${Corpse.Item[${cItem}].Name}].ID} == ${Corpse.Item[${cItem}].ID}) {
-					/call LootEcho "LOOT:  Item ${cItem} - ${Corpse.Item[${cItem}].Name} | Lore: ${Corpse.Item[${cItem}].Lore} | No Drop: ${Corpse.Item[${cItem}].NoDrop} | Action: IGNORING DUPLICATE LORE ITEM" TRUE
-					/next cItem
-				}
-				/varset cItemAction NULL 
-				/for nA 1 to 1000
-					/if (${overrides[1,${nA}].Equal[${Corpse.Item[${cItem}].Name}]}) {
-						/varset cItemAction ${overrides[2,${nA}]}
-					}
-				/if (${overrides[1,${nA}].NotEqual[NULL]}) /next nA
-				/if (${cItemAction.Equal[NULL]}) {
-					/if (!${valueOnly} || !${minValueKeep}) {
-						/varset cItemAction ${Ini[${lootINI},${Corpse.Item[${cItem}].Name.Left[1]},${Corpse.Item[${cItem}]},ITEM_NOTFOUND]}
+			/if (${overrides[1,${nA}].NotEqual[NULL]}) /next nA
+			/if (${cItemAction.Equal[NULL]}) {
+				/if (!${valueOnly} || !${minValueKeep}) {
+					/varset cItemAction ${Ini[${lootINI},${Corpse.Item[${cItem}].Name.Left[1]},${Corpse.Item[${cItem}]},ITEM_NOTFOUND]}
+				} else {
+					/if (${Corpse.Item[${cItem}].Value} >= ${minValueKeep}) {
+						/varset cItemAction SELL
 					} else {
-						/if (${Corpse.Item[${cItem}].Value} >= ${minValueKeep}) {
+						/varset cItemAction LEAVE
+					}
+				}
+			}
+			/call LootEcho "LOOT:  Item ${cItem} - ${Corpse.Item[${cItem}].Name} | Lore: ${Corpse.Item[${cItem}].Lore} | No Drop: ${Corpse.Item[${cItem}].NoDrop} | Action: ${cItemAction} ${If[${minValueKeep},| Value: ${Corpse.Item[${cItem}].Value} | Min Keep Value: ${minValueKeep},]}" TRUE
+			/if (${Select[${cItemAction},ITEM_NOTFOUND,KEEP,SELL]}) {
+				/if (${cItemAction.Equal[ITEM_NOTFOUND]}) {
+					/if (${Corpse.Item[${cItem}].NoDrop}) {
+					| /if (${linkNoDrop}) /varset linkItems true
+						/varset cItemAction ${nodropDefault}
+					} else {
+						/if (${minValueKeep} && ${Corpse.Item[${cItem}].Value}>=${minValueKeep}) {
 							/varset cItemAction SELL
 						} else {
-							/varset cItemAction LEAVE
+							/varset cItemAction ${unknownDefault}
 						}
 					}
-				}
-				/call LootEcho "LOOT:  Item ${cItem} - ${Corpse.Item[${cItem}].Name} | Lore: ${Corpse.Item[${cItem}].Lore} | No Drop: ${Corpse.Item[${cItem}].NoDrop} | Action: ${cItemAction} ${If[${minValueKeep},| Value: ${Corpse.Item[${cItem}].Value} | Min Keep Value: ${minValueKeep},]}" TRUE
-				/if (${Select[${cItemAction},ITEM_NOTFOUND,KEEP,SELL]}) {
-					/if (${cItemAction.Equal[ITEM_NOTFOUND]}) {
-						/if (${Corpse.Item[${cItem}].NoDrop}) {
-							| /if (${linkNoDrop}) /varset linkItems true
-							/varset cItemAction ${nodropDefault}					
-						} else {
-							/if (${minValueKeep} && ${Corpse.Item[${cItem}].Value}>=${minValueKeep}) {
-								/varset cItemAction SELL
-							} else {
-								/varset cItemAction ${unknownDefault}
-							}
-						}
-						/ini ${lootINI} ${Corpse.Item[${cItem}].Name.Left[1]} "${Corpse.Item[${cItem}]}" ${cItemAction}
-						/if (${cItemAction.Equal[DESTROY]}) {
-							/call LootItem ${cItem} TRUE left
-						} else /if (${cItemAction.Equal[LEAVE]} || ${cItemAction.Equal[IGNORE]}) {
-							/varcalc leftCount ${leaveCount} + 1
-							/varset leftItems[${leftCount}] ${Corpse.Item[${cItem}].Name}
-							/if (${linkLeave} || (${Corpse.Item[${cItem}].NoDrop} && ${linkNoDrop})) /varset linkItems true
-						} else {
-							/call LootItem ${cItem}
-						}
+					/ini ${lootINI} ${Corpse.Item[${cItem}].Name.Left[1]} "${Corpse.Item[${cItem}]}" ${cItemAction}
+					/if (${cItemAction.Equal[DESTROY]}) {
+						/call LootItem ${cItem} TRUE left
+					} else /if (${cItemAction.Equal[LEAVE]} || ${cItemAction.Equal[IGNORE]}) {
+						/varcalc leftCount ${leaveCount} + 1
+						/varset leftItems[${leftCount}] ${Corpse.Item[${cItem}].Name}
+						/if (${linkLeave} || (${Corpse.Item[${cItem}].NoDrop} && ${linkNoDrop})) /varset linkItems true
 					} else {
 						/call LootItem ${cItem}
 					}
 				} else {
-					/if (${minValueKeep} && ${Corpse.Item[${cItem}].Value}>=${minValueKeep}) {
-						/call LootItem ${cItem}
-					} else /if (${cItemAction.Equal[DESTROY]}) {
-						/call LootItem ${cItem} TRUE Left
-					} else /if (${cItemAction.Equal[LEAVE]} || ${cItemAction.Equal[IGNORE]}) {
-						/varcalc leftCount ${leaveCount} + 1
-						/varset leftItems[${leftCount}] ${Corpse.Item[${cItem}].Name}
-						/if ((${Corpse.Item[${cItem}].NoDrop} && ${linkNoDrop}) || ${linkLeave}) /varset linkItems TRUE
-						| /if (${linkLeave}) /varset linkItems true
-					}
+					/call LootItem ${cItem}
 				}
-				:nextcItem
-				/delay 3
-			/next cItem
-		}
-		/if (${linkItems}) {
-			/keypress enter
-			/delay 2
-			/call Type ${linkChannel}
-			/delay 2
-			/keypress space chat
-			/delay 2
-			/nomodkey /notify LootWnd LW_BroadcastButton leftmouseup
-			/delay 2
-			/keypress enter chat
-		}
-		:closeLootWnd
-		/if (${Window[LootWnd].Open}) /nomodkey /notify LootWnd LW_DoneButton leftmouseup
-		/delay 2s !${Window[LootWnd].Open}
-		/if (${Window[LootWnd].Open}) /goto :closeLootWnd
-		/call LootTracker ${corpseID} TRUE
-		/call LootEcho "LOOT:  Looting attempt finished on ${corpseID}" TRUE
-		/return LOOT_SUCCESS
-	} else {
-		/return LOOT_NOTARGET
+			} else {
+				/if (${minValueKeep} && ${Corpse.Item[${cItem}].Value}>=${minValueKeep}) {
+					/call LootItem ${cItem}
+				} else /if (${cItemAction.Equal[DESTROY]}) {
+					/call LootItem ${cItem} TRUE Left
+				} else /if (${cItemAction.Equal[LEAVE]} || ${cItemAction.Equal[IGNORE]}) {
+					/varcalc leftCount ${leaveCount} + 1
+					/varset leftItems[${leftCount}] ${Corpse.Item[${cItem}].Name}
+					/if ((${Corpse.Item[${cItem}].NoDrop} && ${linkNoDrop}) || ${linkLeave}) /varset linkItems TRUE
+				| /if (${linkLeave}) /varset linkItems true
+				}
+			}
+		:nextcItem
+			/delay 3
+		/next cItem
 	}
+	/if (${linkItems}) {
+		/keypress enter
+		/delay 2
+		/call Type ${linkChannel}
+		/delay 2
+		/keypress space chat
+		/delay 2
+		/nomodkey /notify LootWnd LW_BroadcastButton leftmouseup
+		/delay 2
+		/keypress enter chat
+	}
+:closeLootWnd
+	/if (${Window[LootWnd].Open}) /nomodkey /notify LootWnd LW_DoneButton leftmouseup
+	/delay 2s !${Window[LootWnd].Open}
+	/if (${Window[LootWnd].Open}) /goto :closeLootWnd
+	/call LootTracker ${corpseID} TRUE
+	/call LootEcho "LOOT:  Looting attempt finished on ${corpseID}" TRUE
+/return LOOT_SUCCESS
+} else {
+/return LOOT_NOTARGET
+}
 /return LOOT_UNKNOWN
 
+| --------------------------------------------------------------------------------------------
+| SUB: LootEcho
+| --------------------------------------------------------------------------------------------
 Sub LootEcho(string echoMsg,bool logOnly)
 	/if (${logOnly} == NULL) /varset logOnly FALSE
 	/if (${Defined[devCommonVer]}) {
@@ -445,6 +469,9 @@ Sub LootEcho(string echoMsg,bool logOnly)
 	}
 /return
 
+| --------------------------------------------------------------------------------------------
+| SUB: LootInit
+| --------------------------------------------------------------------------------------------
 Sub LootInit(bool silentLoad, string devLootIniName)
 	/declare devLootVersion			float outer 1.36
 	/if (${devLootIniName.Equal[NULL]}) /varset devLootIniName devLoot.ini
@@ -469,7 +496,7 @@ Sub LootInit(bool silentLoad, string devLootIniName)
 	/declare overrides[2,1000]		string outer NULL
 	/declare leftItems[100]			string outer NULL
 	/declare leftCount					int outer 0
-	
+
 	/if (${Ini[${lootINI},Settings,CorpseRadius,NULL].Equal[NULL]}) {
 		/call BuildINI ${lootINI}
 	} else {
@@ -492,9 +519,12 @@ Sub LootInit(bool silentLoad, string devLootIniName)
 		/call LootEcho "devLoot.inc settings loaded from ${devLootIniName}"
 	}
 
-	/squelch /alias /lootupdate /echo >> LOOT INIUpdate Setting: 
+	/squelch /alias /lootupdate /echo >> LOOT INIUpdate Setting:
 /return
 
+| --------------------------------------------------------------------------------------------
+| SUB: LootItem
+| --------------------------------------------------------------------------------------------
 Sub LootItem(int itemNum,bool destItem, string mouseKey)
 	/if (${itemNum} == NULL) /return
 	/if (${mouseKey.Equal[NULL]}) /varset mouseKey right
@@ -504,14 +534,14 @@ Sub LootItem(int itemNum,bool destItem, string mouseKey)
 
 	/if (${Corpse.Item[${itemNum}].Lore} && ${FindItem[${Corpse.Item[${itemNum}].Name}].ID}) {
 		/call LootEcho ".....Cannot loot because item is lore and we already have one." TRUE
-		/return
-	}
+	/return
+}
 	/varset isNoDrop ${Corpse.Item[${itemNum}].NoDrop}
-	| /delay 3
+| /delay 3
 	/shiftkey /itemnotify ${Corpse.Item[${itemNum}].InvSlot} ${mouseKey}mouseup
 	/delay 3
 	/if (${isNoDrop} && ${nodropConfirm}) {
-		:confWindow
+	:confWindow
 		/delay 5s ${Window[ConfirmationDialogBox].Open}
 		/nomodkey /notify ConfirmationDialogBox Yes_Button leftmouseup
 		/delay 1s !${Window[ConfirmationDialogBox]}
@@ -519,27 +549,30 @@ Sub LootItem(int itemNum,bool destItem, string mouseKey)
 		/if (${mouseKey.Equal[Left]}) /delay 2s ${Cursor.ID}
 	} else /if (${mouseKey.Equal[Left]}) {
 		/delay 2s ${Cursor.ID}
-	}	else {
-		/delay 2s !${Corpse.Item[${itemNum}].ID}
-	}
-	/if (${Cursor.ID} && ${destItem}) {
-		/destroy
-	} else /if (${Cursor.ID}) {
-		/autoinv
-	}
-	/delay 2s !${Cursor.ID}
-	/delay 2
-	/if (${Cursor.ID}) {
-		/call LootEcho "LOOT:  Your Inventory appears to be full"
-		/autoinv
-	}
-/return
+		}	else {
+			/delay 2s !${Corpse.Item[${itemNum}].ID}
+		}
+		/if (${Cursor.ID} && ${destItem}) {
+			/destroy
+		} else /if (${Cursor.ID}) {
+			/autoinv
+		}
+		/delay 2s !${Cursor.ID}
+		/delay 2
+		/if (${Cursor.ID}) {
+			/call LootEcho "LOOT:  Your Inventory appears to be full"
+			/autoinv
+		}
+	/return
 
+| --------------------------------------------------------------------------------------------
+| SUB: LootSell
+| --------------------------------------------------------------------------------------------
 Sub LootSell(string merchName)
 	/if (!${Defined[devLootFirstRun]}) /call LootInit
 	/declare invItem						int local 0
 	/declare cItemAction				string local
-	
+
 	/if (${merchName.NotEqual[NULL]}) {
 		/squelch /target ${merchName}
 		/delay 1s ${Target.Name.Find[${merchName}]}
@@ -551,19 +584,19 @@ Sub LootSell(string merchName)
 	}
 	/if (${Target.ID} && ${Target.Distance} > 19) {
 		/call LootEcho "You are to far away from the Merchant to sell"
-		/return LOOTSELL_TOOFAR
-	} else /if (!${Target.ID}) {
-		/call LootEcho "A Merchant Target could not be found"
-		/return LOOTSELL_NOTARGET
-	}
+	/return LOOTSELL_TOOFAR
+} else /if (!${Target.ID}) {
+	/call LootEcho "A Merchant Target could not be found"
+/return LOOTSELL_NOTARGET
+}
 	/if (!${Window[MerchantWnd].Open}) {
 		/click Right Target
 		/delay 5s ${Window[MerchantWnd].Open}
 		/if (!${Window[MerchantWnd].Open}) {
 			/call LootEcho "Failed to Open the Merchant Window"
-			/return LOOTSELL_NOWINDOW
-		}
+		/return LOOTSELL_NOWINDOW
 	}
+}
 	/if (${Cursor.ID}) {
 		/autoinv
 		/delay 1s !${Cursor.ID}
@@ -582,7 +615,7 @@ Sub LootSell(string merchName)
 			}
 		}
 	/next invItem
-	
+
 	/call Open_Packs
 	/declare pLoop					int local
 	/for pLoop 1 to 10
@@ -606,55 +639,64 @@ Sub LootSell(string merchName)
 	/notify MerchantWnd MW_Done_Button leftmouseup
 /return LOOTSELL_SUCCESS
 
+| --------------------------------------------------------------------------------------------
+| SUB: lootstrafePastObstacle
+| --------------------------------------------------------------------------------------------
 Sub lootstrafePastObstacle
-  /keypress forward
-  /keypress back hold
-  /delay 3
-  /keypress back
+	/keypress forward
+	/keypress back hold
+	/delay 3
+	/keypress back
 
-  /if (${Math.Rand[99]}>50 ) { 
-      /keypress strafe_right hold
-  } else {
-      /keypress strafe_left hold 
-  } 
-  /delay 1s 
-  /keypress strafe_right 
-  /keypress strafe_left 
-  /keypress forward hold 
-/return 
+	/if (${Math.Rand[99]}>50 ) {
+		/keypress strafe_right hold
+	} else {
+		/keypress strafe_left hold
+	}
+	/delay 1s
+	/keypress strafe_right
+	/keypress strafe_left
+	/keypress forward hold
+/return
 
+| --------------------------------------------------------------------------------------------
+| SUB: LootTracker
+| --------------------------------------------------------------------------------------------
 Sub LootTracker(int corpseID,bool addTracker)
 	/if (!${Defined[corpseArray]}) /declare corpseArray[1000]							int outer
 	/if (${addTracker} == NULL) /varset addTracker FALSE
 	/declare ltArray								int local
-	
+
 	/if (!${addTracker}) {
 		/if (!${Defined[corpseLooted${corpseID}]}) {
-			/return FALSE
-		} else {
-			/return TRUE
-		}
+		/return FALSE
 	} else {
-		/if (!${Defined[corpseLooted${corpseID}]}) /declare corpseLooted${corpseID}			bool outer
-		/varset corpseLooted${corpseID} true
-		/for ltArray 1 to 1000
-			/if (!${corpseArray[${ltArray}]}) {
-				/varset corpseArray[${ltArray}] ${corpseID}
-				/goto :trackAdded
-			}
-		/next ltArray
-		:trackAdded
-		/return TRUE
-	}
+	/return TRUE
+}
+} else {
+	/if (!${Defined[corpseLooted${corpseID}]}) /declare corpseLooted${corpseID}			bool outer
+	/varset corpseLooted${corpseID} true
+	/for ltArray 1 to 1000
+		/if (!${corpseArray[${ltArray}]}) {
+			/varset corpseArray[${ltArray}] ${corpseID}
+			/goto :trackAdded
+		}
+	/next ltArray
+:trackAdded
+/return TRUE
+}
 /return TRUE
 
+| --------------------------------------------------------------------------------------------
+| SUB: LootTrackerClean
+| --------------------------------------------------------------------------------------------
 Sub LootTrackerClean
 	/if (!${Defined[corpseArray]}) {
 		/declare corpseArray[1000]							int outer
-		/return
-	}
+	/return
+}
 	/declare ltcArray								int local
-	
+
 	/for ltcArray 1 to 1000
 		/if (${corpseArray[${ltcArray}]}) {
 			/if (!${Spawn[${corpseArray[${ltcArray}]}].ID} || ${Spawn[${corpseArray[${ltcArray}]}].Type.NotEqual[Corpse]}) {
@@ -665,99 +707,105 @@ Sub LootTrackerClean
 	/next ltcArray
 /return
 
-Sub MoveToCorpse(int MoveToID, int StopDistance) 
+| --------------------------------------------------------------------------------------------
+| SUB: MoveToCorpse
+| --------------------------------------------------------------------------------------------
+Sub MoveToCorpse(int MoveToID, int StopDistance)
 	/if (${MoveToID} == NULL || !${Spawn[${MoveToID}].ID} || ${Spawn[${MoveToID}].Type.NotEqual[Corpse]}) /return
-  /if (${StopDistance} == NULL) /varset StopDistance 20
+	/if (${StopDistance} == NULL) /varset StopDistance 20
 
-  /declare running						int local 0
-  /declare distanceNow				float local 
-  /declare distanceBefore			float local ${Spawn[${MoveToID}].Distance} 
-  /declare distanceModifier		int local 1
-  /declare distanceTimer			timer 5 
-  /declare strafeAttempts			int local 0
-  /declare doorAttempt				bool local false
+	/declare running						int local 0
+	/declare distanceNow				float local
+	/declare distanceBefore			float local ${Spawn[${MoveToID}].Distance}
+	/declare distanceModifier		int local 1
+	/declare distanceTimer			timer 5
+	/declare strafeAttempts			int local 0
+	/declare doorAttempt				bool local false
 	/declare moveTimer					timer local 30s
-	  
-  :moveToCorpse
-	/if (${Me.Underwater} || ${Me.FeetWet}) { 
+
+:moveToCorpse
+	/if (${Me.Underwater} || ${Me.FeetWet}) {
 		/squelch /face fast id ${MoveToID}
-  } else {
-		/squelch /face fast nolook id ${MoveToID} 
+	} else {
+		/squelch /face fast nolook id ${MoveToID}
 	}
 
-  /if (${Spawn[${MoveToID}].Distance}<${StopDistance}) { 
-    /keypress forward 
-    /return COMPLETED_SUCCESS
-  } else /if (!${moveTimer}) {
-  	/keypress forward
-  	/return ABORT_TIMEOUT
-  }
-  /if (!${Defined[emuMode]} || !${emuMode}) {
+	/if (${Spawn[${MoveToID}].Distance}<${StopDistance}) {
+		/keypress forward
+	/return COMPLETED_SUCCESS
+} else /if (!${moveTimer}) {
+	/keypress forward
+/return ABORT_TIMEOUT
+}
+	/if (!${Defined[emuMode]} || !${emuMode}) {
 		/if (${Me.CombatState.Equal[COMBAT]} && !${lootInCombat}) {
 			/keypress forward
-			/return ABORT_COMBAT
-		}  
+		/return ABORT_COMBAT
 	}
-	    
-  /if (!${distanceTimer}) { 
-    /if (${Me.Sneaking}) { 
-        /varset distanceModifier 2 
-    } else { 
-        /varset distanceModifier 1 
-    } 
+}
 
-    /varset distanceNow ${Spawn[${MoveToID}].Distance} 
-    /if (${Math.Calc[${distanceBefore}-${distanceNow}]}<${Math.Calc[10/${distanceModifier}]} && ${distanceBefore}) {
+	/if (!${distanceTimer}) {
+		/if (${Me.Sneaking}) {
+			/varset distanceModifier 2
+		} else {
+			/varset distanceModifier 1
+		}
+
+		/varset distanceNow ${Spawn[${MoveToID}].Distance}
+		/if (${Math.Calc[${distanceBefore}-${distanceNow}]}<${Math.Calc[10/${distanceModifier}]} && ${distanceBefore}) {
 			/if (!${Me.Stunned} && !${Debuff.Rooted}) {
-			  /squelch /doortarget
-			  /if (${DoorTarget.Name.Length} && ${DoorTarget.Distance} < 12) {
-			  	/if (${Math.Abs[${Me.Heading.Degrees} - ${DoorTarget.HeadingTo.Degrees}]} < 20) {
-			  		/keypress FIRST_PERSON_CAMERA
-			    	/nomodkey /keypress U hold
-			    	/delay 2
-			    	/nomodkey /keypress U
-			    }
+				/squelch /doortarget
+				/if (${DoorTarget.Name.Length} && ${DoorTarget.Distance} < 12) {
+					/if (${Math.Abs[${Me.Heading.Degrees} - ${DoorTarget.HeadingTo.Degrees}]} < 20) {
+						/keypress FIRST_PERSON_CAMERA
+						/nomodkey /keypress U hold
+						/delay 2
+						/nomodkey /keypress U
+					}
 				}
 				/if (${strafeAttempts} > 3) {
 					/keypress forward
-					/return ABORT_STUCK
-				} else /if (!${doorAttempt}) {
-					/keypress FIRST_PERSON_CAMERA
-					/squelch /doortarget
-					/nomodkey /keypress U hold
-					/delay 2
-					/nomodkey /keypress U
-					/varset doorAttempt true
-				} else {
-					/call lootstrafePastObstacle 
-					/varcalc strafeAttempts ${strafeAttempts}+1
-				}
-			} else /if (${Debuff.Rooted}) {
-				/mqlog MoveToSpawn:  Movement aborted due to being rooted
-				/return ABORT_ROOT
-			}         
-    }
-    
-    /varset distanceBefore ${Spawn[${MoveToID}].Distance} 
-    /varset distanceTimer 15 
- 	} 
+				/return ABORT_STUCK
+			} else /if (!${doorAttempt}) {
+				/keypress FIRST_PERSON_CAMERA
+				/squelch /doortarget
+				/nomodkey /keypress U hold
+				/delay 2
+				/nomodkey /keypress U
+				/varset doorAttempt true
+			} else {
+				/call lootstrafePastObstacle
+				/varcalc strafeAttempts ${strafeAttempts}+1
+			}
+		} else /if (${Debuff.Rooted}) {
+			/mqlog MoveToSpawn:  Movement aborted due to being rooted
+		/return ABORT_ROOT
+	}
+}
 
-  /if (!${running}) { 
-      /keypress forward 
-      /if (${Spawn[${MoveToID}].Distance}>=${StopDistance}) { 
-          /varset running 1 
-          /keypress forward hold 
-      } 
-  } else { 
-      /if (${Spawn[${MoveToID}].Distance}<${StopDistance}) { 
-          /varset running 0 
-          /keypress forward 
-      } 
-  }
+	/varset distanceBefore ${Spawn[${MoveToID}].Distance}
+	/varset distanceTimer 15
+}
+
+	/if (!${running}) {
+		/keypress forward
+		/if (${Spawn[${MoveToID}].Distance}>=${StopDistance}) {
+			/varset running 1
+			/keypress forward hold
+		}
+	} else {
+		/if (${Spawn[${MoveToID}].Distance}<${StopDistance}) {
+			/varset running 0
+			/keypress forward
+		}
+	}
 	/doevents
 	/goto :moveToCorpse
 /return
 
+| --------------------------------------------------------------------------------------------
+| SUB: Open_Packs
+| --------------------------------------------------------------------------------------------
 Sub Open_Packs
 	/declare packLoop	int local
 
@@ -770,28 +818,40 @@ Sub Open_Packs
 	/next packLoop
 /return
 
-Sub Type(string InStr) 
-   /declare char string local 
-   /declare loopctr int local 
-   /for loopctr 1 to ${String[${InStr}].Length} 
-      /varset char ${String[${InStr}].Mid[${loopctr},1]} 
-      /if (!${String[${char}].Length}) { 
-         /keypress space chat 
-      } else { 
-         /keypress ${char} chat 
-      } 
-   /next loopctr 
-/return 
+| --------------------------------------------------------------------------------------------
+| SUB: Type
+| --------------------------------------------------------------------------------------------
+Sub Type(string InStr)
+	/declare char string local
+	/declare loopctr int local
+	/for loopctr 1 to ${String[${InStr}].Length}
+		/varset char ${String[${InStr}].Mid[${loopctr},1]}
+		/if (!${String[${char}].Length}) {
+			/keypress space chat
+		} else {
+			/keypress ${char} chat
+		}
+	/next loopctr
+/return
 
+| --------------------------------------------------------------------------------------------
+| SUB: Event_iniUpdate
+| --------------------------------------------------------------------------------------------
 Sub Event_iniUpdate(line,string varString)
 	/mqlog LOOT INIUpdate Setting: ${varString}
 	/call INIUpdate ${varString}
 /return
 
+| --------------------------------------------------------------------------------------------
+| SUB: INIUpdate
+| --------------------------------------------------------------------------------------------
 Sub INIUpdate(string itemName,string itemAction)
 	/ini ${lootINI} ${itemName.Left[1]} "${itemName}" ${itemAction}
 /return
 
+| --------------------------------------------------------------------------------------------
+| SUB: AddOverride
+| --------------------------------------------------------------------------------------------
 Sub AddOverride(string itemName, string itemAction)
 	/declare nA		int local 0
 	/for nA 1 to 1000
@@ -799,10 +859,13 @@ Sub AddOverride(string itemName, string itemAction)
 			/varset overrides[1,${nA}] ${itemName}
 			/varset overrides[2,${nA}] ${itemAction}
 		} else {
-			/next nA
-		}
+		/next nA
+	}
 /return
 
+| --------------------------------------------------------------------------------------------
+| SUB: RemoveOverride
+| --------------------------------------------------------------------------------------------
 Sub RemoveOverride(string itemName)
 	/declare nA			int local 0
 	/declare nAMod			int local 0
@@ -815,9 +878,10 @@ Sub RemoveOverride(string itemName)
 		} else {
 			/varset nAMod 1
 		}
-	/if (${overrides[1,${nA}].NotEqual[NULL]}) /next nA
-	/for nA 1 to 1000
-		/varset overrides[1,${nA}] ${tmpArray[1,${nA}]}
-		/varset overrides[2,${nA}] ${tmpArray[2,${nA}]}
-	/next nA
-/return
+		/if (${overrides[1,${nA}].NotEqual[NULL]}) /next nA
+		/for nA 1 to 1000
+			/varset overrides[1,${nA}] ${tmpArray[1,${nA}]}
+			/varset overrides[2,${nA}] ${tmpArray[2,${nA}]}
+		/next nA
+	/return
+|  [+++  Formatted by MQ2f using tabs for indents +++]

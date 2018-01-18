@@ -1,51 +1,52 @@
-#define HIGHERDEBUG /devecholog
+	#define HIGHERDEBUG /devecholog
 | ========================================================================================================
-| 					 devCommonPremium.inc v2.51
+| 					 devCommonPremium.inc v3.7
 |     					Written By: Devestator
-| 
-| 
+|						Updated By: ChatWithThisName as of 12/25/2017 (Merry Xmas)
+|
+|
 | Description:
 |  A compilation of common subs used in multiple macros by Devestator.
 |  Must /call CommonInit before using any subroutines in this include.
 |  Call CommonLoad after you load all settings for your macro.
-| 
+|
 | v2.51 Update Notes
 |  -Updated for 09082017 MQ2 Patch that makes a lot of changes with undefined variables and breaks function calls relying on Not defined to set defaults
-| 
+|
 | v2.50 Update Notes
 |  -Update respite discs
-| 
+|
 | v2.49 Update Notes
 |  -Moved merc assist check higher in the combat routines so that it will assist before debuffing if it should
-| 
+|
 | v2.48 Update Notes
 |  -Added hidden setting [General] CampReturnRatio=.5  You can set this to a decimal representation of the percentage
 |   of camp radius a bot can be away from the central camp location, before it returns to it.  The default is .5 which
 |   is 50% of the camp radius, meaning if your camp radius is 100, and your bot is more than 50 units away from the center point
 |   it will return to camp.  If you set it to say .25, then it will return if you are more than 25 units away.  1.5 will return
 |   if you are more than 150 units away.
-| 
+|
 | v2.47 Update Notes
 |  -Updates for MQ2 patch changing spell timers
-| 
+|
 | v2.46 Update Notes
 |  -Added a global event to force standing if "You must be standing to attack!" is detected
-| 
+|
 | v2.45 Update Notes
 |  -Corrected buffing routine bug that could cause self buffs to be skipped when group pets are around and set to be buffed
-| 
+|
 | v2.44 Update Notes
 |  -Added setting [General] EmuMode=FALSE, if set to TRUE the bots will run with some settings purposefully disabled
 |   and some slight code differences in some places so that they will work on ROF2 EMU clients
 |  -Added auto hiding of corpses after looting (post combat).  This can be disabled with the hidden setting
 |    [General] HideCorpses=FALSE
-| 
+|
 | v2.43 Update Notes
 |  -Added Spawn.Aggressive check when checking for non xtarget adds.  This should help eliminate detecting
 |    non aggressive mobs as aggro when not using xtarget.
 |  -Added hidden setting [General] CastMaxWaitTime=5s, this is the maximum time casting will wait for a spell
 |    to cast before giving up (defaults to 5 seconds).
-|  
+|
 | v2.42 Update Notes
 |  -Added common ClearCursor(string clearType,string maxAttemptTime) routine clearType = AUTO or DEST
 |  -Switched to devCast.inc instead of using MQ2Cast
@@ -54,93 +55,122 @@
 |   (Added by request to combat low percent rez griefing when AFK)
 |  -devCommonPremium.dat v1.02 - Added Ancient Flames as a recognized auto buff for melee characters
 |  -Updated gift of mana to new short buff text
-| 
+|
 | v2.41 Update Notes
 |  -Added SpellMaxMana to the Combat section.  This is a hidden setting and defaults to 100.
 |  -Added SpellMinHPs to the Combat section.  This is a hidden setting and defaults to 0.
 |  -Added MissionMode for auto mission running capabilities, currently does not support missions that
 |    change your character (example requires you to select a class, or a story character to do the mission)
 |    see more info at http://www.devecoder.com/wiki/missionmode
-| 
+|
 | v2.40 Update Notes
 |  -Updated mod rod and health pot usage to use /useitem instead of MQ2Cast to right click the items.
 |  -Set MovementInit to rely on devCommonPremium for some shared functions
 |  -Fixed a problem with buff reagent checking
 |  -Changed it so that if your MaxRezWaitTimer expires while you are hovering, it will release in order to camp
-| 
-| 
+|
+|
 | v2.3x and below update notes can be found at the end of the file
 | ========================================================================================================
-
 
 | Need to write routines to unequip and equip items to remove MQ2Exchange requirement
 | Need to figure out an alternative to /stick to remove requirement for MQ2MoveUtils
 | MQ2Debuffs is not required (confirm that not having it won't cause problems)
 | MQ2CEcho is not required
 
-#turbo 80
+	#turbo 80
+|#warning
 
-#include devCast.inc
-#include devMovementPremium.inc
-#include devLoot.inc
-#include devPull.inc
+	#include devCast.inc
+	#include devMovementPremium.inc
+	#include devLoot.inc
+	#include devPull.inc
 |#include devCommonPremium.dat
 
-#chat Group
+	#chat Group
 
-#event pullerChange "#1# is now Puller"
-#event pullerChange "#1# is no longer Puller"
-#event tankChange "#1# is now Main Tank"
-#event tankChange "#1# is no longer Main Tank"
-#event assistChange "#1# is now Main Assist"
-#event assistChange "#1# is no longer Main Assist"
-#event newmember "#1# has joined the group."
-#event rampage "#*#YOU#*#(Rampage)"
-#event died "You have been slain#*#"
-#event rTell "#1# tells you, '#2#'"
-#event rTell "#1# told you, '#2#'"
-#event MQ2Cmd "[MQ2] #1#"
-#event summoned "You have been summoned!"
-#event spellFade "Your #1# spell has worn off of #2#."
-#event enrage "#1# has become ENRAGED."
-#event enrageOff "#1# is no longer enraged."
-#event bcTell "[#1#(msg)] #2#"
-#event bcChatTell "<#1#> #2# #3#"
-#event noMerc "You can not unsuspend your mercenary because there are too many players!"
-#event noMerc "You can't unsuspend the selected mercenary#*#"
-#event mercStanceChange "Your active mercenary stance is now: #1#."
-#event mq2navFail "[MQ2Navigation] No Start Reference"
-#event membershipFail "Your ability to use#*#has been disabled#*#do not have the membership#*#"
-#event standAttack "You must be standing to attack!"
+	#event pullerChange "#1# is now Puller"
+	#event pullerChange "#1# is no longer Puller"
+	#event tankChange "#1# is now Main Tank"
+	#event tankChange "#1# is no longer Main Tank"
+	#event assistChange "#1# is now Main Assist"
+	#event assistChange "#1# is no longer Main Assist"
+	#event newmember "#1# has joined the group."
+	#event rampage "#*#YOU#*#(Rampage)"
+	#event died "You have been slain#*#"
+	#event rTell "#1# tells you, '#2#'"
+	#event rTell "#1# told you, '#2#'"
+|#event MQ2Cmd "[MQ2] #1#"
+	#event summoned "You have been summoned!"
+	#event spellFade "Your #1# spell has worn off of #2#."
+	#event enrage "#1# has become ENRAGED."
+	#event enrageOff "#1# is no longer enraged."
+	#event bcTell "[#1#(msg)] #2#"
+	#event bcChatTell "<#1#> #2# #3#"
+	#event noMerc "You can not unsuspend your mercenary because there are too many players!"
+	#event noMerc "You can't unsuspend the selected mercenary#*#"
+	#event mercStanceChange "Your active mercenary stance is now: #1#."
+	#event mq2navFail "[MQ2Navigation] No Start Reference"
+	#event membershipFail "Your ability to use#*#has been disabled#*#do not have the membership#*#"
+	#event standAttack "You must be standing to attack!"
 
-#event PBCastFail "You are not sufficient level to use this item#*#"
-#event PBCastFail "Your spell is interrupted#*#"
-#event PBCastFail "Your gate is too unstable, and collapses#*#"
-#event PBCastFail "You *CANNOT* cast spells, you have been silenced#*#"
-#event PBCastFail "You can't cast spells while invulnerable#*#"
-#event PBCastFail "Your casting has been interrupted#*#"
-#event PBCastFail "This spell does not work here#*#"
-#event PBCastFail "You can't cast spells while stunned#*#"
-#event PBCastFail "Your spell did not take hold#*#"
-#event PBCastFail "You must be standing to cast a spell#*#"
-#event PBCastFail "You can only cast this spell in the outdoors#*#"
+	#event PBCastFail "You are not sufficient level to use this item#*#"
+	#event PBCastFail "Your spell is interrupted#*#"
+	#event PBCastFail "Your gate is too unstable, and collapses#*#"
+	#event PBCastFail "You *CANNOT* cast spells, you have been silenced#*#"
+	#event PBCastFail "You can't cast spells while invulnerable#*#"
+	#event PBCastFail "Your casting has been interrupted#*#"
+	#event PBCastFail "This spell does not work here#*#"
+	#event PBCastFail "You can't cast spells while stunned#*#"
+	#event PBCastFail "Your spell did not take hold#*#"
+	#event PBCastFail "You must be standing to cast a spell#*#"
+	#event PBCastFail "You can only cast this spell in the outdoors#*#"
 
+| --------------------------------------------------------------------------------------------
+| SUB: CommonInit
+| --------------------------------------------------------------------------------------------
 Sub CommonInit
+	/declare colorEcho bool outer
+	/if (${Plugin[MQ2CEcho].Version}) {
+		/squelch /alias /myecho /cecho \ag[MQ2]\ao
+		/varset colorEcho TRUE
+	} else {
+		/squelch /alias /myecho /echo \ag[DevBot]\ao
+		/varset colorEcho FALSE
+	}
+	/if (${Plugin[MQ2MMOBugs].Name.NotEqual[MQ2MMOBugs]}) {
+		/declare MMOBugs bool outer FALSE
+		/declare isMMOBugs bool outer FALSE
+	}
+	/declare CurrentSub string outer
+	/varset CurrentSub CommonInit
+	/declare DebugLevel int outer 0
+	/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
+
+	/myecho "\ao~~~~~ChatWithThisName BrokenRobotGames@gmail.com~~~~~"
+
+	/if (!${Bool[${Plugin[MQ2Nav].Name.Equal[MQ2Nav]}]}) {
+		/myecho "[MQ2] >>> \ayMQ2Nav wasn't loaded, loading MQ2Nav"
+		/plugin MQ2Nav
+	}
+	/if (!${Bool[${Plugin[MQ2Twist].Name.Equal[MQ2Twist]}]}) {
+		/myecho "\ayMQ2Twist wasn't loaded, loading MQ2Twist!"
+		/plugin MQ2Twist
+	}
+
 	/squelch /alias /devecholog /call EchoLog
-	/declare devCommonVer								float outer 2.51
+	/declare devCommonVer								float outer 3.7
 	/declare reqMovementCommon						float outer 1.74
-	/declare reqCastCommon								float outer 1.06
+	/declare reqCastCommon								float outer 2.00
 	/declare reqPullCommon								float outer 1.10
 	/squelch /plugin MQ2Debuffs
 	/squelch /plugin MQ2Exchange
-	/squelch /plugin MQ2CEcho
+|/squelch /plugin MQ2CEcho
 	/squelch /plugin MQ2MoveUtils
-	
-	/declare isMMOBugs									bool outer ${Mem}
-	
-	| =====================================================================
-	| Declare supported bot versions
-	| =====================================================================	
+
+| =====================================================================
+| Declare supported bot versions
+| =====================================================================
 	/declare bardbot									float outer 1.29
 	/declare beastlordbot								float outer 1.11
 	/declare berserkerbot								float outer 1.10
@@ -157,17 +187,17 @@ Sub CommonInit
 	/declare skbot2										float outer 2.16
 	/declare warriorbot									float outer 1.11
 	/declare wizardbot									float outer 1.13
-	
-	| =====================================================================
-	| Declare general variables
-	| =====================================================================
+
+| =====================================================================
+| Declare general variables
+| =====================================================================
 	/declare debugMode									bool outer FALSE
-	/declare debugLvl									int outer 0
+	/declare debugLvl									int outer -1
 	/declare hPotName									string outer NULL
 	/declare hPotHPs									int outer 50
 	/declare defaultEchoColor 							string outer \ao
 	/declare startZone									string outer ${Zone.ShortName}
-	/declare startZoneID								int outer ${Zone.ID}	
+	/declare startZoneID								int outer ${Zone.ID}
 	/declare waitingForRez								bool outer FALSE
 	/declare nArray										int outer
 	/declare lootCorpses								bool outer FALSE
@@ -180,7 +210,7 @@ Sub CommonInit
 	/declare allowSit									bool outer TRUE
 	/declare replyToTells								bool outer FALSE
 	/declare followMode									bool outer FALSE
-	/declare followTarg									string outer	
+	/declare followTarg									string outer
 	/declare followTargID								int outer 0
 	/declare outOfCombatSit								bool outer TRUE
 	/declare inCombatSit								bool outer TRUE
@@ -194,8 +224,7 @@ Sub CommonInit
 	/declare friendList									string outer
 	/declare GMAction									string outer GateCamp
 	/declare campAfterGate								bool outer TRUE
-	/declare checkForAdds								bool outer TRUE	
-	/declare colorEcho									bool outer
+	/declare checkForAdds								bool outer TRUE
 	/declare useEQBC									bool outer FALSE
 	/declare relayChat									bool outer FALSE
 	/declare relayTells									bool outer FALSE
@@ -234,35 +263,23 @@ Sub CommonInit
 	/declare membershipFail								bool outer FALSE
 	/declare defaultMaxWaitTime						string outer 50
 	/declare campReturnRatio							float outer .5
-	
-	/if (${Plugin[MQ2CEcho].Version}) {
-		/squelch /alias /myecho /cecho \aw[MQ2]
-		/varset colorEcho TRUE
-	} else {
-		/squelch /alias /myecho /echo
-		/varset colorEcho FALSE
-	}
-	
-	/if (${isMMOBugs} && ${Me.AltAbility[Eyes Wide Open]}) {
-		/varset maxXTargets ${Me.MaxXTarget}
-	} else {
-		/if (${Me.AltAbility[Eyes Wide Open]}) /varcalc maxXTargets ${maxXTargets} + 1
-		/if (${Me.AltAbility[Eyes Wide Open]} > 5) /varcalc maxXTargets ${maxXTargets} + 1
-		/if (${Me.AltAbility[Eyes Wide Open]} > 10) /varcalc maxXTargets ${maxXTargets} + 1
-		/if (${Me.AltAbility[Eyes Wide Open]} > 20) /varcalc maxXTargets ${maxXTargets} + 1
-		/if (${Me.AltAbility[Eyes Wide Open]} > 30) /varcalc maxXTargets ${maxXTargets} + 1
-	}
-	
+
+	/if (${Me.AltAbility[Eyes Wide Open]}) /varcalc maxXTargets ${maxXTargets} + 1
+	/if (${Me.AltAbility[Eyes Wide Open]} > 5) /varcalc maxXTargets ${maxXTargets} + 1
+	/if (${Me.AltAbility[Eyes Wide Open]} > 10) /varcalc maxXTargets ${maxXTargets} + 1
+	/if (${Me.AltAbility[Eyes Wide Open]} > 20) /varcalc maxXTargets ${maxXTargets} + 1
+	/if (${Me.AltAbility[Eyes Wide Open]} > 30) /varcalc maxXTargets ${maxXTargets} + 1
+
 	/declare respiteDiscs[4]						string outer
 	/varset respiteDiscs[1] Respite
 	/varset respiteDiscs[2] Reprieve
 	/varset respiteDiscs[3] Rest
 	/varset respiteDiscs[4] Breather
-	
-	| =====================================================================
-	|  Merc Variables
-	| =====================================================================
-	/declare useMerc										bool outer FALSE	
+
+| =====================================================================
+|  Merc Variables
+| =====================================================================
+	/declare useMerc										bool outer FALSE
 	/declare manageMerc									bool outer FALSE
 	/declare mercID											int outer 0
 	/declare mercName										string outer NULL
@@ -272,9 +289,9 @@ Sub CommonInit
 	/declare mercAssistPct							int outer 90
 	/declare mercStance									string outer NULL
 
-	| =====================================================================
-	|  Command settings variables (Custom commands)
-	| =====================================================================
+| =====================================================================
+|  Command settings variables (Custom commands)
+| =====================================================================
 	/declare eqbcCommands								bool outer TRUE
 	/declare groupCommands							bool outer TRUE
 	/declare tellCommands								bool outer TRUE
@@ -282,26 +299,26 @@ Sub CommonInit
 	/declare commandCount								int outer 0
 	/declare commandTriggers[100,2]			string outer
 	/declare commandActions[100,50]			string outer
-	
-	| =====================================================================
-	| Declare group variables
-	| =====================================================================	
-	/declare groupMode									bool outer TRUE	
+
+| =====================================================================
+| Declare group variables
+| =====================================================================
+	/declare groupMode									bool outer TRUE
 	/declare campRadius									int outer 0
 	/declare useGroupPuller							bool outer FALSE
 	/declare useGroupTank								bool outer FALSE
 	/declare useGroupAssist							bool outer FALSE
 	/declare pullerName									string outer
-	
+
 	/declare watchEnabled								bool outer TRUE
 	/declare watchCount									int outer 0
 	/declare watchList[20]							string outer
 	/declare buffWatch									bool outer TRUE
 	/declare healWatch									bool outer TRUE
-	
-	| =====================================================================
-	| Declare combat variables
-	| =====================================================================	
+
+| =====================================================================
+| Declare combat variables
+| =====================================================================
 	/declare targArray[100]							int outer
 	/declare corpseArray[100]						int outer
 	/declare namedCount									int outer 0
@@ -319,26 +336,26 @@ Sub CommonInit
 	/declare mainAssistOld							string outer NULL
 	/declare mainTank										string outer ${Me.CleanName}
 	/declare secondaryAssist						string outer NULL
-	/declare assistPct									int outer 97	
+	/declare assistPct									int outer 97
 	/declare groupRole									string outer dps
-	/declare minSafeDistance						int outer 25	
+	/declare minSafeDistance						int outer 25
 	/declare mobRadius									int outer 60
 	/declare minMobLvl									int outer 1
 	/declare maxMobLvl									int outer 1000
-		
-	| =====================================================================
-	| Declare health and mana variables
-	| =====================================================================	
+
+| =====================================================================
+| Declare health and mana variables
+| =====================================================================
 	/declare healPotName								string outer
 	/declare healPotHPs									int outer
 	/declare healPotTimer								timer outer 0s
-	
-	| =====================================================================
-	| Declare spell variables
-	| =====================================================================	
+
+| =====================================================================
+| Declare spell variables
+| =====================================================================
 	/declare resistRetryTime						string outer 1m
 	/declare noInterrupt								bool outer TRUE
-	/declare defaultGem									string outer GEM1	
+	/declare defaultGem									string outer GEM1
 	/declare resistTries								int outer 3
 	/declare globalCooldown							timer outer
 	/declare globalCDStr								string outer 4s
@@ -364,12 +381,12 @@ Sub CommonInit
 	/declare csFlameSpell[100]						bool outer
 	/declare csType[100]									string outer
 	/for nArray 1 to 100
-	 	/declare csTimer${nArray}					timer outer
+		/declare csTimer${nArray}					timer outer
 	/next nArray
-	
-	| =====================================================================
-	| Declare debuff variables
-	| =====================================================================	
+
+| =====================================================================
+| Declare debuff variables
+| =====================================================================
 	/declare debuffSpells[20]						string outer
 	/declare debuffMinMana[20]					int outer
 	/declare debuffMinHPs[20]						int outer
@@ -381,17 +398,17 @@ Sub CommonInit
 	/declare debuffAnnounce[20]					string outer
 	/declare debuffCount								int outer
 	/declare debuffCheckTime						string outer
-	/declare debuffCheckTimer						timer outer 0s
+	/declare debuffCheckTimer						timer outer 2s
 	/declare debuffAdds									bool outer FALSE
 	/declare doDebuffs									bool outer FALSE
 	/declare debuffAlias[20]						string outer
 	/declare debuffCOR[20]							string outer
 	/declare debuffEnabled[20]					bool outer
 
-	| =====================================================================
-	| Declare alert variables
-	| =====================================================================		
-	/declare alertList									int outer 101	
+| =====================================================================
+| Declare alert variables
+| =====================================================================
+	/declare alertList									int outer 101
 	/declare mobAlertsValue							int outer 0
 	/declare mobAlertsAudio[100]				string outer
 	/declare mobAlertsName[100]					string outer
@@ -403,16 +420,16 @@ Sub CommonInit
 	/declare textAlertsAudio[100]				string outer
 	/declare textAlertsName[100]				string outer
 	/declare alertSent[100]							int outer
-			
-	| =====================================================================
-	| Declare ignore mob variables
-	| =====================================================================		
+
+| =====================================================================
+| Declare ignore mob variables
+| =====================================================================
 	/declare ignoreMobsCount						int outer 0
 	/declare ignoreMobs[100]						string outer
-	
-	| =====================================================================
-	| Declare safePC variables
-	| =====================================================================	
+
+| =====================================================================
+| Declare safePC variables
+| =====================================================================
 	/declare safePCCount								int outer 0
 	/declare safePC[100]								string outer
 	/declare unsafePCAction							string outer pause
@@ -420,10 +437,10 @@ Sub CommonInit
 	/declare campCheckTimer							timer outer 0s
 	/declare campCheckTimerStr					string outer 1m
 	/declare safeAlertList							int outer 102
-	
-	| =====================================================================
-	| Declare buff variables
-	| =====================================================================
+
+| =====================================================================
+| Declare buff variables
+| =====================================================================
 	/declare doCombatBuffs							bool outer FALSE
 	/declare inCombatBuffRoutine				string outer NULL
 	/declare selfBuffCount							int outer 0
@@ -476,7 +493,7 @@ Sub CommonInit
 	/declare doAutoBuffs								bool outer TRUE
 	/declare buffOtherPets							bool outer TRUE
 	/declare minBuffCheckTimerStr				string outer 1m
-	/declare minBuffCheckTimer					timer outer 0s	
+	/declare minBuffCheckTimer					timer outer 0s
 	/declare buffMode										string outer BUFF_NONE
 	/declare doAnnounce									bool outer FALSE
 	/declare announceChan								string outer /g
@@ -494,12 +511,12 @@ Sub CommonInit
 	/declare emuMode										bool outer FALSE
 	/declare xTargType									string outer TargetType
 	/declare hideCorpses								bool outer TRUE
-	
-	| =====================================================================
-	| Declare SummonedItems variables
-	| =====================================================================
+
+| =====================================================================
+| Declare SummonedItems variables
+| =====================================================================
 	/declare summonedCount							int outer
-	/declare summonedPackNum						int outer 0	
+	/declare summonedPackNum						int outer 0
 	/declare summonedUnfoldedName				string outer NULL
 	/declare summonedSpells[20]					string outer NULL
 	/declare summonedItems[20]					string outer NULL
@@ -531,9 +548,9 @@ Sub CommonInit
 	/varset equipmentSlot[22] powersource
 	/varset equipmentSlot[23] head
 
-	| =====================================================================
-	| Declare MissionMode variables
-	| =====================================================================
+| =====================================================================
+| Declare MissionMode variables
+| =====================================================================
 	/declare missionMode				bool outer
 	/declare missionINI					string outer
 	/declare missionLeader			string outer
@@ -571,7 +588,7 @@ Sub CommonInit
 	/declare missionAmLeader						bool outer FALSE
 	/declare missionWaitingOn						string outer NULL
 	/declare missionStartAtAction				int outer 0
-	
+
 	/declare missionActionType					string outer NULL
 	/declare missionActionByCommand			bool outer TRUE
 	/declare missionActionFollowLeader	bool outer TRUE
@@ -598,21 +615,26 @@ Sub CommonInit
 	/declare missionActionKillCounts		bool outer FALSE
 	/declare missionActionPullLimit			bool outer FALSE
 	/declare missionPrimaryActionCompleted bool outer FALSE
-	
+
 	/declare dataFile			string outer devCommonPremium.dat
 
-	/call EchoLog "Initialized \agdevCommonPremium.inc \awv${devCommonVer} \ao- Written By Devestator"
+	/call EchoLog "Initialized \agdevCommonPremium.inc \awv${devCommonVer} \ao- Written By Devestator - Updated by ChatWithThisName"
 	/call MovementInit FALSE TRUE
 	/call MQ2CastInit
-	
+
 	/call EchoLog "Loading Bot specific configuration..."
-	
+
 	/declare reqCommon		float outer ${devCommonVer}
 	/declare reqMovement  float outer ${devMovementVer}
 	/declare reqCast			float outer ${reqCastCommon}
 /return
 
+| --------------------------------------------------------------------------------------------
+| SUB: AddCleanUp
+| --------------------------------------------------------------------------------------------
 Sub AddCleanUp
+	/varset CurrentSub AddCleanUp
+	/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
 	/if (!${targCount}) /return
 	/declare acLoop				int local 0
 	/declare ccLoop				int local 0
@@ -620,30 +642,36 @@ Sub AddCleanUp
 	/for acLoop 1 to ${targCount}
 		/varset mobID ${targArray[${acLoop}]}
 		/if (${mobID}) {
-			/if (${Defined[addTracking${mobID}]} && !${addTracking${mobID}}) {
-				/if (${Spawn[${mobID}].ID} && ${Spawn[${mobID}].Type.NotEqual[Corpse]}) /call EchoLog "Add removed because it is no longer in the camp, ${Spawn[${mobID}].CleanName} | ${mobID}" TRUE
-				/varset targArray[${acLoop}] 0
-				/varcalc corpseCount ${corpseCount} + 1
-				/varset corpseArray[${corpseCount}] ${If[${Spawn[${mobID}].Type.Equal[Corpse]},${mobID},0]}
-				/deletevar addTracking${mobID}
-			} else /if (!${Defined[addTracking${mobID}]}) {
-				/if (!${Spawn[${mobID}].ID} || (${Math.Distance[${Spawn[${mobID}].Y},${Spawn[${mobID}].X}:${homeY},${homeX}]} > ${Math.Calc[${campRadius} * 2]} && ${Spawn[${mobID}].Distance} > ${campRadius})) {
-					/declare addTracking${mobID}					timer outer 15s
-				}
-			} else /if (${addTracking${mobID}}) {
-				| /echo FoundTimer
-				/if (${Spawn[${mobID}].ID} && (${Math.Distance[${Spawn[${mobID}].Y},${Spawn[${mobID}].X}:${homeY},${homeX}]} < ${Math.Calc[${campRadius} * 2]} || ${Spawn[${mobID}].Distance} <= ${campRadius})) {
+			/if (${Defined[addTracking${mobID}]}) {
+				/if (!${addTracking${mobID}}) {
+					/if (${Spawn[${mobID}].ID} && ${Spawn[${mobID}].Type.NotEqual[Corpse]}) /call EchoLog "Add removed because it is no longer in the camp, ${Spawn[${mobID}].CleanName} | ${mobID}" TRUE
+					/varset targArray[${acLoop}] 0
+					/varcalc corpseCount ${corpseCount} + 1
+					/varset corpseArray[${corpseCount}] ${If[${Spawn[${mobID}].Type.Equal[Corpse]},${mobID},0]}
 					/deletevar addTracking${mobID}
+				} else /if (${addTracking${mobID}}) {
+					/if (${Spawn[${mobID}].ID} && (${Math.Distance[${Spawn[${mobID}].Y},${Spawn[${mobID}].X}:${homeY},${homeX}]} < ${Math.Calc[${campRadius} * 2]} || ${Spawn[${mobID}].Distance} <= ${campRadius})) {
+						/deletevar addTracking${mobID}
+					}
+				} else /if (!${Defined[addTracking${mobID}]}) {
+					/if (!${Spawn[${mobID}].ID} || (${Math.Distance[${Spawn[${mobID}].Y},${Spawn[${mobID}].X}:${homeY},${homeX}]} > ${Math.Calc[${campRadius} * 2]} && ${Spawn[${mobID}].Distance} > ${campRadius})) {
+						/declare addTracking${mobID}					timer outer 15s
+					}
 				}
 			}
 		}
-		:skipMob
+	:skipMob
 	/next acLoop
 
 	/varcalc lTargCount ${targCount} - ${corpseCount}
 /return
 
-Sub Announce(string announceString) 
+| --------------------------------------------------------------------------------------------
+| SUB: Announce
+| --------------------------------------------------------------------------------------------
+Sub Announce(string announceString)
+	/varset CurrentSub Announce
+	/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
 	/if (!${doAnnounce} || ${announceString.Equal[NULL]} || !${announceString.Length}) /return
 	/if (${announceChan.Find[/bc]} && ${announceString.Find[%t]}) {
 		/varset announceString ${announceString.Replace[%t,${Target.CleanName}]}
@@ -651,7 +679,12 @@ Sub Announce(string announceString)
 	/docommand ${announceChan} ${announceString}
 /return
 
+| --------------------------------------------------------------------------------------------
+| SUB: AutoBuffCheck
+| --------------------------------------------------------------------------------------------
 Sub AutoBuffCheck(string itemName,string itemType)
+	/varset CurrentSub AutoBuffCheck
+	/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
 	/declare aLoop							int local 0
 	/declare aBuffSpellName			string local
 	/declare currSpellName			string local
@@ -679,7 +712,7 @@ Sub AutoBuffCheck(string itemName,string itemType)
 		/call GetSpellRank "${itemName}"
 		/varset currSpellRank ${Macro.Return}
 	}
-	
+
 	/varset stackNum 0
 	/for aLoop 1 to ${stackCount}
 		/if (${Ini[devCommonPremium.dat,BuffStackExceptions,Stack${aLoop},NULL].Find[${currSpellName}]}) {
@@ -687,7 +720,7 @@ Sub AutoBuffCheck(string itemName,string itemType)
 			/varset stackIssues[${stackNum}] ${Ini[devCommonPremium.dat,BuffStackExceptions,Stack${aLoop},NULL]}
 		}
 	/next aLoop
-	
+
 	/varset aMatch FALSE
 	/if (${autoBuffCount}) {
 		/for aLoop 1 to ${autoBuffCount}
@@ -724,27 +757,32 @@ Sub AutoBuffCheck(string itemName,string itemType)
 			} else /if (${stackCheck} && !${stackHigher}) {
 				/varset aMatch TRUE
 			}
-		/if (!${aMatch}) /next aLoop
-	}
-	
-	/if (!${aMatch}) {
-		/if (${Ini[devCommonPremium.dat,"${currSpellName}",Classes,NULL].Find[${Me.Class.ShortName}]} || ${Ini[devCommonPremium.dat,"${currSpellName}",Classes,NULL].Find[ALL]}) {
-			/call EchoLog ".....New auto buff found ${itemName} (${FindItem[${itemName}].Spell.Name})" TRUE
-			/varcalc autoBuffCount ${autoBuffCount} + 1
-			/call GetINISetting ${iniName} AutoBuffs AutoBuffName${autoBuffCount} autoBuff[${autoBuffCount}] "${itemName}"
-			/call GetINISetting ${iniName} AutoBuffs AutoBuffText${autoBuffCount} autoBuffText[${autoBuffCount}] "${FindItem[${itemName}].Spell.Name}"
-			/call GetINISetting ${iniName} AutoBuffs AutoBuffSlot${autoBuffCount} autoBuffSlot[${autoBuffCount}] ${Ini[devCommonPremium.dat,"${currSpellName}",Slot,ITEM]}
-			/call GetINISetting ${iniName} AutoBuffs AutoBuffType${autoBuffCount} autoBuffType[${autoBuffCount}] ${Ini[devCommonPremium.dat,"${currSpellName}",Type,SELF]}
-			/call GetINISetting ${iniName} AutoBuffs AutoBuffTargets${autoBuffCount} autoBuffTargets[${autoBuffCount}] ${Ini[devCommonPremium.dat,"${currSpellName}",Targets,ALL]}
-			/call GetINISetting ${iniName} AutoBuffs AutoBuffAuto${autoBuffCount} autoBuffAuto[${autoBuffCount}] TRUE FALSE
-			/call GetINISetting ${iniName} AutoBuffs AutoBuffAlias${autoBuffCount} autoBuffAlias[${autoBuffCount}] AUTO${autoBuffCount}
-			/call GetINISetting ${iniName} AutoBuffs AutoBuffCombat${autoBuffCount} autoBuffCombat[${autoBuffCount}] ${Ini[devCommonPremium.dat,"${currSpellName}",Combat,FALSE]}
-			/call GetINISetting ${iniName} AutoBuffs AutoBuffEnabled${autoBuffCount} autoBuffEnabled[${autoBuffCount}] TRUE FALSE						
+			/if (!${aMatch}) /next aLoop
 		}
-	}
-/return
 
+		/if (!${aMatch}) {
+			/if (${Ini[devCommonPremium.dat,"${currSpellName}",Classes,NULL].Find[${Me.Class.ShortName}]} || ${Ini[devCommonPremium.dat,"${currSpellName}",Classes,NULL].Find[ALL]}) {
+				/call EchoLog ".....New auto buff found ${itemName} (${FindItem[${itemName}].Spell.Name})" TRUE
+				/varcalc autoBuffCount ${autoBuffCount} + 1
+				/call GetINISetting ${iniName} AutoBuffs AutoBuffName${autoBuffCount} autoBuff[${autoBuffCount}] "${itemName}"
+				/call GetINISetting ${iniName} AutoBuffs AutoBuffText${autoBuffCount} autoBuffText[${autoBuffCount}] "${FindItem[${itemName}].Spell.Name}"
+				/call GetINISetting ${iniName} AutoBuffs AutoBuffSlot${autoBuffCount} autoBuffSlot[${autoBuffCount}] ${Ini[devCommonPremium.dat,"${currSpellName}",Slot,ITEM]}
+				/call GetINISetting ${iniName} AutoBuffs AutoBuffType${autoBuffCount} autoBuffType[${autoBuffCount}] ${Ini[devCommonPremium.dat,"${currSpellName}",Type,SELF]}
+				/call GetINISetting ${iniName} AutoBuffs AutoBuffTargets${autoBuffCount} autoBuffTargets[${autoBuffCount}] ${Ini[devCommonPremium.dat,"${currSpellName}",Targets,ALL]}
+				/call GetINISetting ${iniName} AutoBuffs AutoBuffAuto${autoBuffCount} autoBuffAuto[${autoBuffCount}] TRUE FALSE
+				/call GetINISetting ${iniName} AutoBuffs AutoBuffAlias${autoBuffCount} autoBuffAlias[${autoBuffCount}] AUTO${autoBuffCount}
+				/call GetINISetting ${iniName} AutoBuffs AutoBuffCombat${autoBuffCount} autoBuffCombat[${autoBuffCount}] ${Ini[devCommonPremium.dat,"${currSpellName}",Combat,FALSE]}
+				/call GetINISetting ${iniName} AutoBuffs AutoBuffEnabled${autoBuffCount} autoBuffEnabled[${autoBuffCount}] TRUE FALSE
+			}
+		}
+	/return
+
+| --------------------------------------------------------------------------------------------
+| SUB: AutoBuffLoad
+| --------------------------------------------------------------------------------------------
 Sub AutoBuffLoad
+	/varset CurrentSub AutoBuffLoad
+	/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
 | ==========================================================================
 | Load common buffs automatically
 | ==========================================================================
@@ -760,24 +798,24 @@ Sub AutoBuffLoad
 			/call GetINISetting ${iniName} AutoBuffs AutoBuffSlot${nArray} autoBuffSlot[${nArray}] ${Ini[devCommonPremium.dat,"${Macro.Return}",Slot,ITEM]}
 			/call GetINISetting ${iniName} AutoBuffs AutoBuffType${nArray} autoBuffType[${nArray}] ${Ini[devCommonPremium.dat,"${Macro.Return}",Type,SELF]}
 			/call GetINISetting ${iniName} AutoBuffs AutoBuffTargets${nArray} autoBuffTargets[${nArray}] ${Ini[devCommonPremium.dat,"${Macro.Return}",Targets,ALL]}
-			/call GetINISetting ${iniName} AutoBuffs AutoBuffAuto${nArray} autoBuffAuto[${nArray}] TRUE FALSE
+			/call GetINISetting ${iniName} AutoBuffs AutoBuffAuto${nArray} autoBuffAuto[${nArray}] FALSE FALSE
 			/call GetINISetting ${iniName} AutoBuffs AutoBuffAlias${nArray} autoBuffAlias[${nArray}] AUTO${nArray}
 			/call GetINISetting ${iniName} AutoBuffs AutoBuffCombat${nArray} autoBuffCombat[${nArray}] ${Ini[devCommonPremium.dat,"${Macro.Return}",Combat,FALSE]}
-			/call GetINISetting ${iniName} AutoBuffs AutoBuffEnabled${nArray} autoBuffEnabled[${nArray}] TRUE FALSE
+			/call GetINISetting ${iniName} AutoBuffs AutoBuffEnabled${nArray} autoBuffEnabled[${nArray}] FALSE FALSE
 			/call EchoLog "..........NAME: ${autoBuff[${nArray}]} TEXT: ${autoBuffText[${nArray}]} SLOT: ${autoBuffSlot[${nArray}]} TYPE: ${autoBuffType[${nArray}]} AUTO: ${autoBuffAuto[${nArray}]} ALIAS: ${autoBuffAlias[${nArray}]} COMBAT: ${autoBuffCombat[${nArray}]} ENABLED: ${autoBuffEnabled[${nArray}]}" TRUE
 		/next nArray
 	}
-	
-	| =====================================================
-	| Check for new or upgraded versions of the auto buffs
-	| =====================================================
 
-	| loop through inventory and such here to find items, check character level and required level on item to ensure usage
-	| then check the autobuff list to see if a buff of the same kind exists, and if it does replace it with the upgraded one
-	| if it doesn't exist yet, add it to the end of the list
-	
+| =====================================================
+| Check for new or upgraded versions of the auto buffs
+| =====================================================
+
+| loop through inventory and such here to find items, check character level and required level on item to ensure usage
+| then check the autobuff list to see if a buff of the same kind exists, and if it does replace it with the upgraded one
+| if it doesn't exist yet, add it to the end of the list
+
 	/declare equippedArray[23]	string local
-	
+
 	/varset equippedArray[23] head
 	/varset equippedArray[1] face
 	/varset equippedArray[2] neck
@@ -801,7 +839,7 @@ Sub AutoBuffLoad
 	/varset equippedArray[20] ammo
 	/varset equippedArray[21] charm
 	/varset equippedArray[22] powersource
-	
+
 	/for nArray 1 to 23
 		/if (${Me.Inventory[${equippedArray[${nArray}]}].Name.NotEqual[NULL]}) {
 			/if (${Me.Inventory[${equippedArray[${nArray}]}].Spell.ID} && ${Me.Inventory[${equippedArray[${nArray}]}].EffectType.Find[Click]}) {
@@ -809,8 +847,8 @@ Sub AutoBuffLoad
 			}
 		}
 	/next nArray
-	
-	/declare bLoop						int local 0	
+
+	/declare bLoop						int local 0
 	/for nArray 1 to 10
 		/if (${Me.Inventory[pack${nArray}].Name.NotEqual[NULL]}) {
 			/if (!${Me.Inventory[pack${nArray}].Container} && ${Me.Inventory[pack${nArray}].Spell.ID} && ${Me.Inventory[pack${nArray}].EffectType.Find[Click]}) {
@@ -826,7 +864,12 @@ Sub AutoBuffLoad
 	/next nArray
 /return
 
+| --------------------------------------------------------------------------------------------
+| SUB: GetSpellName
+| --------------------------------------------------------------------------------------------
 Sub GetSpellName(string spellString)
+	/varset CurrentSub GetSpellName
+	/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
 	/declare paramCount													int local
 	/varcalc paramCount ${spellString.Count[ ]} + 1
 	/declare sLoop															int local 0
@@ -839,39 +882,49 @@ Sub GetSpellName(string spellString)
 					/varset sName ${If[${sName.Length},${sName} ,]}${spellString.Token[${sLoop}, ]}
 				}
 			} else {
-				/return ${sName}
-			} 
-		/next sLoop
-	} else {
-		/varset sName ${spellString}
-	}
+			/return ${sName}
+		}
+	/next sLoop
+} else {
+	/varset sName ${spellString}
+}
 /return ${sName}
 
+| --------------------------------------------------------------------------------------------
+| SUB: GetSpellRank
+| --------------------------------------------------------------------------------------------
 Sub GetSpellRank(string spellString)
+	/varset CurrentSub GetSpellRank
+	/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
 	/declare paramCount													int local
 	/varcalc paramCount ${spellString.Count[ ]} + 1
 	/declare sRanks															string local [I]|[II]|[III]|[IV]|[V]|[VI]|[VII]|[VIII]|[IX]|[X]|[XI]|[XII]|[XIII]|[XIV]|[XV]|[XVI]|[XVII]|[XVIII]|[XIX]|[XX]|[XXI]|[XXII]|[XXIII]|[XXIV]|[XXV]
 	/declare sLoop															int local
-	
+
 	/if (${paramCount}) {
 		/if (${sRanks.Find[[${spellString.Token[${paramCount}, ]}]]}) {
 			/for sLoop 1 to ${Math.Calc[${sRanks.Count[|]} + 1]}
 				/if (${sRanks.Token[${sLoop},|].Equal[[${spellString.Token[${paramCount}, ]}]]}) /return ${sLoop}
 			/next sLoop
 		} else {
-			/return 1
-		}
-	} else {
 		/return 1
 	}
+} else {
+/return 1
+}
 /return
 
+| --------------------------------------------------------------------------------------------
+| SUB: CommonLoad
+| --------------------------------------------------------------------------------------------
 Sub CommonLoad
+	/varset CurrentSub
+	/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
 	/clearerrors
 
 	/call EchoLog "Checking include file versions..."
-	
-	/declare supVersion									float local
+
+	/declare supVersion	float local
 	/if (${Defined[myName]}) {
 		/varset supVersion ${${myName}}
 	} else {
@@ -893,7 +946,7 @@ Sub CommonLoad
 		/call EchoLog "\ayThe version of devMovementPremium.inc v${devMovementVer} is not support by devCommonPremium.inc v${devCommonVer}, please download a newer version of devMovementPremium.inc"
 		/endmacro
 	}
-	|**
+|**
 	/if (!${Defined[MQ2CastSpellRoutinesVer]} || ${MQ2CastSpellRoutinesVer}<${reqCast}) {
 		/call EchoLog "\ayThe version of MQ2Cast_Spell_Routines v${MQ2CastSpellRoutinesVer} is not supported by ${Macro.Name} v${meVersion}.  Need version ${reqCast}.  Please make sure you have the latest copy of MQ2Cast_Spell_Routines.inc"
 		/endmacro
@@ -907,17 +960,16 @@ Sub CommonLoad
 		/call EchoLog "\ayThis bot does not support the ${Me.Class.Name} class."
 		/endmacro
 	}
-
 	/call CommonINILoad
 
 	/if (${devPullVer}<${reqPullCommon}) {
 		/call EchoLog "\ayThe version of devPull.inc v${devPullVer} is not support by devCommonPremium.inc v${devCommonVer}, please download a newer version of devPull.inc.  Pulling will not be allowed until this is corrected."
 		/varset allowPullMode FALSE
 	}
-				
+
 	/call CreateIgnoreAlert ${alertList}
 	/call CreateSafeAlert ${safeAlertList}
-	
+
 	/if (!${campRadius}) {
 		/if (${mobRadius}) {
 			/varset campRadius ${mobRadius}
@@ -926,7 +978,7 @@ Sub CommonLoad
 			/varset mobRadius 60
 		}
 	}
-	
+
 	/if (${pullerName.Equal[Group]} || ${pullerName.Equal[null]}) {
 		/varset useGroupPuller TRUE
 		/varset pullerName ${Group.Puller.CleanName}
@@ -939,19 +991,19 @@ Sub CommonLoad
 		/varset useGroupAssist TRUE
 		/varset mainAssist ${Group.MainAssist.CleanName}
 	}
-	
+
 	/if (${Me.Pet.Name.Find[familiar]}) {
 		/call EchoLog "Destroying familiar pet." TRUE
 		/pet get lost
 		/delay 1s
-	}	
-	
-	/if (${useEQBC} && ${Plugin[MQ2NetBots].Version}) {
-		/squelch /netbots grab=on
-		/squelch /netbots send=on
-		/squelch /netbots on
 	}
-	
+
+|/if (${useEQBC} && ${Plugin[MQ2NetBots].Version}) {
+|	/squelch /netbots grab=on
+|	/squelch /netbots send=on
+|	/squelch /netbots on
+|}
+
 	/if (${useMerc}) {
 		/varset mercID 0
 		/for nArray 1 to ${Group.Members}
@@ -959,11 +1011,16 @@ Sub CommonLoad
 				/varset mercID ${Group.Member[${nArray}].ID}
 				/varset mercName ${Group.Member[${nArray}].CleanName}
 			}
-		/if (!${mercID}) /next nArray
-	}
-/return
+			/if (!${mercID}) /next nArray
+		}
+	/return
 
+| --------------------------------------------------------------------------------------------
+| SUB: CombatCheck
+| --------------------------------------------------------------------------------------------
 Sub CombatCheck(bool AddCheck)
+	/varset CurrentSub CombatCheck
+	/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
 	/if (${AddCheck} == NULL) /varset AddCheck TRUE
 	/if (${AddCheck}) /call CheckForAdds ${campRadius} ${Me.ID} FALSE TRUE
 	/if (!${inCombat} && (${lTargCount} > 0 || ${Me.CombatState.Equal[Combat]})) {
@@ -987,7 +1044,12 @@ Sub CombatCheck(bool AddCheck)
 	}
 /return
 
+| --------------------------------------------------------------------------------------------
+| SUB: CommonCombatRoutines
+| --------------------------------------------------------------------------------------------
 Sub CommonCombatRoutines(string callRoutine,bool AllowCombatBuff,bool AllowDebuff,bool AllowAddCleanup)
+	/varset CurrentSub CommonCombatRoutines
+	/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
 	/if (${Zone.ID}!=${startZoneID}) {
 		/call EchoLog "\ayWe have changed zones, setting home location to current location."
 		/call SetHome
@@ -998,12 +1060,12 @@ Sub CommonCombatRoutines(string callRoutine,bool AllowCombatBuff,bool AllowDebuf
 			/varset pullMode FALSE
 		}
 	}
-	
+	/if (${Me.XTarget} >= ${pullCampMobs}) /varset pullMode false
 	/if (${Me.State.Equal[HOVER]}) /call Event_died
-	
+
 	/if (${AllowCombatBuff} == NULL) /varset AllowCombatBuff TRUE
-	/if (${AllowDebuff]} == NULL) /varset AllowDebuff TRUE
-	/if (${AllowAddCleanup]} == NULL) /varset AllowAddCleanup TRUE
+	/if (${AllowDebuff} == NULL) /varset AllowDebuff TRUE
+	/if (${AllowAddCleanup} == NULL) /varset AllowAddCleanup TRUE
 	/if (!${Defined[LastMercAssistID]}) /declare LastMercAssistID		int outer 0
 	/if (${callRoutine.NotEqual[NULL]}) {
 		/varset inCombatBuffRoutine ${callRoutine}
@@ -1032,11 +1094,13 @@ Sub CommonCombatRoutines(string callRoutine,bool AllowCombatBuff,bool AllowDebuf
 		/if (${mercStance.NotEqual[${mercICStance}]} && ${mercICStance.NotEqual[NULL]} && ${Target.ID} && ${Target.Type.Equal[NPC]} && ${Target.PctHPs} > ${If[${Math.Calc[${mercBurnPct} + 2]}>99,99,${Math.Calc[${mercBurnPct} + 2]}]}) /stance ${mercICStance}
 		/if (${Target.ID} && ${Target.Type.Equal[NPC]} && ${Target.PctHPs} <= ${mercBurnPct} && ${mercStance.NotEqual[Burn]}) /stance Burn
 	}
-
-	/if (${debuffCount} && ${doDebuffs} && ${AllowDebuff} && ${debuffClasses.Find[${Me.Class.ShortName}]} && !${priorityDebuffsTimer}) /call DebuffRoutine
+	/if (${debuffCount} && ${doDebuffs} && ${AllowDebuff} && ${debuffClasses.Find[${Me.Class.ShortName}]} && !${priorityDebuffsTimer}) {
+		/call EchoLog "Calling DebuffRoutine!"
+		/call DebuffRoutine ${Me.XTarget[1].ID}
+	}
 	/if (${combatBuffs} && ${AllowCombatBuff} && ${doCombatBuffs}) /call buffCheck TRUE TRUE ${callRoutine}
 	/if ((${mainAssist.Equal[NULL]} || ${mainAssist.Equal[${Me.CleanName}]})	 && ${Target.ID} && ${Target.Type.Equal[Corpse]}) /squelch /target clear
-	
+
 	/call AlertsCheck
 
 	/if (!${medMode} && ((${Me.MaxMana} && ${Me.PctMana} < ${medModeManaThreshold}) || (!${Me.MaxMana} && ${Me.PctEndurance} < ${medModeManaThreshold}))) {
@@ -1046,17 +1110,17 @@ Sub CommonCombatRoutines(string callRoutine,bool AllowCombatBuff,bool AllowDebuf
 		/call EchoLog "Leaving med mode" TRUE
 		/varset medMode FALSE
 	}
-	
+
 	/if (${enrageID}) {
-		/if (${Target.ID}==${enrageID} && !${Stick.Behind} && !${Me.Song[Master's Aura Effect].ID}) {	 
-			| ' Just a temp fix for something in ultraedit
+		/if (${Target.ID}==${enrageID} && !${Stick.Behind} && !${Me.Song[Master's Aura Effect].ID}) {
+		| ' Just a temp fix for something in ultraedit
 			/if (${Me.Combat}) /attack off
 		} else {
-			| /attack on
+		| /attack on
 			/varset enrageID 0
 		}
 	}
-	
+
 	/if (${Window[CombatAbilityWnd].Open}) {
 		/if (${Window[CombatAbilityWnd].Child[CAW_CombatEffectLabel].Text.NotEqual[No Effect]}) {
 			/if (!${discTimer}) /varset discTimer ${Spell[${Window[CombatAbilityWnd].Child[CAW_CombatEffectLabel].Text}].Duration.TotalSeconds}s
@@ -1064,7 +1128,7 @@ Sub CommonCombatRoutines(string callRoutine,bool AllowCombatBuff,bool AllowDebuf
 			/varset discTimer 0s
 		}
 	}
-	
+
 	/if (${hPotName.NotEqual[NULL]} && ${FindItem[${hPotName}].ID} && !${FindItem[${hPotName}].Timer} && ${Me.PctHPs} < ${hPotHPs} && !${Me.Casting.ID}) {
 		/useitem "${hPotName}"
 	}
@@ -1083,11 +1147,16 @@ Sub CommonCombatRoutines(string callRoutine,bool AllowCombatBuff,bool AllowDebuf
 		}
 	}
 	/if (${AllowAddCleanup}) /call AddCleanUp
-	
+
 	/if (!${pullCombatTimer} && ${pullMode} && ${allowCombatPull}) /call PullCombatCheck
 /return
 
+| --------------------------------------------------------------------------------------------
+| SUB: CommonRoutines
+| --------------------------------------------------------------------------------------------
 Sub CommonRoutines(bool pullCheck)
+	/varset CurrentSub CommonRoutines
+	/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
 	/if (${Zone.ID}!=${startZoneID}) {
 		/call EchoLog "\ayWe have changed zones, setting home location to current location."
 		/call SetHome
@@ -1096,26 +1165,26 @@ Sub CommonRoutines(bool pullCheck)
 		/if (${pullMode}) {
 			/call EchoLog ".....Disabling pull mode due to zone change."
 			/varset pullMode FALSE
-		}		
+		}
 	}
-	
+
 	/if (${Me.State.Equal[HOVER]}) /call Event_died
-	
-	| /if (!${Defined[pullCheck]}) /declare pullCheck bool local TRUE
+
+| /if (!${Defined[pullCheck]}) /declare pullCheck bool local TRUE
 	/if (${pullCheck} == NULL) /varset pullCheck TRUE
 	/if (${followMode}) /call SetHome
 	/call campCheck
-	| /call TradeCheck
-	
+| /call TradeCheck
+
 	/if (${Cursor.ID}) /autoinventory
-	
+
 	/if (${Group.Member[1].ID} && ${Group.Member[1].Type.Equal[MERCENARY]}) {
 		/varset mercID ${Group.Member[1].ID}
 		/varset mercName ${Group.Member[1].CleanName}
 	}
-	
+
 	/if (${useMerc}) {
-	  /if (!${mercCheckTimer} && ${Me.CombatState.NotEqual[Combat]} && (((${Me.Mercenary.State.Equal[SUSPENDED]} || ${Group.Member[1].Name.NotEqual[${mercName}]}) &&	${Group.GroupSize} < 6)	|| ${Me.Mercenary.State.Equal[UNKNOWN]} || 	(${Me.Mercenary.State.Equal[NULL]} && ${Group.Member[1].Name.NotEqual[${mercName}]}) || (${Group.Member[1].Name.Equal[${mercName}]} && !${Group.Member[1].ID}))) {
+		/if (!${mercCheckTimer} && ${Me.CombatState.NotEqual[Combat]} && (((${Me.Mercenary.State.Equal[SUSPENDED]} || ${Group.Member[1].Name.NotEqual[${mercName}]}) &&	${Group.GroupSize} < 6)	|| ${Me.Mercenary.State.Equal[UNKNOWN]} || 	(${Me.Mercenary.State.Equal[NULL]} && ${Group.Member[1].Name.NotEqual[${mercName}]}) || (${Group.Member[1].Name.Equal[${mercName}]} && !${Group.Member[1].ID}))) {
 			/notify MMGW_ManageWnd MMGW_SuspendButton leftmouseup
 			/delay 3
 			/varset mercID 0
@@ -1124,85 +1193,96 @@ Sub CommonRoutines(bool pullCheck)
 					/varset mercID ${Group.Member[${nArray}].ID}
 					/varset mercName ${Group.Member[${nArray}].CleanName}
 				}
-			/if (!${mercID}) /next nArray
-			/varset mercCheckTimer 10s
-		} else /if (${useMerc} && ${Me.Mercenary.State.NotEqual[ACTIVE]} && (${Group.Member[1].Name.NotEqual[${mercName}]} || (${Group.Member[1].Name.Equal[${mercName}]} && !${Group.Member[1].ID}))) {
+				/if (!${mercID}) /next nArray
+				/varset mercCheckTimer 10s
+			} else /if (${useMerc} && ${Me.Mercenary.State.NotEqual[ACTIVE]} && (${Group.Member[1].Name.NotEqual[${mercName}]} || (${Group.Member[1].Name.Equal[${mercName}]} && !${Group.Member[1].ID}))) {
+				/varset mercID 0
+			}
+		} else {
 			/varset mercID 0
 		}
-	} else {
-		/varset mercID 0
-	}
-	/if (${manageMerc} && ${mercID} && ${Group.Member[1].ID}==${mercID}) {
-		/if (${mercStance.NotEqual[${mercOOCStance}]} && ${mercOOCStance.NotEqual[NULL]}) /stance ${mercOOCStance}
-	}
-	
-	/if (${useMacroEndTimer} && !${macroEndTimer}) {
-		/call EchoLog "The macro end timer has expired, taking the action: ${macroEndAction}"
-		/if (${macroEndAction.Equal[GateCamp]}) {
-			/call Evac TRUE FALSE TRUE
-		} else /if (${macroEndAction.Equal[camp]}) {
-			/call Evac TRUE TRUE TRUE
-		} else /if (${macroEndAction.Equal[gate]}) {
-			/call Evac FALSE FALSE TRUE
-		} else /if (${macroEndAction.Equal[stop]}) {
-			/endmacro
-		} else /if (${macroEndAction.Equal[quit]}) {
-			/quit
-		} else {
-			/call EchoLog "The action was not recognized, using the default action of GateCamp"
-			/call Evac TRUE
+		/if (${manageMerc} && ${mercID} && ${Group.Member[1].ID}==${mercID}) {
+			/if (${mercStance.NotEqual[${mercOOCStance}]} && ${mercOOCStance.NotEqual[NULL]}) /stance ${mercOOCStance}
 		}
-	}
-	
-	/if (${meleeClasses.Find[${Me.Class.ShortName}]} && ${Me.Class.ShortName.NotEqual[BRD]} && ${Me.PctEndurance} <= ${respitePct} && !${discTimer}) {
-		/declare resArr int local 0
-		/declare resRkArr int local 0
-		/declare resRk string local Rk. III|Rk. II| 
-		/for resArr ${respiteDiscs.Size} to 1
-			/for resRkArr 1 to 3
-				/if (${Me.CombatAbilityReady[${respiteDiscs[${resArr}]} ${resRk.Token[${resRkArr},|]}]}) {
-					/doability "${respiteDiscs[${resArr}]} ${resRk.Token[${resRkArr},|]}"
-					/varset discTimer ${Spell[${respiteDiscs[${resArr}]} ${resRk.Token[${resRkArr},|]}].Duration.TotalSeconds}s
-				}
-			/next resRkArr
-		/next resArr
-	}
 
-	/if (${modRodNameCommon.NotEqual[NULL]} && ${Me.PctMana} <= ${modRodManaCommon} && ${Me.PctHPs} >= ${modRodMinHPsCommon} && ${FindItem[${modRodNameCommon}].ID} && !${Me.Casting.ID}) {
-		/call MQ2Cast "${modRodNameCommon}" item
-	}
-	/if (${hPotName.NotEqual[NULL]} && ${FindItem[${hPotName}].ID} && !${FindItem[${hPotName}].Timer} && ${Me.PctHPs} < ${hPotHPs} && !${Me.Casting.ID}) {
-		/call MQ2Cast "${hPotName}" Item
-	}
+		/if (${useMacroEndTimer} && !${macroEndTimer}) {
+			/call EchoLog "The macro end timer has expired, taking the action: ${macroEndAction}"
+			/if (${macroEndAction.Equal[GateCamp]}) {
+				/call Evac TRUE FALSE TRUE
+			} else /if (${macroEndAction.Equal[camp]}) {
+				/call Evac TRUE TRUE TRUE
+			} else /if (${macroEndAction.Equal[gate]}) {
+				/call Evac FALSE FALSE TRUE
+			} else /if (${macroEndAction.Equal[stop]}) {
+				/endmacro
+			} else /if (${macroEndAction.Equal[quit]}) {
+				/quit
+			} else {
+				/call EchoLog "The action was not recognized, using the default action of GateCamp"
+				/call Evac TRUE
+			}
+		}
 
-	/call SummonedItemsCheck
-	
-	/if (${missionMode}) {
-		/call MissionModeHandler
-		| /echo >> ${Macro.Return}
-	}
-	
-	/if (${pullCheck} && !${pullTimer} && ${pullMode}) {
-		/call PullRoutine
-		/varset pullResult ${Macro.Return}
-	}
-/return
+		/if (${meleeClasses.Find[${Me.Class.ShortName}]} && ${Me.Class.ShortName.NotEqual[BRD]} && ${Me.PctEndurance} <= ${respitePct} && !${discTimer}) {
+			/declare resArr int local 0
+			/declare resRkArr int local 0
+			/declare resRk string local Rk. III|Rk. II|
+			/for resArr ${respiteDiscs.Size} to 1
+				/for resRkArr 1 to 3
+					/if (${Me.CombatAbilityReady[${respiteDiscs[${resArr}]} ${resRk.Token[${resRkArr},|]}]}) {
+						/doability "${respiteDiscs[${resArr}]} ${resRk.Token[${resRkArr},|]}"
+						/varset discTimer ${Spell[${respiteDiscs[${resArr}]} ${resRk.Token[${resRkArr},|]}].Duration.TotalSeconds}s
+					}
+				/next resRkArr
+			/next resArr
+		}
 
+		/if (${modRodNameCommon.NotEqual[NULL]} && ${Me.PctMana} <= ${modRodManaCommon} && ${Me.PctHPs} >= ${modRodMinHPsCommon} && ${FindItem[${modRodNameCommon}].ID} && !${Me.Casting.ID}) {
+			/call Debug 2 "MQ2Cast --> ${modRodNameCommon} item Sub: ${CurrentSub}"
+			/call MQ2Cast "${modRodNameCommon}" item
+		}
+		/if (${hPotName.NotEqual[NULL]} && ${FindItem[${hPotName}].ID} && !${FindItem[${hPotName}].Timer} && ${Me.PctHPs} < ${hPotHPs} && !${Me.Casting.ID}) {
+			/call Debug 2 "MQ2Cast --> ${hPotName} Item Sub: ${CurrentSub}"
+			/call MQ2Cast "${hPotName}" Item
+		}
+
+		/call SummonedItemsCheck
+
+		/if (${missionMode}) {
+			/call MissionModeHandler
+		}
+
+		/if (${pullCheck} && !${pullTimer} && ${pullMode}) {
+			/call PullRoutine
+			/varset pullResult ${Macro.Return}
+		}
+	/return
+
+| --------------------------------------------------------------------------------------------
+| SUB: AddIgnoreMob
+| --------------------------------------------------------------------------------------------
 Sub AddIgnoreMob(string addName)
+	/varset CurrentSub AddIgnoreMob
+	/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
 	/if (${addName.Equal[NULL]}) /return
-	
+
 	/varcalc ignoreMobsCount ${ignoreMobsCount}+1
 	/varset ignoreMobs[${ignoreMobsCount}] ${addName}
 	/squelch /alert add ${alertList} ${addName}
 	/ini ${iniName} IgnoreMobs Value ${ignoreMobsCount}
-	/ini ${iniName} IgnoreMobs MobName${ignoreMobsCount} ${addName}	
+	/ini ${iniName} IgnoreMobs MobName${ignoreMobsCount} ${addName}
 	/call EchoLog "\ag${addName} \aoadded to ignore mobs list"
 /return
 
+| --------------------------------------------------------------------------------------------
+| SUB: RemoveIgnoreMob
+| --------------------------------------------------------------------------------------------
 Sub RemoveIgnoreMob(string removeName)
+	/varset CurrentSub RemoveIgnoreMob
+	/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
 	/declare rLoop 		int local
 	/if (${removeName.Equal[null]}) /return
-	
+
 	/for rLoop 1 to ${ignoreMobsCount}
 		/if (${ignoreMobs[${rLoop}].Equal[${removeName}]}) {
 			/varset ignoreMobs[${rLoop}] NULL
@@ -1215,21 +1295,31 @@ Sub RemoveIgnoreMob(string removeName)
 	/next rLoop
 /return
 
+| --------------------------------------------------------------------------------------------
+| SUB: AddSafePC
+| --------------------------------------------------------------------------------------------
 Sub AddSafePC(string addName)
+	/varset CurrentSub AddSafePC
+	/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
 	/if (${addName.Equal[NULL]}) /return
-	
+
 	/varcalc safePCCount ${safePCCount}+1
 	/varset safePC[${safePCCount}] ${addName}
 	/squelch /alert add ${safeAlertList} ${addName}
 	/ini ${iniName} SafePCs Value ${safePCCount}
-	/ini ${iniName} SafePCs PCName${safePCCount} ${addName}	
-	/call EchoLog "\ag${addName} \aoadded to safe pc list"	
+	/ini ${iniName} SafePCs PCName${safePCCount} ${addName}
+	/call EchoLog "\ag${addName} \aoadded to safe pc list"
 /return
 
+| --------------------------------------------------------------------------------------------
+| SUB: RemoveSafePC
+| --------------------------------------------------------------------------------------------
 Sub RemoveSafePC(string removeName)
+	/varset CurrentSub RemoveSafePC
+	/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
 	/declare rLoop 		int local
 	/if (${removeName.Equal[null]}) /return
-	
+
 	/for rLoop 1 to ${safePCCount}
 		/if (${safePC[${rLoop}].Equal[${removeName}]}) {
 			/varset safePC[${rLoop}] NULL
@@ -1242,21 +1332,26 @@ Sub RemoveSafePC(string removeName)
 	/next rLoop
 /return
 
+| --------------------------------------------------------------------------------------------
+| SUB: AfterCombatRoutines
+| --------------------------------------------------------------------------------------------
 Sub AfterCombatRoutines(bool lootReturn)
+	/varset CurrentSub AfterCombatRoutines
+	/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
 	/if (${lootReturn} == NULL) /varset lootReturn TRUE
 	/declare acArray			int local
-	
+
 	/if (${Me.Combat}) /attack off
-	
+
 	/call EchoLog "Combat completed HPs: ${Me.PctHPs} Mana: ${Me.PctMana} Pet HPs: ${Me.Pet.PctHPs}" TRUE
 	/if (${lootCorpses}) {
 		/for acArray 1 to ${corpseCount}
 			/if (${lootOnlyKilled} && ${corpseArray[${acArray}]}) /call Loot ${corpseArray[${acArray}]}
 			/varset corpseArray[${acArray}] 0
 		/next acArray
-		
+
 		/if (!${lootOnlyKilled}) /call Loot
-		
+
 		/if (${groupMode} && !${Debuff.Rooted} && ${lootReturn}) {
 			/call PositionCheckDefault
 		}
@@ -1274,7 +1369,7 @@ Sub AfterCombatRoutines(bool lootReturn)
 	/varset namedCount 0
 	/varset enrageID 0
 	/varset enrageAttackOff FALSE
-	| /varset rested FALSE
+| /varset rested FALSE
 	/varset allowSit TRUE
 	/varset rampageNoSit FALSE
 	/varset gotAggro FALSE
@@ -1291,29 +1386,34 @@ Sub AfterCombatRoutines(bool lootReturn)
 		/delay 2s ${Target.ID}==${followTargID}
 		/if (${Target.ID}==${followTargID} && ${Target.Type.NotEqual[Corpse]} && ${Target.Distance} < ${campRadius}) {
 			/squelch /stick hold
-		}	else /if (${Target.ID}!=${followTargID} || (${Target.Type.Equal[Corpse]} && ${Target.ID}==${followTargID})) {
-			/call EchoLog "\ayCould not resume follow because we could not find the follow target.  Resetting home loation to current location."
-			/varset followMode FALSE
-		} else /if (${Target.ID}==${followTargID} && ${Target.Distance} > ${campRadius}) {
-			/call EchoLog "\ayCould not resume follow because the follow target is to far away.  Resetting home loation to current location."
-			/varset followMode FALSE
+			}	else /if (${Target.ID}!=${followTargID} || (${Target.Type.Equal[Corpse]} && ${Target.ID}==${followTargID})) {
+				/call EchoLog "\ayCould not resume follow because we could not find the follow target.  Resetting home loation to current location."
+				/varset followMode FALSE
+			} else /if (${Target.ID}==${followTargID} && ${Target.Distance} > ${campRadius}) {
+				/call EchoLog "\ayCould not resume follow because the follow target is to far away.  Resetting home loation to current location."
+				/varset followMode FALSE
+			}
 		}
-	}
-	/varset sitTimer ${Math.Calc[${Math.Rand[9]} + 1]}s
-	
-	/if (!${pullTimer} && ${pullMode}) {
-		/varset pullTimer ${pullRestTime}
-	}
-/return
+		/varset sitTimer ${Math.Calc[${Math.Rand[9]} + 1]}s
 
+		/if (!${pullTimer} && ${pullMode}) {
+			/varset pullTimer ${pullRestTime}
+		}
+	/return
+
+| --------------------------------------------------------------------------------------------
+| SUB: AlertsCheck
+| --------------------------------------------------------------------------------------------
 Sub AlertsCheck(int mobID)
+	/varset CurrentSub AlertsCheck
+	/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
 	/declare aLoop	int local
 	/declare bLoop	int local
 	/if (!${Defined[cLoop]}) /declare cLoop	int local
 	/declare aSent	bool local
 	/declare aSet		bool local
-	/declare aZero	int local 
-	
+	/declare aZero	int local
+
 	/if (!${mobAlertsValue}) /return
 	/if (${mobID} == NULL) {
 		/if (${Target.ID}) {
@@ -1331,15 +1431,15 @@ Sub AlertsCheck(int mobID)
 	/if (!${mobID}) {
 		/for cLoop 1 to ${targCount}
 			/varset mobID ${targArray[${cLoop}]}
-			/for aLoop 1 to ${mobAlertsValue}	
+			/for aLoop 1 to ${mobAlertsValue}
 				/if (${Spawn[${mobID}].CleanName.Find[${mobAlertsName[${aLoop}]}]}) {
 					/for bLoop 1 to 100
 						/if (${alertSent[${bLoop}]}==${mobID}) /return
 						/if (${alertSent[${bLoop}]}==0 && !${aZero}) /varset aZero ${bLoop}
 					/next bLoop
 					/if (${aZero}) {
-							/varset alertSent[${aZero}] ${mobID}
-							/varset aSet TRUE
+						/varset alertSent[${aZero}] ${mobID}
+						/varset aSet TRUE
 					}
 					/if (!${aSet}) {
 						/call EchoLog "There are currently 100 alert mobs being tracked, no longer playing alerts until some are cleared"
@@ -1347,48 +1447,53 @@ Sub AlertsCheck(int mobID)
 						/if (!${mobAlertsAudio[${aLoop}].Equal[NULL]}) {
 							/call EchoLog "Playing ${mobAlertsAudio[${aLoop}]} for ${Spawn[${mobID}].CleanName} | ${mobID}" TRUE
 							/squelch /exec "${mobAlertsAudio[${aLoop}]}" bg
-							/return
-						}
-					}
-				}
-			/next aLoop		
-		/next cLoop
-	} else {
-		/for aLoop 1 to ${mobAlertsValue}	
-			/if (${Spawn[${mobID}].CleanName.Find[${mobAlertsName[${aLoop}]}]}) {
-				/for bLoop 1 to 100
-					/if (${alertSent[${bLoop}]}==0) {
-						/varset alertSent[${bLoop}] ${mobID}
-						/varset aSet TRUE
-					} else {
-						/next bLoop
-					}
-				/if (!${aSet}) {
-					/call EchoLog "There are currently 100 alert mobs being tracked, no longer playing alerts until some are cleared"
-				} else {
-					/if (!${mobAlertsAudio[${aLoop}].Equal[NULL]}) {
-						/call EchoLog "Playing ${mobAlertsAudio[${aLoop}]} for ${Spawn[${mobID}].CleanName} | ${mobID}" TRUE
-						/squelch /exec "${mobAlertsAudio[${aLoop}]}" bg
 						/return
 					}
 				}
 			}
 		/next aLoop
+	/next cLoop
+} else {
+	/for aLoop 1 to ${mobAlertsValue}
+		/if (${Spawn[${mobID}].CleanName.Find[${mobAlertsName[${aLoop}]}]}) {
+			/for bLoop 1 to 100
+				/if (${alertSent[${bLoop}]}==0) {
+					/varset alertSent[${bLoop}] ${mobID}
+					/varset aSet TRUE
+				} else {
+				/next bLoop
+			}
+			/if (!${aSet}) {
+				/call EchoLog "There are currently 100 alert mobs being tracked, no longer playing alerts until some are cleared"
+			} else {
+				/if (!${mobAlertsAudio[${aLoop}].Equal[NULL]}) {
+					/call EchoLog "Playing ${mobAlertsAudio[${aLoop}]} for ${Spawn[${mobID}].CleanName} | ${mobID}" TRUE
+					/squelch /exec "${mobAlertsAudio[${aLoop}]}" bg
+				/return
+			}
+		}
 	}
+/next aLoop
+}
 /return
 
+| --------------------------------------------------------------------------------------------
+| SUB: CastBuff
+| --------------------------------------------------------------------------------------------
 Sub CastBuff(int buffTargID, int buffNum, string buffType, string singGroup, bool silentMode, string castCallRoutine)
+	/varset CurrentSub CastBuff
+	/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
 	/if (${singGroup.Equal[NULL]}) /varset singGroup Single
 	/if (${silentMode} == NULL) /varset silentMode FALSE
 	/if (${castCallRoutine.Equal[NULL]}) /varset castCallRoutine CheckForAggro
 	/if (!${castCallRoutine.Length} || ${castCallRoutine.Equal[NULL]}) /varset castCallRoutine CheckForAggro
-	
+
 	/declare buffString					string local groupBuff${singGroup}
 	/declare shortBuffString		string local groupBuff
 	/declare retValue						string local COMPLETED_SUCCESS
 	/declare pbItem							bool local FALSE
 	/declare iLoop							int local 0
-	
+
 	/if (${buffType.Equal[Group]}) {
 		/varset buffString groupBuff${singGroup}
 		/varset shortBuffString groupBuff
@@ -1402,74 +1507,75 @@ Sub CastBuff(int buffTargID, int buffNum, string buffType, string singGroup, boo
 		/varset buffString autoBuff
 		/varset shortBuffString autoBuff
 	}
-	
 
-	| /if (${${shortBuffString}Enabled[${buffNum}].Equal[FALSE]}) /return COMPLETED_DISABLED
+| /if (${${shortBuffString}Enabled[${buffNum}].Equal[FALSE]}) /return COMPLETED_DISABLED
 	/call EchoLog "Attempting to cast buff ${${buffString}[${buffNum}]} on ${Spawn[ID ${buffTargID}].CleanName}" TRUE
-	/if (${Me.Casting.ID} && (${Me.Casting.Skill.Find[Instrument]} || ${Me.Casting.Skill.Find[Sing]} || ${Twist.Twisting})) {
-		/melody
-		/squelch /twist stop
-		/squelch /twist clear
-		/delay 5s !${Me.Casting.ID}
+	/if (${Me.Class.ShortName.Equal[BRD]}) {
+		/if (${Me.Casting.ID} && (${Me.Casting.Skill.Find[Instrument]} || ${Me.Casting.Skill.Find[Sing]} || ${Twist.Twisting})) {
+			/melody
+			/squelch /twist stop
+			/squelch /twist clear
+			/delay 5s !${Me.Casting.ID}
+		}
 	}
 	/if (${${shortBuffString}Slot[${buffNum}].Find[Gem]}) {
 		/if (${Me.Gem[${${buffString}[${buffNum}]}]}) {
 			/if (${Me.GemTimer[${${buffString}[${buffNum}]}]} && ${Me.GemTimer[${${buffString}[${buffNum}]}].Float} > 5) {
 				/call EchoLog ".....Cannot cast buff, it has a cooldown timer on it" TRUE
-				/return ABORT_COOLDOWN
-			}
-		} else {
-			/if (${Spell[${${buffString}[${buffNum}]}].RecoveryTime.Float} > 5) {
-				/call EchoLog ".....Cannot cast buff, it is not memmed yet and has a long recovery time, will attempt to mem the buff in order to attempt buffing next buff check." TRUE
-				/memspell ${${shortBuffString}Slot[${buffNum}].Right[-3]} "${${buffString}[${nArray}]}"
-				/delay 5
-			}
-		}
-		
-		/call timer buffTimer ${buffNum}
-		/if (${Macro.Return[TRUE]}) {
-			/call EchoLog ".....Cannot cast buff, it has a cooldown timer on it" TRUE
 			/return ABORT_COOLDOWN
 		}
-		
-		/if (${isMMOBugs}) {
-			/for iLoop 1 to 4
-				/if (${Spell[${${buffString}[${buffNum}]}].ReagentCount[${iLoop}]} && ${Spell[${${buffString}[${buffNum}]}].ReagentID[${iLoop}]} != -1 && (!${FindItem[${Spell[${${buffString}[${buffNum}]}].ReagentID[${iLoop}]}].ID} || ${FindItemCount[${Spell[${${buffString}[${buffNum}]}].ReagentID[${iLoop}]}]} < ${Spell[${${buffString}[${buffNum}]}].ReagentCount[${iLoop}]})) {
-					/call EchoLog ".....Cannot cast buff, missing required component ID ${Spell[${${buffString}[${buffNum}]}].ReagentID[${iLoop}]}" TRUE
-					/return ABORT_MISSINGCOMPONENT
-				}
-			/next iLoop
+	} else {
+		/if (${Spell[${${buffString}[${buffNum}]}].RecoveryTime.Float} > 5) {
+			/call EchoLog ".....Cannot cast buff, it is not memmed yet and has a long recovery time, will attempt to mem the buff in order to attempt buffing next buff check." TRUE
+			/memspell ${${shortBuffString}Slot[${buffNum}].Right[-3]} "${${buffString}[${nArray}]}"
+			/delay 5
 		}
-		
-		/if (${Me.CurrentMana} < ${Spell[${${buffString}[${buffNum}]}].Mana}) /return ABORT_MANALOW
-		/if (${Spell[${${buffString}[${buffNum}]}].RecoveryTime.Float} > 5 && !${Me.Gem[${${buffString}[${buffNum}]}]}) {
-			/memspell ${${shortBuffString}Slot[${buffNum}].Right[-3]} "${${buffString}[${buffNum}]}"
-			/call EchoLog ".....Cannot cast buff, recovery time is to long and it's not memmed.  Memming spell and canceling cast." TRUE
-			/call timer buffTimer ${buffNum} ${Spell[${${buffString}[${buffNum}]}].RecoveryTime.Float}s
-			/return ABORT_RECOVERY
-		}
-	} else /if (${${shortBuffString}Slot[${buffNum}].Equal[disc]}) {
-		/if (!${Me.AbilityReady[${${buffString}[${buffNum}]}]} && !${Me.CombatAbilityReady[${${buffString}[${buffNum}]}]}) {
-			/call EchoLog "The buff ${${buffString}[${buffNum}]} is not yet ready to cast." TRUE
-			/varset retValue ABORT_NOTREADY
-			/goto :cBuffEnd
-		} else /if (${discTimer}) {
-			/call EchoLog "Cannot cast the buff ${${buffString}[${buffNum}]} because there is already a disc running." TRUE
-			/varset retValue ABORT_NOTREADY
-			/goto :cBuffEnd
-		}
-	} else /if (${${shortBuffString}Slot[${buffNum}].Left[1].Equal[/]}) {
-		/docommand ${${shortBuffString}Slot[${buffNum}]}
-		/varset retValue COMPLETED_SUCCESS
+	}
+
+	/call timer buffTimer ${buffNum}
+	/if (${Macro.Return[TRUE]}) {
+		/call EchoLog ".....Cannot cast buff, it has a cooldown timer on it" TRUE
+	/return ABORT_COOLDOWN
+}
+
+	/for iLoop 1 to 4
+		/if (${Spell[${${buffString}[${buffNum}]}].ReagentCount[${iLoop}]} && ${Spell[${${buffString}[${buffNum}]}].ReagentID[${iLoop}]} != -1 && (!${FindItem[${Spell[${${buffString}[${buffNum}]}].ReagentID[${iLoop}]}].ID} || ${FindItemCount[${Spell[${${buffString}[${buffNum}]}].ReagentID[${iLoop}]}]} < ${Spell[${${buffString}[${buffNum}]}].ReagentCount[${iLoop}]})) {
+			/call EchoLog ".....Cannot cast buff, missing required component ID ${Spell[${${buffString}[${buffNum}]}].ReagentID[${iLoop}]}" TRUE
+		/return ABORT_MISSINGCOMPONENT
+	}
+/next iLoop
+
+	/if (${Me.CurrentMana} < ${Spell[${${buffString}[${buffNum}]}].Mana}) /return ABORT_MANALOW
+	/if (${Spell[${${buffString}[${buffNum}]}].RecoveryTime.Float} > 5 && !${Me.Gem[${${buffString}[${buffNum}]}]}) {
+		/memspell ${${shortBuffString}Slot[${buffNum}].Right[-3]} "${${buffString}[${buffNum}]}"
+		/call EchoLog ".....Cannot cast buff, recovery time is to long and it's not memmed.  Memming spell and canceling cast." TRUE
+		/call timer buffTimer ${buffNum} ${Spell[${${buffString}[${buffNum}]}].RecoveryTime.Float}s
+	/return ABORT_RECOVERY
+}
+} else /if (${${shortBuffString}Slot[${buffNum}].Equal[disc]}) {
+	/if (!${Me.AbilityReady[${${buffString}[${buffNum}]}]} && !${Me.CombatAbilityReady[${${buffString}[${buffNum}]}]}) {
+		/call EchoLog "The buff ${${buffString}[${buffNum}]} is not yet ready to cast." TRUE
+		/varset retValue ABORT_NOTREADY
+		/goto :cBuffEnd
+	} else /if (${discTimer}) {
+		/call EchoLog "Cannot cast the buff ${${buffString}[${buffNum}]} because there is already a disc running." TRUE
+		/varset retValue ABORT_NOTREADY
 		/goto :cBuffEnd
 	}
+} else /if (${${shortBuffString}Slot[${buffNum}].Left[1].Equal[/]}) {
+	/docommand ${${shortBuffString}Slot[${buffNum}]}
+	/varset retValue COMPLETED_SUCCESS
+	/goto :cBuffEnd
+}
 	/if (${buffTargID}!=${Target.ID}) {
 		/squelch /target clear
 		/delay 1s !${Target.ID}
 		/squelch /target id ${buffTargID}
 		/delay 1s ${Target.ID}
 	}
-	/if (${buffType.Equal[Group]} && !${silentMode}) /call Announce "${${buffString}Announce[${buffNum}]}"
+	/if (${buffType.Equal[Group]} && !${silentMode}) {
+		/call Announce "${${buffString}Announce[${buffNum}]}"
+	}
 	/if (${${shortBuffString}Slot[${buffNum}].Equal[Item]}) {
 		/call FindPotionBelt "${${buffString}[${buffNum}]}"
 		/varset pbItem ${Macro.Return}
@@ -1477,17 +1583,18 @@ Sub CastBuff(int buffTargID, int buffNum, string buffType, string singGroup, boo
 	/if (!${pbItem}) {
 		/if (${${shortBuffString}Slot[${buffNum}].Equal[disc]}) {
 			/doability "${${buffString}[${buffNum}]}"
-			:abCastWait
-				/call CheckForAggro
-				/if (${gotAggro}) /goto :cBuffEnd
-				/delay 5
+		:abCastWait
+			/call CheckForAggro
+			/if (${gotAggro}) /goto :cBuffEnd
+			/delay 5
 			/if (${Me.Casting.ID}) /goto :abCastWait
-			| /varset discTimer ${Spell[${${buffString}[${buffNum}]}].Duration.TotalSeconds}s
+		| /varset discTimer ${Spell[${${buffString}[${buffNum}]}].Duration.TotalSeconds}s
 			/varset discTimer 2s
 			/varset retValue COMPLETED_SUCCESS
 		} else {
 			/if (${${shortBuffString}Slot[${buffNum}].Equal[Item]}) /call ItemSwapCheck "${${buffString}[${buffNum}]}"
 			/varset membershipFail FALSE
+			/call Debug 2 "MQ2Cast --> ${${buffString}[${buffNum}]} ${${shortBuffString}Slot[${buffNum}]} 0 ${castCallRoutine} -targetID|${Target.ID} -maxtries|${resistTries} Sub: ${CurrentSub}"
 			/call MQ2Cast "${${buffString}[${buffNum}]}" ${${shortBuffString}Slot[${buffNum}]} 0 ${castCallRoutine} -targetID|${Target.ID} -maxtries|${resistTries}
 			/delay 2
 			/if (${CastResult.Equal[CAST_PRESTIGE]}) {
@@ -1506,6 +1613,7 @@ Sub CastBuff(int buffTargID, int buffNum, string buffType, string singGroup, boo
 			}
 		}
 	} else {
+		/call Debug 2 "CastPotionBelt --> ${${buffString}[${buffNum}]} ${castCallRoutine} Sub: ${CurrentSub}"
 		/call CastPotionBelt "${${buffString}[${buffNum}]}" ${castCallRoutine}
 		/if (${Macro.Return.Equal[POTIONCAST_SUCCESS]}) {
 			/varset retValue COMPLETED_SUCCESS
@@ -1518,44 +1626,59 @@ Sub CastBuff(int buffTargID, int buffNum, string buffType, string singGroup, boo
 		/call EchoLog "The spell ${${buffString}[${buffNum}]} can only be cast outdoors.  Disabling it for the duration of this run." TRUE
 		/varset ${shortBuffString}Enabled[${buffNum}] FALSE
 	}
-	:cBuffEnd
+:cBuffEnd
 	/doevents flush spellFade
 	/doevents
 	/if (${gotAggro}) /varset retValue ABORT_AGGRO
 /return ${retValue}
 
+| --------------------------------------------------------------------------------------------
+| SUB: FindPotionBelt
+| --------------------------------------------------------------------------------------------
 Sub FindPotionBelt(string PotionName)
+	/varset CurrentSub FindPotionBelt
+	/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
 	/declare pbArray						int local 0
 
 	/if (${PotionName.Equal[NULL]}) /return FALSE
 	/for pbArray 0 to 4
 		/if (${Window[PotionBeltWnd].Child[PW_PotionSlot${pbArray}_Button].Tooltip.Equal[${PotionName}]} && ${Window[PotionBeltWnd].Child[PW_PotionSlot${pbArray}_Label].Text}>0) {
-			/return TRUE
-		}
-	/next pbArray
+		/return TRUE
+	}
+/next pbArray
 /return FALSE
 
+| --------------------------------------------------------------------------------------------
+| SUB: FindItemWithEffect
+| --------------------------------------------------------------------------------------------
 Sub FindItemWithEffect(string effectName)
+	/varset CurrentSub FindItemWithEffect
+	/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
 	/declare iLoop			int local 0
 	/declare ibLoop			int local 0
 	/for iLoop 1 to 23
-		/if (${Me.Inventory[${equippedSlot[${iLoop}]}].Name.NotEqual[NULL]} && ${Me.Inventory[${equippedSlot[${iLoop}]}].Spell.Name.Equal[${effectName}]}) /return ${Me.Inventory[${equippedSlot[${iLoop}]}].Name}
+		/if (${Me.Inventory[${iLoop}].Name.NotEqual[NULL]} && ${Me.Inventory[${iLoop}].Spell.Name.Equal[${effectName}]}) /return ${Me.Inventory[${iLoop}].Name}
 	/next iLoop
 	/for iLoop 1 to 10
 		/if (${Me.Inventory[pack${iLoop}].Name.NotEqual[NULL]} && ${Me.Inventory[pack${iLoop}].Spell.Name.Equal[${effectName}]}) {
-			/return ${Me.Inventory[pack${iLoop}].Name}
-		} else /if (${Me.Inventory[pack${iLoop}].Container}) {
-			/for ibLoop 1 to ${Me.Inventory[pack${iLoop}].Container}
-				/if (${Me.Inventory[pack${iLoop}].Item[${ibLoop}].Name.NotEqual[NULL]} && ${Me.Inventory[pack${iLoop}].Item[${ibLoop}].Spell.Name.Equal[${effectName}]}) /return ${Me.Inventory[pack${iLoop}].Item[${ibLoop}].Name}
-			/next ibLoop
-		}
-	/next iLoop
+		/return ${Me.Inventory[pack${iLoop}].Name}
+	} else /if (${Me.Inventory[pack${iLoop}].Container}) {
+		/for ibLoop 1 to ${Me.Inventory[pack${iLoop}].Container}
+			/if (${Me.Inventory[pack${iLoop}].Item[${ibLoop}].Name.NotEqual[NULL]} && ${Me.Inventory[pack${iLoop}].Item[${ibLoop}].Spell.Name.Equal[${effectName}]}) /return ${Me.Inventory[pack${iLoop}].Item[${ibLoop}].Name}
+		/next ibLoop
+	}
+/next iLoop
 /return NULL
 
+| --------------------------------------------------------------------------------------------
+| SUB: CastPotionBelt {
+| --------------------------------------------------------------------------------------------
 Sub CastPotionBelt(string PotionName, string CallRoutine) {
+	/varset CurrentSub CastPotionBelt
+	/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
 	/declare pbArray						int local 0
 	/declare retValue						string local POTIONCAST_UNKNOWN
-	
+
 	/if (${PotionName.Equal[NULL]}) /return POTIONCAST_NOTFOUND
 	/if (${CallRoutine.Equal[NULL]}) /varset CallRoutine NULL
 	/if (!${Defined[PBCasting]}) /declare PBCasting				bool outer FALSE
@@ -1566,31 +1689,37 @@ Sub CastPotionBelt(string PotionName, string CallRoutine) {
 				/potionbelt activate ${Math.Calc[${pbArray}+1]}
 				/delay 1s ${Me.Casting.ID}
 				/varset PBCasting TRUE
-				:potionCasting
-					/doevents PBCastFail
-					/if (${CallRoutine.NotEqual[NULL]}) /call ${CallRoutine}
+			:potionCasting
+				/doevents PBCastFail
+				/call Debug 1 "if onCallRoutine.NotEqual[NULL] in CastPotionBelt it's /call onCallRoutine variable ~ Potential Spam"
+				/if (${CallRoutine.NotEqual[NULL]}) /call ${CallRoutine}
 				/if (${Me.Casting.ID}) /goto :potionCasting
 				/delay 1
 				/doevents PBCastFail
 				/doevents outDoors
-				
+
 				/varset PBCasting FALSE
 				/varset retValue POTIONCAST_${PBFailReason}
 				/varset PBFailReason SUCCESS
-				/return ${retValue}
-			} else {
-				/return POTIONCAST_NOPOTIONS
-			}
-		}
-	/next pbArray	
+			/return ${retValue}
+		} else {
+		/return POTIONCAST_NOPOTIONS
+	}
+}
+/next pbArray
 }
 /return POTIONCAST_NOTFOUND
 
+| --------------------------------------------------------------------------------------------
+| SUB: Event_PBCastFail
+| --------------------------------------------------------------------------------------------
 Sub Event_PBCastFail(string rLine)
+	/varset CurrentSub Event_PBCastFail
+	/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
 	/if (!${Defined[PBCasting]}) /declare PBCasting				bool outer FALSE
 	/if (!${Defined[PBFailReason]}) /declare PBFailReason	string outer SUCCESS
 	/if (!${PBCasting}) /return
-	
+
 	/if (${rLine.Find[You are not sufficient level to use this Item]}) {
 		/varset PBFailReason LOWLEVEL
 	} else /if (${rLine.Find[Your spell is interrupted]}) {
@@ -1616,41 +1745,57 @@ Sub Event_PBCastFail(string rLine)
 	}
 /return
 
+| --------------------------------------------------------------------------------------------
+| SUB: buffCheck
+| --------------------------------------------------------------------------------------------
 Sub buffCheck(bool useTimer, bool combatBuff, string onCallRoutine)
+	/varset CurrentSub BuffCheck
+	/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
 	/if (!${castWhileInvis} && ${Me.Invis}) /return ABORT_INVIS
-	/if (${useTimer} == NULL) /varset useTimer TRUE
-	/if (${combatBuff} == NULL) /varset combatBuff FALSE
+	/if (!${useTimer}) /varset useTimer TRUE
+	/if (!${combatBuff}) /varset combatBuff FALSE
 	/if (${useTimer} && ${minBuffCheckTimer}) /return ABORT_TIMER
 	/if (${selfBuffCount} == 0 && (!${Me.Pet.ID} || ${petBuffCount} == 0) && (${groupBuffCount} == 0 || !${Group.Members}) && (!${watchCount} || !${groupBuffCount}) && !${autoBuffCount}) /return ABORT_NOBUFFS
 
 	/declare checkTypes					string local
-	
+
 	/if (!${priorityAutoBuffsTimer} && ${autoBuffCount} && ${doAutoBuffs}) /varset checkTypes ${checkTypes}AUTO|
 	/if (!${prioritySelfBuffsTimer} && ${selfBuffCount} && ${doSelfBuffs}) /varset checkTypes ${checkTypes}SELF|
 	/if (!${priorityGroupBuffsTimer} && ${groupBuffCount} && ${doGroupBuffs} && ${Group.Members}) /varset checkTypes ${checkTypes}GROUP|
 	/if (!${priorityWatchBuffsTimer} && ${groupBuffCount} && ${watchCount} && ${doWatchBuffs}) /varset checkTypes ${checkTypes}WATCH|
 	/if (!${priorityGroupPetBuffsTimer} && ${groupBuffCount} && ${doGroupBuffs} && ${Group.Members}) /varset checkTypes ${checkTypes}GROUPPET|
 	/if (!${priorityPetBuffsTimer} && ${petBuffCount} && ${doPetBuffs} && ${Me.Pet.ID} && !${Me.Pet.Name.Find[familiar]}) /varset checkTypes ${checkTypes}PET|
-	
+
 	/if (${checkTypes.Length}) {
 		/varset checkTypes |${checkTypes}
 		/call buffCheckRoutine ${checkTypes} ${combatBuff} ${onCallRoutine}
 	}
 /return
 
+| --------------------------------------------------------------------------------------------
+| SUB: buffCheckNeeded
+| --------------------------------------------------------------------------------------------
 Sub buffCheckNeeded(string checkBuffName, string checkBuffSpell, string targVariable, float gbMod)
+	/varset CurrentSub buffCheckNeeded
+	/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
 	/if (${gbMod} == NULL) /varset gbMod 0
 	/if (${checkBuffName.Equal[NULL]} && ${checkBuffSpell.Equal[NULL]}) /return FALSE
 	/if (${checkBuffName.Equal[NULL]} && ${checkBuffSpell.NotEqual[NULL]}) /varset checkBuffName ${checkBuffSpell}
 	/if (!${${targVariable}[${checkBuffName}].ID} || ${${targVariable}[${checkBuffName}].Duration.TotalSeconds} < ${Math.Calc[${Spell[${checkBuffSpell}].Duration.TotalSeconds}/10+${gbMod}]}) {
-		| Does not have buff or less than 10% spell duration left
-		/return TRUE
-	}
+	| Does not have buff or less than 10% spell duration left
+	/return TRUE
+}
 /return FALSE
 
+| --------------------------------------------------------------------------------------------
+| SUB: buffCheckRoutine
+| --------------------------------------------------------------------------------------------
 Sub buffCheckRoutine(string checkTypes, bool combatBuff, string onCallRoutine)
+	/varset CurrentSub buffCheckRoutine
+	/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
 	/if (${combatBuff} == NULL) /varset combatBuff FALSE
 	/if (${checkTypes.Equal[NULL]}) /varset checkTypes ALL
+	/if (!${Bool[${onCallRoutine}]}) /varset onCallRoutine NULL
 
 	/call EchoLog "Checking buffs (${checkTypes})- In Combat: ${combatBuff}" TRUE
 
@@ -1666,11 +1811,11 @@ Sub buffCheckRoutine(string checkTypes, bool combatBuff, string onCallRoutine)
 	/declare aggroDetection			bool local FALSE
 	/declare needsBuff					bool local FALSE
 	/declare needsSingleBuff		bool local FALSE
-	
-	| ======================
-	| Check for auto buffs
-	| ======================
-	| supports self only buffs right now
+
+| ======================
+| Check for auto buffs
+| ======================
+| supports self only buffs right now
 	/if (${doAutoBuffs} && ${autoBuffCount} && ${checkTypes.Find[AUTO]}) {
 		/call EchoLog "Checking auto buffs (SELF only currently)" TRUE
 		/varset buffMode BUFF_AUTO
@@ -1700,10 +1845,11 @@ Sub buffCheckRoutine(string checkTypes, bool combatBuff, string onCallRoutine)
 				/if (${autoBuff[${nArray}].NotEqual[NULL]} && ${autoBuffEnabled[${nArray}]} && ${autoBuffAuto[${nArray}]} && ${autoBuffCombat[${nArray}]}==${combatBuff}) {
 					/if (${Spell[${autoBuff[${nArray}]}].Stacks} || ${Spell[${autoBuffText[${nArray}]}].Stacks}) {
 						/if (${autoBuffText[${nArray}].NotEqual[NULL]}) {
-							/if (${Me.Aura[1].Name.Equal[${autoBuffText[${nArray}]}]} || ${Me.Aura[1].Name.Equal[${autoBuff[${nArray}]}]} || ${Me.Aura[2].Name.Equal[${autoBuffText[${nArray}]}]} || ${Me.Aura[2].Name.Equal[${autoBuff[${nArray}]}]}) {
-								| Work around for MQ2 aura bug
+							/if (${Me.Aura[1].Find[${autoBuffText[${nArray}]}]} || ${Me.Aura[1].Find[${autoBuff[${nArray}]}]} || ${Me.Aura[2].Find[${autoBuffText[${nArray}]}]} || ${Me.Aura[2].Find[${autoBuff[${nArray}]}]}) {
+							| Work around for MQ2 aura bug
 							} else {
 								/if ((!${Me.Buff[${autoBuffText[${nArray}]}].ID} || ${Me.Buff[${autoBuffText[${nArray}]}].Duration} <= ${Math.Calc[${Spell[${autoBuff[${nArray}]}].Duration.TotalSeconds}/10]}) && !${Me.Song[${autoBuffText[${nArray}]}].ID}) {
+									/call Debug 2 "CastBuff --> ${Me.ID} ${nArray} Sub: ${CurrentSub}"
 									/call CastBuff ${Me.ID} ${nArray} AUTO
 									/if (${Macro.Return.Equal[CAST_COMPONENTS]}) {
 										/call EchoLog "Disabling auto buff ${autoBuff[${nArray}]} because you either don't have the subscription status for it, or don't have the components for it." TRUE
@@ -1712,15 +1858,16 @@ Sub buffCheckRoutine(string checkTypes, bool combatBuff, string onCallRoutine)
 								}
 							}
 						} else {
-							/if (${Me.Aura[1].Name.Equal[${autoBuff[${nArray}]}]} || ${Me.Aura[2].Name.Equal[${autoBuff[${nArray}]}]}) {
-								| Work around for MQ2 aura bug
+							/if (${Me.Aura[1].Find[${autoBuff[${nArray}]}]} || ${Me.Aura[2].Find[${autoBuff[${nArray}]}]}) {
+							| Work around for MQ2 aura bug
 							} else {
 								/if ((!${Me.Buff[${autoBuff[${nArray}]}].ID} ||  ${Me.Buff[${autoBuff[${nArray}]}].Duration} <= ${Math.Calc[${Spell[${autoBuff[${nArray}]}].Duration.TotalSeconds}/10]})) {
+									/call Debug 2 "CastBuff --> ${Me.ID} ${nArray} Sub: ${CurrentSub}"
 									/call CastBuff ${Me.ID} ${nArray} AUTO
 									/if (${Macro.Return.Equal[CAST_COMPONENTS]}) {
 										/call EchoLog "Disabling auto buff ${autoBuff[${nArray}]} because you either don't have the subscription status for it, or don't have the components for it." TRUE
 										/varset autoBuffEnabled[${nArray}] FALSE
-									}									
+									}
 								}
 							}
 						}
@@ -1728,17 +1875,17 @@ Sub buffCheckRoutine(string checkTypes, bool combatBuff, string onCallRoutine)
 					}
 				}
 			}
-			:nextAutoBuff
+		:nextAutoBuff
 			/doevents flush spellFade
 			/doevents
 		/next nArray
 		/varset buffMode BUFF_NONE
 		/varset priorityAutoBuffsTimer ${priorityAutoBuffs}
 	}
-		
-	| ======================
-	| Check for Group Buffs
-	| ======================	
+
+| ======================
+| Check for Group Buffs
+| ======================
 	/if (${Group.Members} && ${groupBuffCount} && ${doGroupBuffs} && ${checkTypes.Find[GROUP|]}) {
 		/varset buffMode BUFF_GROUP
 		/call EchoLog "Checking group members" TRUE
@@ -1758,15 +1905,11 @@ Sub buffCheckRoutine(string checkTypes, bool combatBuff, string onCallRoutine)
 				/for gArray 0 to ${Group.Members}
 					/if (${Group.Member[${gArray}].ID} && ${Group.Member[${gArray}].State.NotEqual[HOVER]} && ${Group.Member[${gArray}].Type.NotEqual[Corpse]} && ${Group.Member[${gArray}].Distance} < ${campRadius} && (!${Group.Member[${gArray}].Linkdead} || ${Group.Member[${gArray}].Type.Equal[MERCENARY]})) {
 						/if (${groupBuffTargets[${nArray}].Find[${Group.Member[${gArray}].Class.ShortName}]} || ${groupBuffTargets[${nArray}].Find[${Group.Member[${gArray}].Class.Name}]} || ${groupBuffTargets[${nArray}].Find[${Group.Member[${gArray}].CleanName}]} || ((${groupBuffTargets[${nArray}].Find[mt]} || ${groupBuffTargets[${nArray}].Find[maintank]}) && (${Group.Member[${gArray}].MainTank} || ${Group.Member[${gArray}].CleanName.Equal[${mainTank}]}))) {
-							/if (${useEQBC} && ${NetBots[${Group.Member[${gArray}].CleanName}].Zone}) {
-								/varset targVariable NetBots[${Group.Member[${gArray}].CleanName}].Buff
-							} else {
-								/squelch /target id ${Group.Member[${gArray}].ID}
-								/delay 1s ${Target.ID}==${Group.Member[${gArray}].ID}
-								/delay 3
-								/delay 2s ${Target.BuffCount}
-								/varset targVariable Target.Buff
-							}
+							/squelch /target id ${Group.Member[${gArray}].ID}
+							/delay 1s ${Target.ID}==${Group.Member[${gArray}].ID}
+							/delay 3
+							/delay 2s ${Target.BuffCount}
+							/varset targVariable Target.Buff
 							/call buffCheckNeeded "${groupBuffGroupDisplay[${nArray}]}" "${groupBuffGroup[${nArray}]}" ${targVariable} ${gbMod}
 							/varset needsBuff ${Macro.Return}
 							/call buffCheckNeeded "${groupBuffSingleDisplay[${nArray}]}" "${groupBuffSingle[${nArray}]}" ${targVariable} ${gbMod}
@@ -1781,15 +1924,17 @@ Sub buffCheckRoutine(string checkTypes, bool combatBuff, string onCallRoutine)
 								}
 								/call buffCheckStacking groupBuff ${nArray} ${targVariable} Group
 								/if (${Macro.Return.Equal[FALSE]}) /goto :nextGroupMember
-								
+
 								/varcalc needBuffCount[${nArray}] ${needBuffCount[${nArray}]} + 1
 								/if (${needBuffCount}==1) /varcalc gbMod (${Spell[${groupBuffGroup[${nArray}]}].Duration.TotalSeconds} / 10) * 2
 								/varset needBuffID[${needBuffCount[${nArray}]}] ${Group.Member[${gArray}].ID}
 								/varset needBuffStack[${needBuffCount[${nArray}]}] ${singWillStack}
 								/if (${groupBuffSingle[${nArray}].Equal[NULL]} || ${needBuffCount[${nArray}]} >= ${groupBuffGroupMin[${nArray}]}) {
+									/call Debug 2 "CastBuff --> ${Group.Member[${gArray}].ID} ${nArray} Group Group FALSE ${onCallRoutine} Sub: ${CurrentSub}"
 									/call CastBuff ${Group.Member[${gArray}].ID} ${nArray} Group Group FALSE ${onCallRoutine}
 									/if (${Macro.Return.Equal[ABORT_AGGRO]}) /goto :exitBuffRoutine
 									/varset needBuffCount[${nArray}] 0
+									/call Debug 1 "if onCallRoutine.NotEqual[NULL] it's /call onCallRoutine variable ~ Potential Spam in check group buffs"
 									/if (${combatBuff} && ${onCallRoutine.NotEqual[NULL]}) /call ${onCallRoutine}
 									/goto :nextBuff
 								}
@@ -1797,37 +1942,40 @@ Sub buffCheckRoutine(string checkTypes, bool combatBuff, string onCallRoutine)
 								/call EchoLog "${Group.Member[${gArray}].CleanName} is missing ${groupBuffSingle[${nArray}]}" TRUE
 								/call buffCheckStacking groupBuff ${nArray} ${targVariable} Single
 								/if (${Macro.Return.Equal[FALSE]}) /goto :nextGroupMember
-
+								/call Debug 2 "CastBuff --> ${Group.Member[${gArray}].ID} ${nArray} Group Single FALSE ${onCallRoutine} Sub: ${CurrentSub}"
 								/call CastBuff ${Group.Member[${gArray}].ID} ${nArray} Group Single FALSE ${onCallRoutine}
 								/if (${Macro.Return.Equal[ABORT_AGGRO]}) /goto :exitBuffRoutine
+								/call Debug 1 "if onCallRoutine.NotEqual[NULL] it's /call onCallRoutine variable ~ Potential Spam in check group buffs2"
 								/if (${combatBuff} && ${onCallRoutine.NotEqual[NULL]}) /call ${onCallRoutine}
 							}
 						}
 					}
 					/if (!${groupBuffEnabled[${nArray}]}) /goto :nextBuff
-					:nextGroupMember
+				:nextGroupMember
 				/next gArray
 				/if (${needBuffCount[${nArray}]}) {
 					/for bArray 1 to ${needBuffCount[${nArray}]}
 						/if (${needBuffStack[${bArray}]}) {
+							/call Debug 2 "CastBuff --> ${Group.Member[${gArray}].ID} ${nArray} Group Single FALSE ${onCallRoutine} Sub: ${CurrentSub}"
 							/call CastBuff ${needBuffID[${bArray}]} ${nArray} Group Single FALSE ${onCallRoutine}
 							/if (${Macro.Return.Equal[ABORT_AGGRO]}) /goto :exitBuffRoutine
 						}
 					/next bArray
+					/call Debug 1 "if onCallRoutine.NotEqual[NULL] it's /call onCallRoutine variable ~ Potential Spam in check group buffs2"
 					/if (${combatBuff} && ${onCallRoutine.NotEqual[NULL]}) /call ${onCallRoutine}
 				}
 			}
 			/doevents flush spellFade
 			/doevents
-			:nextBuff
+		:nextBuff
 		/next nArray
 		/varset buffMode BUFF_NONE
 		/varset priorityGroupBuffsTimer ${priorityGroupBuffs}
 	}
 
-	| ==========================
-	| Check for Group Pet Buffs
-	| ==========================
+| ==========================
+| Check for Group Pet Buffs
+| ==========================
 	/if (${Group.Members} && ${groupBuffCount} && ${doGroupBuffs} && ${checkTypes.Find[GROUPPET]}) {
 		/varset buffMode BUFF_GROUPPET
 		/call EchoLog "Checking group member's pets" TRUE
@@ -1846,59 +1994,57 @@ Sub buffCheckRoutine(string checkTypes, bool combatBuff, string onCallRoutine)
 				/for gArray 0 to ${Group.Members}
 					/if (${Group.Member[${gArray}].Pet.ID} && !${Group.Member[${gArray}].Pet.Name.Find[familiar]}) {
 						/if (${groupBuffTargets[${nArray}].Find[Pet]} || ${groupBuffTargets[${nArray}].Find[${Group.Member[${gArray}].CleanName}-Pet]} || ${groupBuffTargets[${nArray}].Find[${Group.Member[${gArray}].Class}-Pet]} || ${groupBuffTargets[${nArray}].Find[${Group.Member[${gArray}].Class.ShortName}-Pet]}) {
-							/if (${useEQBC} && ${NetBots[${Group.Member[${gArray}].CleanName}].Zone}) {
-								/varset targVariable NetBots[${Group.Member[${gArray}].CleanName}].PetBuff
-							} else {
-								/squelch /target id ${Group.Member[${gArray}].Pet.ID}
-								/delay 1s ${Target.ID}==${Group.Member[${gArray}].Pet.ID}
-								/delay 3
-								/delay 2s ${Target.BuffCount}
-								/varset targVariable Target.Buff
-							}
-							| /delay 4
+							/squelch /target id ${Group.Member[${gArray}].Pet.ID}
+							/delay 1s ${Target.ID}==${Group.Member[${gArray}].Pet.ID}
+							/delay 3
+							/delay 2s ${Target.BuffCount}
+							/varset targVariable Target.Buff
+						| /delay 4
 							/call buffCheckNeeded "${groupBuffGroupDisplay[${nArray}]}" "${groupBuffGroup[${nArray}]}" ${targVariable}
 							/varset needsBuff ${Macro.Return}
 							/call buffCheckNeeded "${groupBuffSingleDisplay[${nArray}]}" "${groupBuffSingle[${nArray}]}" ${targVariable}
 							/varset needsSingleBuff ${Macro.Return}
 
 							/if (${needsBuff}) {
-									/call EchoLog "${Group.Member[${gArray}].Pet.CleanName} is missing ${groupBuffGroup[${nArray}]}" TRUE
-									
-									/varset singWillStack FALSE
-									/call buffCheckStacking groupBuff ${nArray} ${targVariable} Group
-									/if (${Macro.Return.Equal[FALSE]}) /goto :nextGroupMemberPet
+								/call EchoLog "${Group.Member[${gArray}].Pet.CleanName} is missing ${groupBuffGroup[${nArray}]}" TRUE
 
-									/call CastBuff ${Group.Member[${gArray}].Pet.ID} ${nArray} Group Group FALSE ${onCallRoutine}
-									/if (${Macro.Return.Equal[ABORT_AGGRO]}) /goto :exitBuffRoutine
-									/varset needBuffCount[${nArray}] 0
-									/if (${combatBuff} && ${onCallRoutine.NotEqual[NULL]}) /call ${onCallRoutine}
-									/goto :nextGroupPetBuff
+								/varset singWillStack FALSE
+								/call buffCheckStacking groupBuff ${nArray} ${targVariable} Group
+								/if (${Macro.Return.Equal[FALSE]}) /goto :nextGroupMemberPet
+								/call Debug 2 "CastBuff --> ${Group.Member[${gArray}].Pet.ID} ${nArray} Group Group FALSE ${onCallRoutine} Sub: ${CurrentSub}"
+								/call CastBuff ${Group.Member[${gArray}].Pet.ID} ${nArray} Group Group FALSE ${onCallRoutine}
+								/if (${Macro.Return.Equal[ABORT_AGGRO]}) /goto :exitBuffRoutine
+								/varset needBuffCount[${nArray}] 0
+								/call Debug 1 "if onCallRoutine.NotEqual[NULL] it's /call onCallRoutine variable ~ Potential Spam in check pet group buffs"
+								/if (${combatBuff} && ${onCallRoutine.NotEqual[NULL]}) /call ${onCallRoutine}
+								/goto :nextGroupPetBuff
 							} else /if (${needsSingleBuff}) {
-									/call EchoLog "${Group.Member[${gArray}].Pet.CleanName} is missing ${groupBuffSingle[${nArray}]}" TRUE
-									/call buffCheckStacking groupBuff ${nArray} ${targVariable} Single
-									/if (${Macro.Return.Equal[FALSE]}) /goto :nextGroupMemberPet
-
-									/call CastBuff ${Group.Member[${gArray}].Pet.ID} ${nArray} Group Single FALSE ${onCallRoutine}
-									/if (${Macro.Return.Equal[ABORT_AGGRO]}) /goto :exitBuffRoutine
-									/if (${combatBuff} && ${onCallRoutine.NotEqual[NULL]}) /call ${onCallRoutine}
+								/call EchoLog "${Group.Member[${gArray}].Pet.CleanName} is missing ${groupBuffSingle[${nArray}]}" TRUE
+								/call buffCheckStacking groupBuff ${nArray} ${targVariable} Single
+								/if (${Macro.Return.Equal[FALSE]}) /goto :nextGroupMemberPet
+								/call Debug 2 "CastBuff --> ${Group.Member[${gArray}].Pet.ID} ${nArray} Group Single FALSE ${onCallRoutine} Sub: ${CurrentSub}"
+								/call CastBuff ${Group.Member[${gArray}].Pet.ID} ${nArray} Group Single FALSE ${onCallRoutine}
+								/if (${Macro.Return.Equal[ABORT_AGGRO]}) /goto :exitBuffRoutine
+								/call Debug 1 "if onCallRoutine.NotEqual[NULL] it's /call onCallRoutine variable ~ Potential Spam in check pet group buffs2"
+								/if (${combatBuff} && ${onCallRoutine.NotEqual[NULL]}) /call ${onCallRoutine}
 							}
 						}
 					}
 					/if (!${groupBuffEnabled[${nArray}]}) /goto :nextGroupPetBuff
-					:nextGroupMemberPet
+				:nextGroupMemberPet
 				/next gArray
 			}
 			/doevents flush spellFade
 			/doevents
-			:nextGroupPetBuff
+		:nextGroupPetBuff
 		/next nArray
 		/varset buffMode BUFF_NONE
 		/varset priorityGroupPetBuffsTimer ${priorityGroupPetBuffs}
 	}
-		
-	| =========================
-	| Check for watched buffs
-	| =========================	
+
+| =========================
+| Check for watched buffs
+| =========================
 	/if (${watchCount} && ${groupBuffCount} && ${doWatchBuffs} && ${checkTypes.Find[WATCH]}) {
 		/varset buffMode BUFF_WATCH
 		/call EchoLog "Checking watch list" TRUE
@@ -1912,66 +2058,64 @@ Sub buffCheckRoutine(string checkTypes, bool combatBuff, string onCallRoutine)
 				/next xArray
 			}
 			/if (${Spawn[${watchList[${gArray}]}].ID}) {
-				/if (${useEQBC} && ${NetBots[${watchList[${gArray}]}].Zone}) {
-					/varset targVariable NetBots[${watchList[${gArray}]}].Buff
-				} else {
-					/squelch /target ID ${Spawn[${watchList[${gArray}]}].ID}
-					/delay 1s ${Target.ID}==${Spawn[${watchList[${gArray}]}].ID}
-					/delay 3
-					/delay 2s ${Target.BuffCount}
-					/varset targVariable Target.Buff
-				}
-				/if (${Spawn[${watchList[${gArray}]}].Type.NotEqual[Corpse]} && ${Spawn[${watchList[${gArray}]}].Distance} < ${campRadius} && (!${Spawn[${watchList[${gArray}]}].Linkdead} || ${Spawn[${watchList[${gArray}]}].Type.Equal[MERCENARY]})) {
-					/for nArray 1 to ${groupBuffCount}
-						/if (${groupBuffTargets[${nArray}].Find[${Spawn[${watchList[${gArray}]}].Class.ShortName}]} || ${groupBuffTargets[${nArray}].Find[${Spawn[${watchList[${gArray}]}].Class.Name}]} || ${groupBuffTargets[${nArray}].Find[${Spawn[${watchList[${gArray}]}].CleanName}]} || ((${groupBuffTargets[${nArray}].Find[mt]} || ${groupBuffTargets[${nArray}].Find[maintank]}) && ${Spawn[${watchList[${gArray}]}].CleanName.Equal[${mainTank}]})) {
-							/if (${groupBuffSlot[${nArray}].Equal[Item]} && (${FindItem[${groupBuffGroup[${nArray}]}].Timer} || ${FindItem[${groupBuffSingle[${nArray}]}].Timer})) /goto :nextWBuff
-							/if (${groupBuffSlot[${nArray}].Equal[Alt]} && !${Me.AltAbilityReady[${groupBuffGroup[${nArray}]}]} && !${Me.AltAbilityReady[${groupBuffSingle[${nArray}]}]}) /goto :nextWBuff
-							/if (${groupBuffCombat[${nArray}]}==${combatBuff} && ${groupBuffAuto[${nArray}]} && ${groupBuffEnabled[${nArray}]}) {
-								/call buffCheckNeeded "${groupBuffGroupDisplay[${nArray}]}" "${groupBuffGroup[${nArray}]}" ${targVariable}
-								/varset needsBuff ${Macro.Return}
-								/call buffCheckNeeded "${groupBuffSingleDisplay[${nArray}]}" "${groupBuffSingle[${nArray}]}" ${targVariable}
-								/varset needsSingleBuff ${Macro.Return}
-								/if (${needsBuff}) {
-								| /if (${groupBuffGroup[${nArray}].NotEqual[NULL]}) {
-									| /if (((${groupBuffGroupDisplay[${nArray}].NotEqual[NULL]} && (!${${targVariable}[${groupBuffGroupDisplay[${nArray}]}].ID} || ${${targVariable}[${groupBuffGroupDisplay[${nArray}]}].Duration.Float} < ${Math.Calc[${Spell[${groupBuffGroup[${nArray}]}].Duration.Float}/10]})) || (${groupBuffGroupDisplay[${nArray}].Equal[NULL]} && (!${${targVariable}[${groupBuffGroup[${nArray}]}].ID} || (${${targVariable}[${groupBuffGroup[${nArray}]}].Duration.Float} < ${Math.Calc[${Spell[${groupBuffGroup[${nArray}]}].Duration.Float}/10]} || ${${targVariable}[${groupBuffGroupDisplay[${nArray}]}].Duration.Float} < ${Math.Calc[${Spell[${groupBuffGroupDisplay[${nArray}]}].Duration.Float}/10]})))) && (${groupBuffSingle[${nArray}].Equal[NULL]} || (${groupBuffSingleDisplay[${nArray}].NotEqual[NULL]} && (!${${targVariable}[${groupBuffSingleDisplay[${nArray}]}].ID} || ${${targVariable}[${groupBuffSingleDisplay[${nArray}]}].Duration.Float} < ${Math.Calc[${Spell[${groupBuffGroup[${nArray}]}].Duration.Float}/10]})) || (${groupBuffSingleDisplay[${nArray}].Equal[NULL]} && (!${${targVariable}[${groupBuffSingle[${nArray}]}].ID} || (${${targVariable}[${groupBuffSingle[${nArray}]}].Duration.Float} < ${Math.Calc[${Spell[${groupBuffSingle[${nArray}]}].Duration.Float}/10]} || ${${targVariable}[${groupBuffSingleDisplay[${nArray}]}].Duration.Float} < ${Math.Calc[${Spell[${groupBuffSingleDisplay[${nArray}]}].Duration.Float}/10]}))))) {
-										/call EchoLog "${Spawn[${watchList[${gArray}]}].CleanName} is missing ${groupBuffGroup[${nArray}]}" TRUE
-										/call buffCheckStacking groupBuff ${nArray} ${targVariable} Group
-										/if (${Macro.Return.Equal[FALSE]}) /goto :nextWatchMember
-
-										/call CastBuff ${Spawn[${watchList[${gArray}]}].ID} ${nArray} Group Group FALSE ${onCallRoutine}
-										/if (${Macro.Return.Equal[ABORT_AGGRO]}) /goto :exitBuffRoutine
-										/if (${combatBuff} && ${onCallRoutine.NotEqual[NULL]}) /call ${onCallRoutine}
-										/goto :nextWBuff
-									| }
-								} else /if (${needsSingleBuff}) {
-								| } else /if (${groupBuffSingle[${nArray}].NotEqual[NULL]}) {
-									| /if ((${groupBuffSingleDisplay[${nArray}].NotEqual[NULL]} && (!${${targVariable}[${groupBuffSingleDisplay[${nArray}]}].ID} || ${${targVariable}[${groupBuffSingleDisplay[${nArray}]}].Duration.Float} < ${Math.Calc[${Spell[${groupBuffSingle[${nArray}]}].Duration.Float}/10]})) || (${groupBuffSingleDisplay[${nArray}].Equal[NULL]} && (!${${targVariable}[${groupBuffSingle[${nArray}]}].ID} || (${${targVariable}[${groupBuffSingle[${nArray}]}].Duration.Float} < ${Math.Calc[${Spell[${groupBuffSingle[${nArray}]}].Duration.Float}/10]} || ${${targVariable}[${groupBuffSingleDisplay[${nArray}]}].Duration.Float} < ${Math.Calc[${Spell[${groupBuffSingleDisplay[${nArray}]}].Duration.Float}/10]})))) {
-										/call EchoLog "${Spawn[${watchList[${gArray}]}].CleanName} is missing ${groupBuffSingle[${nArray}]}" TRUE
-										/call buffCheckStacking groupBuff ${nArray} ${targVariable} Single
-										/if (${Macro.Return.Equal[FALSE]}) /goto :nextWatchMember
-
-										/call CastBuff ${Spawn[${watchList[${gArray}]}].ID} ${nArray} Group Single FALSE ${onCallRoutine}
-										/if (${Macro.Return.Equal[ABORT_AGGRO]}) /goto :exitBuffRoutine
-										/if (${combatBuff} && ${onCallRoutine.NotEqual[NULL]}) /call ${onCallRoutine}
-									| }							
-								}						
-							}
-						}
-						/doevents flush spellFade
-						/doevents
-						:nextWBuff
-					/next nArray
+				/squelch /target ID ${Spawn[${watchList[${gArray}]}].ID}
+				/delay 1s ${Target.ID}==${Spawn[${watchList[${gArray}]}].ID}
+				/delay 3
+				/delay 2s ${Target.BuffCount}
+				/varset targVariable Target.Buff
+			}
+			/if (${Spawn[${watchList[${gArray}]}].Type.NotEqual[Corpse]} && ${Spawn[${watchList[${gArray}]}].Distance} < ${campRadius} && (!${Spawn[${watchList[${gArray}]}].Linkdead} || ${Spawn[${watchList[${gArray}]}].Type.Equal[MERCENARY]})) {
+				/for nArray 1 to ${groupBuffCount}
+					/if (${groupBuffTargets[${nArray}].Find[${Spawn[${watchList[${gArray}]}].Class.ShortName}]} || ${groupBuffTargets[${nArray}].Find[${Spawn[${watchList[${gArray}]}].Class.Name}]} || ${groupBuffTargets[${nArray}].Find[${Spawn[${watchList[${gArray}]}].CleanName}]} || ((${groupBuffTargets[${nArray}].Find[mt]} || ${groupBuffTargets[${nArray}].Find[maintank]}) && ${Spawn[${watchList[${gArray}]}].CleanName.Equal[${mainTank}]})) {
+						/if (${groupBuffSlot[${nArray}].Equal[Item]} && (${FindItem[${groupBuffGroup[${nArray}]}].Timer} || ${FindItem[${groupBuffSingle[${nArray}]}].Timer})) /goto :nextWBuff
+						/if (${groupBuffSlot[${nArray}].Equal[Alt]} && !${Me.AltAbilityReady[${groupBuffGroup[${nArray}]}]} && !${Me.AltAbilityReady[${groupBuffSingle[${nArray}]}]}) /goto :nextWBuff
+						/if (${groupBuffCombat[${nArray}]}==${combatBuff} && ${groupBuffAuto[${nArray}]} && ${groupBuffEnabled[${nArray}]}) {
+							/call buffCheckNeeded "${groupBuffGroupDisplay[${nArray}]}" "${groupBuffGroup[${nArray}]}" ${targVariable}
+							/varset needsBuff ${Macro.Return}
+							/call buffCheckNeeded "${groupBuffSingleDisplay[${nArray}]}" "${groupBuffSingle[${nArray}]}" ${targVariable}
+							/varset needsSingleBuff ${Macro.Return}
+							/if (${needsBuff}) {
+							| /if (${groupBuffGroup[${nArray}].NotEqual[NULL]}) {
+							| /if (((${groupBuffGroupDisplay[${nArray}].NotEqual[NULL]} && (!${${targVariable}[${groupBuffGroupDisplay[${nArray}]}].ID} || ${${targVariable}[${groupBuffGroupDisplay[${nArray}]}].Duration.Float} < ${Math.Calc[${Spell[${groupBuffGroup[${nArray}]}].Duration.Float}/10]})) || (${groupBuffGroupDisplay[${nArray}].Equal[NULL]} && (!${${targVariable}[${groupBuffGroup[${nArray}]}].ID} || (${${targVariable}[${groupBuffGroup[${nArray}]}].Duration.Float} < ${Math.Calc[${Spell[${groupBuffGroup[${nArray}]}].Duration.Float}/10]} || ${${targVariable}[${groupBuffGroupDisplay[${nArray}]}].Duration.Float} < ${Math.Calc[${Spell[${groupBuffGroupDisplay[${nArray}]}].Duration.Float}/10]})))) && (${groupBuffSingle[${nArray}].Equal[NULL]} || (${groupBuffSingleDisplay[${nArray}].NotEqual[NULL]} && (!${${targVariable}[${groupBuffSingleDisplay[${nArray}]}].ID} || ${${targVariable}[${groupBuffSingleDisplay[${nArray}]}].Duration.Float} < ${Math.Calc[${Spell[${groupBuffGroup[${nArray}]}].Duration.Float}/10]})) || (${groupBuffSingleDisplay[${nArray}].Equal[NULL]} && (!${${targVariable}[${groupBuffSingle[${nArray}]}].ID} || (${${targVariable}[${groupBuffSingle[${nArray}]}].Duration.Float} < ${Math.Calc[${Spell[${groupBuffSingle[${nArray}]}].Duration.Float}/10]} || ${${targVariable}[${groupBuffSingleDisplay[${nArray}]}].Duration.Float} < ${Math.Calc[${Spell[${groupBuffSingleDisplay[${nArray}]}].Duration.Float}/10]}))))) {
+								/call EchoLog "${Spawn[${watchList[${gArray}]}].CleanName} is missing ${groupBuffGroup[${nArray}]}" TRUE
+								/call buffCheckStacking groupBuff ${nArray} ${targVariable} Group
+								/if (${Macro.Return.Equal[FALSE]}) /goto :nextWatchMember
+								/call Debug 2 "CastBuff --> ${Spawn[${watchList[${gArray}]}].ID} ${nArray} Group Group FALSE ${onCallRoutine} Sub: ${CurrentSub}"
+								/call CastBuff ${Spawn[${watchList[${gArray}]}].ID} ${nArray} Group Group FALSE ${onCallRoutine}
+								/if (${Macro.Return.Equal[ABORT_AGGRO]}) /goto :exitBuffRoutine
+								/call Debug 1 "if onCallRoutine.NotEqual[NULL] it's /call onCallRoutine variable ~ Potential Spam in check watched buffs"
+								/if (${combatBuff} && ${onCallRoutine.NotEqual[NULL]}) /call ${onCallRoutine}
+								/goto :nextWBuff
+						| }
+						} else /if (${needsSingleBuff}) {
+					| } else /if (${groupBuffSingle[${nArray}].NotEqual[NULL]}) {
+					| /if ((${groupBuffSingleDisplay[${nArray}].NotEqual[NULL]} && (!${${targVariable}[${groupBuffSingleDisplay[${nArray}]}].ID} || ${${targVariable}[${groupBuffSingleDisplay[${nArray}]}].Duration.Float} < ${Math.Calc[${Spell[${groupBuffSingle[${nArray}]}].Duration.Float}/10]})) || (${groupBuffSingleDisplay[${nArray}].Equal[NULL]} && (!${${targVariable}[${groupBuffSingle[${nArray}]}].ID} || (${${targVariable}[${groupBuffSingle[${nArray}]}].Duration.Float} < ${Math.Calc[${Spell[${groupBuffSingle[${nArray}]}].Duration.Float}/10]} || ${${targVariable}[${groupBuffSingleDisplay[${nArray}]}].Duration.Float} < ${Math.Calc[${Spell[${groupBuffSingleDisplay[${nArray}]}].Duration.Float}/10]})))) {
+						/call EchoLog "${Spawn[${watchList[${gArray}]}].CleanName} is missing ${groupBuffSingle[${nArray}]}" TRUE
+						/call buffCheckStacking groupBuff ${nArray} ${targVariable} Single
+						/if (${Macro.Return.Equal[FALSE]}) /goto :nextWatchMember
+						/call Debug 2 "CastBuff --> ${Spawn[${watchList[${gArray}]}].ID} ${nArray} Group Single FALSE ${onCallRoutine} Sub: ${CurrentSub}"
+						/call CastBuff ${Spawn[${watchList[${gArray}]}].ID} ${nArray} Group Single FALSE ${onCallRoutine}
+						/if (${Macro.Return.Equal[ABORT_AGGRO]}) /goto :exitBuffRoutine
+						/call Debug 1 "if onCallRoutine.NotEqual[NULL] it's /call onCallRoutine variable ~ Potential Spam in check watched buffs2"
+						/if (${combatBuff} && ${onCallRoutine.NotEqual[NULL]}) /call ${onCallRoutine}
+				| }
 				}
 			}
-			:nextWatchMember
-		/next gArray
-		/varset buffMode BUFF_NONE
-		/varset priorityWatchBuffsTimer ${priorityWatchBuffs}
-	}
-	
-	| ======================
-	| Check for self buffs
-	| ======================
+		}
+		/doevents flush spellFade
+		/doevents
+	:nextWBuff
+	/next nArray
+}
+:nextWatchMember
+/next gArray
+	/varset buffMode BUFF_NONE
+	/varset priorityWatchBuffsTimer ${priorityWatchBuffs}
+}
+
+| ======================
+| Check for self buffs
+| ======================
 	/if (${doSelfBuffs} && ${selfBuffCount}>0 && ${checkTypes.Find[SELF]}) {
 		/call EchoLog "Checking self buffs" TRUE
 		/varset buffMode BUFF_SELF
@@ -1990,22 +2134,28 @@ Sub buffCheckRoutine(string checkTypes, bool combatBuff, string onCallRoutine)
 				/call buffCheckStacking buff ${nArray} Me.Buff
 				/if (${Macro.Return.Equal[TRUE]}) {
 					/if (${buffText[${nArray}].NotEqual[NULL]}) {
-						/if (${Me.Aura[1].Name.Equal[${buffText[${nArray}]}]} || ${Me.Aura[1].Name.Equal[${buffName[${nArray}]}]} || ${Me.Aura[2].Name.Equal[${buffText[${nArray}]}]} || ${Me.Aura[2].Name.Equal[${buffName[${nArray}]}]}) {
-							| Work around for MQ2 aura bug
+						/if (${Me.Aura[1].Find[${buffText[${nArray}]}]} || ${Me.Aura[1].Find[${buffName[${nArray}]}]} || ${Me.Aura[2].Find[${buffText[${nArray}]}]} || ${Me.Aura[2].Find[${buffName[${nArray}]}]}) {
+						| Work around for MQ2 aura bug
 						} else {
-							/if ((!${Me.Buff[${buffText[${nArray}]}].ID} || ${Me.Buff[${buffText[${nArray}]}].Duration} <= ${Math.Calc[${Spell[${buffName[${nArray}]}].Duration.TotalSeconds}/10]}) && !${Me.Song[${buffText[${nArray}]}].ID}) /call CastBuff ${Me.ID} ${nArray} SELF
+							/if ((!${Me.Buff[${buffText[${nArray}]}].ID} || ${Me.Buff[${buffText[${nArray}]}].Duration} <= ${Math.Calc[${Spell[${buffName[${nArray}]}].Duration.TotalSeconds}/10]}) && !${Me.Song[${buffText[${nArray}]}].ID}) {
+								/call Debug 2 "CastBuff --> ${Me.ID} ${nArray} SELF Sub: ${CurrentSub}"
+								/call CastBuff ${Me.ID} ${nArray} SELF
+							}
 						}
 					} else {
-						/if (${Me.Aura[1].Name.Equal[${buffName[${nArray}]}]} || ${Me.Aura[2].Name.Equal[${buffName[${nArray}]}]}) {
-							| Work around for MQ2 aura bug
+						/if (${Me.Aura[1].Find[${buffName[${nArray}]}]} || ${Me.Aura[2].Find[${buffName[${nArray}]}]}) {
+						| Work around for MQ2 aura bug
 						} else {
-							/if ((!${Me.Buff[${buffName[${nArray}]}].ID} ||  ${Me.Buff[${buffName[${nArray}]}].Duration} <= ${Math.Calc[${Spell[${buffName[${nArray}]}].Duration.TotalSeconds}/10]})) /call CastBuff ${Me.ID} ${nArray} SELF
+							/if ((!${Me.Buff[${buffName[${nArray}]}].ID} ||  ${Me.Buff[${buffName[${nArray}]}].Duration} <= ${Math.Calc[${Spell[${buffName[${nArray}]}].Duration.TotalSeconds}/10]})) {
+								/call Debug 2 "CastBuff --> ${Me.ID} ${nArray} SELF Sub: ${CurrentSub}"
+								/call CastBuff ${Me.ID} ${nArray} SELF
+							}
 						}
 					}
 					/if (${gotAggro}) /goto :exitBuffRoutine
 				}
 			}
-			:nextSelfBuff
+		:nextSelfBuff
 			/doevents flush spellFade
 			/doevents
 		/next nArray
@@ -2013,9 +2163,9 @@ Sub buffCheckRoutine(string checkTypes, bool combatBuff, string onCallRoutine)
 		/varset prioritySelfBuffsTimer ${prioritySelfBuffs}
 	}
 
-	| ======================
-	| Check for pet buffs
-	| ======================
+| ======================
+| Check for pet buffs
+| ======================
 	/if (${doPetBuffs} && ${petBuffCount}>0 && ${Me.Pet.ID} && !${Me.Pet.Name.Find[familiar]} && ${checkTypes.Find[|PET|]}) {
 		/varset buffMode BUFF_PET
 		/call EchoLog "Checking pet buffs" TRUE
@@ -2027,40 +2177,51 @@ Sub buffCheckRoutine(string checkTypes, bool combatBuff, string onCallRoutine)
 				}
 			/next xArray
 			/if (${petBuffSlot[${nArray}].Equal[Item]} && ${FindItem[${petBuff[${nArray}]}].Timer}) /goto :nextPetBuff
-			/if (${petBuffSlot[${nArray}].Equal[alt]} && !${Me.AltAbilityReady[${petBuff[${nArray}]}]}) /goto :nextPetBuff				
+			/if (${petBuffSlot[${nArray}].Equal[alt]} && !${Me.AltAbilityReady[${petBuff[${nArray}]}]}) /goto :nextPetBuff
 			/if (!${petBuff[${nArray}].Equal[NULL]} && ${petBuffEnabled[${nArray}]} && ${petBuffAuto[${nArray}]} && ${petBuffCombat[${nArray}]}==${combatBuff}) {
 				/call buffCheckStacking petBuff ${nArray} Me.PetBuff
 				/if (${Macro.Return.Equal[TRUE]}) {
 					/if (!${petBuffText[${nArray}].Equal[NULL]}) {
-						/if (!${Me.PetBuff[${petBuffText[${nArray}]}]}) /call CastBuff ${Me.Pet.ID} ${nArray} Pet
+						/if (!${Me.PetBuff[${petBuffText[${nArray}]}]}) {
+							/call Debug 2 "CastBuff --> ${Me.Pet.ID} ${nArray} Pet Sub: ${CurrentSub}"
+							/call CastBuff ${Me.Pet.ID} ${nArray} Pet
+						}
 					} else {
-						/if (!${Me.PetBuff[${petBuff[${nArray}]}]}) /call CastBuff ${Me.Pet.ID} ${nArray} Pet
+						/if (!${Me.PetBuff[${petBuff[${nArray}]}]}) {
+							/call Debug 2 "CastBuff --> ${Me.Pet.ID} ${nArray} Pet Sub: ${CurrentSub}"
+							/call CastBuff ${Me.Pet.ID} ${nArray} Pet
+						}
 					}
 					/if (${gotAggro}) /goto :exitBuffRoutine
 				}
 			}
-			:nextPetBuff
+		:nextPetBuff
 			/doevents flush spellFade
 			/doevents
 		/next nArray
 		/varset buffMode BUFF_NONE
 		/varset priorityPetBuffsTimer ${priorityPetBuffs}
 	}
-	
-	:exitBuffRoutine
-	| /varset minBuffCheckTimer ${minBuffCheckTimerStr}
+
+:exitBuffRoutine
+| /varset minBuffCheckTimer ${minBuffCheckTimerStr}
 	/if (!${gotAggro} && !${aggroDetection}) {
 		/call EchoLog "Buff check Completed" TRUE
 	} else {
 		/varset minBuffCheckTimer 30s
 		/call EchoLog "Buff check aborted due to aggro, all buff checking will be delayed for 30 seconds" TRUE
 		/varset buffMode BUFF_NONE
-		/return ABORT_AGGRO
-	}
+	/return ABORT_AGGRO
+}
 	/doevents flush spellFade
 /return COMPLETED_SUCCESS
 
+| --------------------------------------------------------------------------------------------
+| SUB: buffCheckStacking
+| --------------------------------------------------------------------------------------------
 Sub buffCheckStacking(string buffType, int buffID, string buffTargetVar, string buffSubType)
+	/varset CurrentSub buffCheckStacking
+	/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
 	/declare bArray					int local 0
 	/declare sArray					int local 0
 	/declare buffNameSpell	string local NULL
@@ -2068,34 +2229,34 @@ Sub buffCheckStacking(string buffType, int buffID, string buffTargetVar, string 
 	/declare buffNameRank		int local 0
 	/declare buffTextSpell	string local NULL
 	/declare buffTextBaseSpell	string local NULL
-	| /declare buffTextRank		int local 0
+| /declare buffTextRank		int local 0
 	/declare currSpell 			string local NULL
 	/declare currRank				int local 0
 	/declare sBuffName			string local
 	/declare sBuffText			string local
 	/declare sBuffSlot			string local
 	/declare textVar				string local Text
-	/declare nameVar				string local 
+	/declare nameVar				string local
 	/declare sSpell					string local NULL
 	/declare sRank					int local 0
 	/declare thisStack			bool local FALSE
 	/declare thisSpellName	string local
 	/declare currBaseSpell	string local NULL
-	
-	/if (${buffSubType.Equal[NULL]}) /varset buffSubType 
+
+	/if (${buffSubType.Equal[NULL]}) /varset buffSubType
 	/if (${buffType.Find[group]}) /varset textVar Display
 	/if (${buffType.Equal[buff]}) /varset nameVar Name
-	
+
 	/varset sBuffName ${${buffType}${buffSubType}${nameVar}[${buffID}]}
 	/varset sBuffText ${${buffType}${buffSubType}${textVar}[${buffID}]}
 	/varset sBuffSlot ${${buffType}Slot[${buffID}]}
 
-	/if (${sBuffSlot.Find[Gem]} && !${sBuffName.Find[Rk]}) /varset sBuffName ${sBuffName} Rk. I	
+	/if (${sBuffSlot.Find[Gem]} && !${sBuffName.Find[Rk]}) /varset sBuffName ${sBuffName} Rk. I
 	/call GetSpellName "${sBuffName}"
 	/varset buffNameSpell ${Macro.Return}
 	/call GetSpellName "${buffNameSpell}"
 	/varset buffNameBaseSpell ${Macro.Return}
-	| Make sure we have the right spell from the book if this is a casting spell
+| Make sure we have the right spell from the book if this is a casting spell
 	/if (${sBuffSlot.Find[Gem]}) {
 		/if (${Me.Book[${buffNameSpell}]}) /varset sBuffName ${buffNameSpell} Rk. I
 		/if (${Me.Book[${buffNameSpell} Rk. II]}) /varset sBuffName ${buffNameSpell} Rk. II
@@ -2105,14 +2266,13 @@ Sub buffCheckStacking(string buffType, int buffID, string buffTargetVar, string 
 	}
 	/call GetSpellRank "${sBuffName}"
 	/varset buffNameRank ${Macro.Return}
-	
+
 	/if (!${sBuffText.Length} || ${sBuffText.Equal[NULL]}) /varset sBuffText ${sBuffName}
-	/if (${sBuffSlot.Find[Gem]} && !${sBuffText.Find[Rk]}) /varset sBuffText ${sBuffText} Rk. I	
+	/if (${sBuffSlot.Find[Gem]} && !${sBuffText.Find[Rk]}) /varset sBuffText ${sBuffText} Rk. I
 	/call GetSpellName "${sBuffText}"
 	/varset buffTextSpell ${Macro.Return}
 	/call GetSpellName "${buffTextSpell}"
 	/varset buffTextBaseSpell ${Macro.Return}
-
 	/for bArray 1 to 50
 		/if (${${buffTargetVar}[${bArray}].ID}) {
 			/varset thisSpellName ${${buffTargetVar}[${bArray}].Name}
@@ -2122,61 +2282,66 @@ Sub buffCheckStacking(string buffType, int buffID, string buffTargetVar, string 
 			/varset currBaseSpell ${Macro.Return}
 			/call GetSpellRank "${thisSpellName}"
 			/varset currRank ${Macro.Return}
-			
+
 			/if (${currBaseSpell.NotEqual[${currSpell}]}) {
 				/if (${currSpell.Equal[${buffTextSpell}]} && ${currRank} > ${buffNameRank}) {
 					/call EchoLog ".....${sBuffName} will not stack because there is a higher version of it present" TRUE
-					/return FALSE
-				} else /if (${currSpell.Equal[${buffTextSpell}]} && ${currRank} <= ${buffNameRank}) {
-					/return TRUE
-				}
-			} else /if (${currBaseSpell.Equal[${buffTextBaseSpell}]} && ${buffTextBaseSpell.Equal[${buffTextSpell}]} && ${currRank} > ${buffNameRank}) {
-				/call EchoLog ".....${sBuffName} will not stack because there is a higher version of it present" TRUE
 				/return FALSE
-			} else /if (${currBaseSpell.Equal[${buffTextBaseSpell}]} && ${buffTextBaseSpell.Equal[${buffTextSpell}]} && ${currRank} <= ${buffNameRank}) {
-				/return TRUE
-			}
-			
-			/if (${${buffType}DNSCount[${buffID}]}) {
-				/for sArray 1 to ${${buffType}DNSCount[${buffID}]}
-					/call GetSpellName "${${buffType}DoNotStack[${buffID},${sArray}]}"
-					/varset sSpell ${Macro.Return}
-					/if (${currSpell.Equal[${sSpell}]} || ${currSpell.Equal[${${buffType}DoNotStack[${buffID},${sArray}]}]} || ${currBaseSpell.Equal[${sSpell}]} || ${currBaseSpell.Equal[${${buffType}DoNotStack[${buffID},${sArray}]}]}) {
-						/call EchoLog ".....${sBuffName} will not stack because ${${buffType}DoNotStack[${buffID},${sArray}]} is in the Do Not Stack settings for this buff" TRUE
-						/return FALSE
-					}
-				/next sArray
-			}
-			
-			/if ((${sBuffSlot.NotEqual[Item]} && ${Spell[${buffNameSpell}].WillStack[${thisSpellName}]}) || (${sBuffSlot.Equal[Item]} && ${FindItem[${sBuffName}].Spell.WillStack[${thisSpellName}]})) {
-			} else {
-				| Check the stack override list
-				/if (${${buffType}SCount[${buffID}]}) {
-					/varset thisStack FALSE
-					/for sArray 1 to ${${buffType}SCount[${buffID}]}
-						/call GetSpellName "${${buffType}Stack[${buffID},${sArray}]}"
-						/varset sSpell ${Macro.Return}
-						/call GetSpellRank "${${buffType}Stack[${buffID},${sArray}]}"
-						/varset sRank ${Macro.Return}
-						/if (${currSpell.Equal[${sSpell}]} || ${currSpell.Equal[${${buffType}DoNotStack[${buffID},${sArray}]}]} || ${currBaseSpell.Equal[${sSpell}]} || ${currBaseSpell.Equal[${${buffType}DoNotStack[${buffID},${sArray}]}]}) {
-							/call EchoLog ".....MQ2 reports ${sBuffName} will not stack with ${sSpell}, but it is in the Stack list so allowing it." TRUE
-							/varset thisStack TRUE
-						}
-					/next sArray
-					/if (!${thisStack}) {
-						/call EchoLog ".....${sBuffName} will not stack with ${thisSpellName} according to MQ2" TRUE
-						/return FALSE
-					}
-				} else {
-					/call EchoLog ".....${sBuffName} will not stack with ${thisSpellName} according to MQ2" TRUE
-					/return FALSE
-				}
-			}
+			} else /if (${currSpell.Equal[${buffTextSpell}]} && ${currRank} <= ${buffNameRank}) {
+			/return TRUE
 		}
-	/next bArray
+	} else /if (${currBaseSpell.Equal[${buffTextBaseSpell}]} && ${buffTextBaseSpell.Equal[${buffTextSpell}]} && ${currRank} > ${buffNameRank}) {
+		/call EchoLog ".....${sBuffName} will not stack because there is a higher version of it present" TRUE
+	/return FALSE
+} else /if (${currBaseSpell.Equal[${buffTextBaseSpell}]} && ${buffTextBaseSpell.Equal[${buffTextSpell}]} && ${currRank} <= ${buffNameRank}) {
+/return TRUE
+}
+
+	/if (${${buffType}DNSCount[${buffID}]}) {
+		/for sArray 1 to ${${buffType}DNSCount[${buffID}]}
+			/call GetSpellName "${${buffType}DoNotStack[${buffID},${sArray}]}"
+			/varset sSpell ${Macro.Return}
+			/if (${currSpell.Equal[${sSpell}]} || ${currSpell.Equal[${${buffType}DoNotStack[${buffID},${sArray}]}]} || ${currBaseSpell.Equal[${sSpell}]} || ${currBaseSpell.Equal[${${buffType}DoNotStack[${buffID},${sArray}]}]}) {
+				/call EchoLog ".....${sBuffName} will not stack because ${${buffType}DoNotStack[${buffID},${sArray}]} is in the Do Not Stack settings for this buff" TRUE
+			/return FALSE
+		}
+	/next sArray
+}
+
+	/if ((${sBuffSlot.NotEqual[Item]} && ${Spell[${buffNameSpell}].WillStack[${thisSpellName}]}) || (${sBuffSlot.Equal[Item]} && ${FindItem[${sBuffName}].Spell.WillStack[${thisSpellName}]})) {
+	} else {
+	| Check the stack override list
+		/if (${${buffType}SCount[${buffID}]}) {
+			/varset thisStack FALSE
+			/for sArray 1 to ${${buffType}SCount[${buffID}]}
+				/call GetSpellName "${${buffType}Stack[${buffID},${sArray}]}"
+				/varset sSpell ${Macro.Return}
+				/call GetSpellRank "${${buffType}Stack[${buffID},${sArray}]}"
+				/varset sRank ${Macro.Return}
+				/if (${currSpell.Equal[${sSpell}]} || ${currSpell.Equal[${${buffType}DoNotStack[${buffID},${sArray}]}]} || ${currBaseSpell.Equal[${sSpell}]} || ${currBaseSpell.Equal[${${buffType}DoNotStack[${buffID},${sArray}]}]}) {
+					/call EchoLog ".....MQ2 reports ${sBuffName} will not stack with ${sSpell}, but it is in the Stack list so allowing it." TRUE
+					/varset thisStack TRUE
+				}
+			/next sArray
+			/if (!${thisStack}) {
+				/call EchoLog ".....${sBuffName} will not stack with ${thisSpellName} according to MQ2" TRUE
+			/return FALSE
+		}
+	} else {
+		/call EchoLog ".....${sBuffName} will not stack with ${thisSpellName} according to MQ2" TRUE
+	/return FALSE
+}
+}
+}
+/next bArray
 /return TRUE
 
+| --------------------------------------------------------------------------------------------
+| SUB: campCheck
+| --------------------------------------------------------------------------------------------
 Sub campCheck(bool pauseCheck)
+	/varset CurrentSub campCheck
+	/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
 	/declare inum 		int local
 	/declare isSafe 	bool local
 	/declare pcID			int local
@@ -2184,7 +2349,7 @@ Sub campCheck(bool pauseCheck)
 	/declare campSafe	bool local
 	/if (${pauseCheck}) /varset pauseCheck FALSE
 	/if (!${Defined[unsafePCLastCheckCombat]}) /declare unsafePCLastCheckCombat bool outer ${inCombat}
-	
+
 	/if (${Spawn[GM].ID}) {
 		/varset campSafe FALSE
 		/if (${GMAction.NotEqual[continue]}) /call EchoLog "\arGM Detected in zone!"
@@ -2214,12 +2379,12 @@ Sub campCheck(bool pauseCheck)
 			/if (!${priorityUnsafePCTimer}) /call EchoLog ".....Action is set to continue." TRUE
 		}
 	}
-	
+
 	/if (${priorityUnsafePCTimer} && ((${inCombat} && ${unsafePCLastCheckCombat}) || (!${inCombat} && !${unsafePCLastCheckCombat}))) /return
 	/varset unsafePCLastCheckCombat ${inCombat}
-	
+
 	/varset campSafe TRUE
-	:safePCCheck
+:safePCCheck
 	/varset pcNum ${Math.Calc[${pcNum}+1]}
 	/varset pcID ${NearestSpawn[${pcNum},pc loc ${homeX} ${homeY} radius ${unsafePCRadius} notid ${Me.ID}].ID}
 	/if (${pcID}) {
@@ -2233,45 +2398,60 @@ Sub campCheck(bool pauseCheck)
 			/if (${inCombat} && !${unsafePCImmediate} && ${unsafePCAction.NotEqual[continue]}) {
 				/varset priorityUnsafePCTimer ${priorityUnsafePC}
 				/call EchoLog ".....In combat, finishing combat first" TRUE
-				/return ${campSafe}
-			}
-			/if (${pullMode} && ${unsafePCReturn} && ${pullState.NotEqual[NULL]}) {
-				/call EchoLog ".....Currently pulling (PullState: ${pullState}) and set to return to camp first, attempting to do so" TRUE
-				/return FALSE
-			}
-			/if (${unsafePCAction.Equal[stop]}) {
-				/call EchoLog ".....Action is set to stop, will stop the macro now" TRUE
-				/endmacro
-			} else /if (${unsafePCAction.Equal[gate]}) {
-				/call EchoLog ".....Action is set to gate, attempting to gate and camp" TRUE
-				/call Evac ${campAfterGate}
-			} else /if (${unsafePCAction.Equal[continue]}) {
-				/call EchoLog ".....Action is set to continue" TRUE
-			} else /if (${unsafePCAction.Equal[camp]}) {
-				/call EchoLog ".....Action is set to camp out" TRUE
-				/call Evac ${campAfterGate} TRUE
-			} else {
-				/call EchoLog ".....Action is set to pause, will pause all actions until clear." TRUE
-				/call pauseActions
-				/varset campSafe TRUE
-			}
-		} else {
-			/goto :safePCCheck
+			/return ${campSafe}
 		}
+		/if (${pullMode} && ${unsafePCReturn} && ${pullState.NotEqual[NULL]}) {
+			/call EchoLog ".....Currently pulling (PullState: ${pullState}) and set to return to camp first, attempting to do so" TRUE
+		/return FALSE
 	}
-	/varset priorityUnsafePCTimer ${priorityUnsafePC}
+	/if (${unsafePCAction.Equal[stop]}) {
+		/call EchoLog ".....Action is set to stop, will stop the macro now" TRUE
+		/endmacro
+	} else /if (${unsafePCAction.Equal[gate]}) {
+		/call EchoLog ".....Action is set to gate, attempting to gate and camp" TRUE
+		/call Evac ${campAfterGate}
+	} else /if (${unsafePCAction.Equal[continue]}) {
+		/call EchoLog ".....Action is set to continue" TRUE
+	} else /if (${unsafePCAction.Equal[camp]}) {
+		/call EchoLog ".....Action is set to camp out" TRUE
+		/call Evac ${campAfterGate} TRUE
+	} else {
+		/call EchoLog ".....Action is set to pause, will pause all actions until clear." TRUE
+		/call pauseActions
+		/varset campSafe TRUE
+	}
+} else {
+	/goto :safePCCheck
+}
+}
+	/if (${Defined[priorityUnsafePC]}) {
+		/varset priorityUnsafePCTimer ${priorityUnsafePC}
+	}
 /return ${campSafe}
 
-Sub CastSpell(string spellType, bool combatMem, bool faceTarg, bool AllowDiscs) 
+| --------------------------------------------------------------------------------------------
+| SUB: CastSpell
+| --------------------------------------------------------------------------------------------
+Sub CastSpell(string spellType, bool combatMem, bool faceTarg, bool AllowDiscs)
+	/varset CurrentSub CastSpell
+	/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
 	/if (${medMode}) {
 		/varset priorityCombatSpellsTimer ${priorityCombatSpells}
-		/return ABORT_MEDMODE
-	}
-	/if (!${castWhileInvis} && ${Me.Invis}) /return ABORT_INVIS
-	/if (${priorityCombatSpellsTimer}) /return ABORT_TIMER
+	/return ABORT_MEDMODE
+}
+	/if (!${castWhileInvis} && ${Me.Invis}) {
+	/return ABORT_INVIS
+}
+	/if (${priorityCombatSpellsTimer}) {
+	/return ABORT_TIMER
+}
 	/if (${faceTarg} == NULL) /varset faceTarg ${faceWhenCasting}
-	/if (!${doCombatSpells}) /return ABORT_DISABLED
-	/if (${Me.Moving}) /return ABORT_MOVING
+	/if (!${doCombatSpells}) {
+	/return ABORT_DISABLED
+}
+	/if (${Me.Moving}) {
+	/return ABORT_MOVING
+}
 	/declare cCondition		bool local
 	/declare retValue			string local
 	/declare sTypeNum			int local 0
@@ -2282,10 +2462,9 @@ Sub CastSpell(string spellType, bool combatMem, bool faceTarg, bool AllowDiscs)
 	/declare hKeyTemp			string local
 	/declare restartTwist	bool local FALSE
 	/declare iLoop				int local 0
-	
+
 	/if (${AllowDiscs} == NULL) /varset AllowDiscs TRUE
-	/if (${spellType.Equal[NULL]}) {
-		/varset spellType 
+	/if (!${Bool[spellType]} || ${spellType.Equal[NULL]}) {
 		/if (${spellTypeValue}) {
 			/varset sTypeNum 1
 			/varset spellType ${spellTypes[${sTypeNum}]}
@@ -2294,8 +2473,12 @@ Sub CastSpell(string spellType, bool combatMem, bool faceTarg, bool AllowDiscs)
 		}
 	}
 	/if (${combatMem} == NULL) /varset combatMem TRUE
-	/if (!${csCount}) /return ABORT_NOSPELLS
-	/if (${globalCooldown}) /return ABORT_COOLDOWN
+	/if (!${csCount}) {
+	/return ABORT_NOSPELLS
+}
+	/if (${globalCooldown}) {
+	/return ABORT_COOLDOWN
+}
 	/if (${giftSpell}) {
 		/if (${Me.Song[Gift of Mana (70)].ID}) /varset spellType GOM70
 		/if (${Me.Song[Gift of Mana (75)].ID}) /varset spellType GOM75
@@ -2316,37 +2499,51 @@ Sub CastSpell(string spellType, bool combatMem, bool faceTarg, bool AllowDiscs)
 			/varset spellType FOP
 		}
 	}
-	:restartCast
+:restartCast
 	/for nArray 1 to ${csCount}
-		/if (${csType[${nArray}].Equal[${spellType}]}) {
+		/if (${csType[${nArray}].Equal[${spellType}]} || ${csType[${nArray}].Equal[NULL]} || ${csType[${nArray}].Equal[ALL]}) {
 			/if (${combatSpells[${nArray}].NotEqual[NULL]} && ${Target.ID} && ${Target.Type.NotEqual[Corpse]}) {
 				/if (${csSpellSlot[${nArray}].Equal[item]}) {
 					/if (!${FindItem[${combatSpells[${nArray}]}].ID}) {
 						/call EchoLog "${combatSpells[${nArray}]} could not be found in your inventory.  Please check the spelling in your INI." TRUE
-						/goto :nextnArray
+						/continue
 					}
 					/if (${FindItem[${combatSpells[${nArray}]}].Timer}) /goto :nextnArray
 				}
 				/if (!${combatMem}) {
-					/if (${csSpellSlot[${nArray}].Find[Gem]} && !${Me.SpellReady[${combatSpells[${nArray}]}]}) /goto :nextnArray
+					/if (${csSpellSlot[${nArray}].Find[Gem]} && !${Me.SpellReady[${combatSpells[${nArray}]}]}) {
+						/continue
+					}
 				}
-				| Check GemTimer for spell readiness
+			| Check GemTimer for spell readiness
 				/if (${csSpellSlot[${nArray}].Find[Gem]}) {
 					/if (${Me.Gem[${combatSpells[${nArray}]}]}) {
-						/if (${Me.GemTimer[${combatSpells[${nArray}]}]} && ${Me.GemTimer[${combatSpells[${nArray}]}].Float} > 5) /goto :nextnArray
+						/if (${Me.GemTimer[${combatSpells[${nArray}]}]} && ${Me.GemTimer[${combatSpells[${nArray}]}].Float} > 5) {
+							/continue
+						}
 					} else {
 						/if (${Spell[${combatSpells[${nArray}]}].RecoveryTime.Float} > 5) {
 							/memspell ${csSpellSlot[${nArray}].Right[-3]} "${combatSpells[${nArray}]}"
 							/delay 5
-							/goto :nextnArray
+							/continue
 						}
 					}
 				}
-				/if (${csSpellSlot[${nArray}].Equal[alt]} && !${Me.AltAbilityReady[${combatSpells[${nArray}]}]}) /goto :nextnArray
-				/if (${csSpellSlot[${nArray}].Equal[disc]} && !${Me.CombatAbilityReady[${combatSpells[${nArray}]}]}) /goto :nextnArray
-				/if ((${csSpellSlot[${nArray}].Equal[disc]} || ${combatSpells[${nArray}].Find[Untamed Rage]}) && ${discTimer} && ${Spell[${csSpellSlot[${nArray}]}].Duration.TotalSeconds}) /goto :nextnArray
-				/if (${csTimer${nArray}} && !${Me.SpellReady[${combatSpells[${nArray}]}]}) /goto :nextnArray
-				/if (${Spell[${combatSpells[${nArray}]}].TargetType.Find[AE]} && ${Spell[${combatSpells[${nArray}]}].TargetType.NotEqual[PB AE]} && ${Spell[${combatSpells[${nArray}]}].AERange} && ${Spell[${combatSpells[${nArray}]}].Range} > 50 && ${Target.Distance} < ${Spell[${combatSpells[${nArray}]}].AERange}) /goto :nextnArray
+				/if (${csSpellSlot[${nArray}].Equal[alt]} && !${Me.AltAbilityReady[${combatSpells[${nArray}]}]}) {
+					/continue
+				}
+				/if (${csSpellSlot[${nArray}].Equal[disc]} && !${Me.CombatAbilityReady[${combatSpells[${nArray}]}]}) {
+					/continue
+				}
+				/if ((${csSpellSlot[${nArray}].Equal[disc]} || ${combatSpells[${nArray}].Find[Untamed Rage]}) && ${discTimer} && ${Spell[${csSpellSlot[${nArray}]}].Duration.TotalSeconds}) {
+					/continue
+				}
+				/if (${csTimer${nArray}} && !${Me.SpellReady[${combatSpells[${nArray}]}]}) {
+					/continue
+				}
+				/if (${Spell[${combatSpells[${nArray}]}].TargetType.Find[AE]} && ${Spell[${combatSpells[${nArray}]}].TargetType.NotEqual[PB AE]} && ${Spell[${combatSpells[${nArray}]}].AERange} && ${Spell[${combatSpells[${nArray}]}].Range} > 50 && ${Target.Distance} < ${Spell[${combatSpells[${nArray}]}].AERange}) {
+					/continue
+				}
 				/if ((${Me.MaxMana} && ${Me.PctMana}>=${csminMana[${nArray}]} && ${Me.PctMana}<=${csmaxMana[${nArray}]}) || (!${Me.MaxMana} && ${Me.PctEndurance}>=${csminMana[${nArray}]} && ${Me.PctEndurance}<=${csmaxMana[${nArray}]})) {
 					/call timer cs ${Target.ID}${nArray}
 					/if (${Macro.Return.Equal[FALSE]}) {
@@ -2363,7 +2560,7 @@ Sub CastSpell(string spellType, bool combatMem, bool faceTarg, bool AllowDiscs)
 										/varset cCondition TRUE
 									} else {
 										/if (${csCondition[${nArray}].Left[1].Equal[!]}) {
-											| /varset cCondition ${${csCondition[${nArray}].Right[${Math.Calc[${csCondition[${nArray}].Length}-1]}]}}
+										| /varset cCondition ${${csCondition[${nArray}].Right[${Math.Calc[${csCondition[${nArray}].Length}-1]}]}}
 											/varset cCondition ${${Ini[${iniName},Combat,SpellCondition${nArray},TRUE].Right[-1]}}
 											/if (${cCondition}) {
 												/varset cCondition FALSE
@@ -2371,19 +2568,20 @@ Sub CastSpell(string spellType, bool combatMem, bool faceTarg, bool AllowDiscs)
 												/varset cCondition TRUE
 											}
 										} else {
-											| /varset cCondition ${${csCondition[${nArray}]}}
+										| /varset cCondition ${${csCondition[${nArray}]}}
 											/varset cCondition ${${Ini[${iniName},Combat,SpellCondition${nArray},TRUE]}}
 										}
 									}
 									/if (${cCondition}) {
 										/if (${Me.Class.ShortName.Equal[BRD]} && (${Me.Casting.ID} || ${Me.Casting.Skill.Find[instrument]} || ${Me.Casting.Skill.Find[Sing]} || ${Twist.Twisting})) {
 											/if (${Spell[${combatSpells[${nArray}]}].CastTime} || ${FindItem[${combatSpells[${nArray}]}].CastTime}) {
-												:stopCast
-													/melody
-													/stop
-													/squelch /twist stop
-													/varset restartTwist TRUE
-													/delay 1s !${Me.Casting.ID}
+											:stopCast
+												/myecho \arstopping cast
+												/melody
+												/stop
+												/squelch /twist stop
+												/varset restartTwist TRUE
+												/delay 1s !${Me.Casting.ID}
 												/if (${Me.Casting.ID}) /goto :stopCast
 											}
 										}
@@ -2402,9 +2600,10 @@ Sub CastSpell(string spellType, bool combatMem, bool faceTarg, bool AllowDiscs)
 											/varset PBFailReason SUCCESS
 											/varset PBCasting TRUE
 											/if (${Me.CombatAbility[${Me.CombatAbility[${combatSpells[${nArray}]}]}].Name.NotEqual[${combatSpells[${nArray}]}]}) /varset combatSpells[${nArray}] ${Me.CombatAbility[${Me.CombatAbility[${combatSpells[${nArray}]}]}].Name}
+											/call Debug 2 "Doing Ability --> ${combatSpells[${nArray}]}"
 											/doability "${combatSpells[${nArray}]}"
-											:discWait
-												/doevents PBCastFail
+										:discWait
+											/doevents PBCastFail
 											/if (${Me.Casting.ID} && ${Me.Casting.ID}==${Spell[${combatSpells[${nArray}]}].ID}) /goto :discWait
 											/varset PBCasting FALSE
 											/varset globalCooldown ${globalCDStr}
@@ -2417,11 +2616,11 @@ Sub CastSpell(string spellType, bool combatMem, bool faceTarg, bool AllowDiscs)
 												/call EchoLog "Spell cast unsuccessful: ${PBFailReason}" TRUE
 											}
 										} else /if (${csSpellSlot[${nArray}].Left[6].Equal[hotkey]}) {
-											| =========================================================================
-											|  This should make it so you can use hotkeys as slots in combat spells
-											|   Format HotkeyN-B  where N is the hotkey number and b is the bar number
-											|   Just hotkeyN should default to the first bar
-											| =========================================================================
+										| =========================================================================
+										|  This should make it so you can use hotkeys as slots in combat spells
+										|   Format HotkeyN-B  where N is the hotkey number and b is the bar number
+										|   Just hotkeyN should default to the first bar
+										| =========================================================================
 											/varset hKeyTemp ${csSpellSlot[${nArray}].Right[-6]}
 											/if (${hKeyTemp.Find[-]}) {
 												/varset hKeyNum ${hKeyTemp.Left[${Math.Calc[${hKeyTemp.Find[-]} - 1]}]}
@@ -2431,14 +2630,14 @@ Sub CastSpell(string spellType, bool combatMem, bool faceTarg, bool AllowDiscs)
 												/varset hKeyBar 1
 											}
 											/if (${hKeyNum} != 0 && ${hKeyBar} != 0) {
-												/varset hKeyBarStr hotbuttonwnd											
+												/varset hKeyBarStr hotbuttonwnd
 												/varset hKeyNumStr HB
 												/if (${hKeyBar} > 1) {
 													/varset hKeyBarStr hotbuttonwnd${hKeyBar}
 													/varset hKeyNumStr HB${hKeyBar}
 												}
 												/varset hKeyNumStr ${hKeyNumStr}_Button${hKeyNum}
-												
+
 												/call EchoLog "Attempting to click ${csSpellSlot[${nArray}]} HotButton: ${hKeyNumStr} HotBar: ${hKeyBarStr}" TRUE
 												/notify ${hKeyBarStr} ${hKeyNumStr} leftmouseup
 												/call timer cs ${Target.ID}${nArray} ${csrecastDly[${nArray}]}
@@ -2446,6 +2645,7 @@ Sub CastSpell(string spellType, bool combatMem, bool faceTarg, bool AllowDiscs)
 											}
 										} else {
 											/if (${Me.Class.Name.Equal[Bard]} && ${csSpellSlot[${nArray}].Find[Gem]} && (${Spell[${combatSpells[${nArray}]}].Skill.Find[instrument]} || ${Spell[${combatSpells[${nArray}]}].Skill.Find[Sing]})) {
+												/call Debug 2 "CastSong --> ${combatSpells[${nArray}]} ${csSpellSlot[${nArray}].Right[-3]} ${resistTries} TRUE checkTargHPs Sub: ${CurrentSub}"
 												/call CastSong "${combatSpells[${nArray}]}" ${csSpellSlot[${nArray}].Right[-3]} ${resistTries} TRUE checkTargHPs
 												/varset globalCooldown ${globalCDStr}
 												/varset sitTimer ${sitTimerString}
@@ -2471,8 +2671,8 @@ Sub CastSpell(string spellType, bool combatMem, bool faceTarg, bool AllowDiscs)
 													/if (${combatSpells[${nArray}].Equal[Untamed Raged]}) /varset discTimer ${Math.Calc[${Me.CombatAbility[${Me.CombatAbility[${combatSpells[${nArray}]}]}].Duration.TotalSeconds} + 1]}s
 													/varset csTimer${nArray} ${Me.Gem[${Me.Gem[${combatSpells[${nArray}]}]}].RecastTime}s
 												} else {
-													
-													/if (${isMMOBugs} && ${Spell[${combatSpells[${nArray}]}].ID}) {
+
+													/if (${Spell[${combatSpells[${nArray}]}].ID}) {
 														/for iLoop 1 to 4
 															/if (${Spell[${combatSpells[${nArray}]}].ReagentCount[${iLoop}]} && ${Spell[${combatSpells[${nArray}]}].ReagentID[${iLoop}]} != -1 && (!${FindItem[${Spell[${combatSpells[${nArray}]}].ReagentID[${iLoop}]}].ID} || ${FindItem[${Spell[${combatSpells[${nArray}]}].ReagentID[${iLoop}]}].StackCount} < ${Spell[${combatSpells[${nArray}]}].ReagentCount[${iLoop}]})) {
 																/call EchoLog ".....Cannot cast spell, missing required component ID ${Spell[${combatSpells[${nArray}]}].ReagentID[${iLoop}]}" TRUE
@@ -2480,7 +2680,7 @@ Sub CastSpell(string spellType, bool combatMem, bool faceTarg, bool AllowDiscs)
 															}
 														/next iLoop
 													}
-													
+													/call Debug 2 "MQ2Cast --> ${combatSpells[${nArray}]} ${csSpellSlot[${nArray}]} 0 checkTargHPs -targetID|${Target.ID} -maxtries|${resistTries} Sub: ${CurrentSub}"
 													/call MQ2Cast "${combatSpells[${nArray}]}" ${csSpellSlot[${nArray}]} 0 checkTargHPs -targetID|${Target.ID} -maxtries|${resistTries}
 													/varset globalCooldown ${globalCDStr}
 													/varset sitTimer ${sitTimerString}
@@ -2508,7 +2708,7 @@ Sub CastSpell(string spellType, bool combatMem, bool faceTarg, bool AllowDiscs)
 				}
 			}
 		}
-		:nextnArray
+	:nextnArray
 	/next nArray
 	/if (${sTypeNum}) {
 		/varcalc sTypeNum ${sTypeNum} + 1
@@ -2523,7 +2723,7 @@ Sub CastSpell(string spellType, bool combatMem, bool faceTarg, bool AllowDiscs)
 	}
 	/if (${spellType.Find[GOM]} && !${spellType.Find[FOP]}) {
 		/if (${spellType.Equal[GOM120]}) {
-			/varset spellType GOM115			
+			/varset spellType GOM115
 		} else /if (${spellType.Equal[GOM115]}) {
 			/varset spellType GOM110
 		} else /if (${spellType.Equal[GOM110]}) {
@@ -2557,7 +2757,7 @@ Sub CastSpell(string spellType, bool combatMem, bool faceTarg, bool AllowDiscs)
 	}
 	/if (${spellType.Find[GOM]} && ${spellType.Find[FOP]}) {
 		/if (${spellType.Equal[GOM120]}) {
-			/varset spellType GOM115			
+			/varset spellType GOM115
 		} else /if (${spellType.Equal[GOM115]}) {
 			/varset spellType GOM110
 		} else /if (${spellType.Equal[GOM110]}) {
@@ -2581,10 +2781,10 @@ Sub CastSpell(string spellType, bool combatMem, bool faceTarg, bool AllowDiscs)
 		}
 		/if (${spellType.NotEqual[GOM120]}) /varset spellType ${spellType}FOP
 		/goto :restartCast
-	}	
+	}
 	/varset retValue CAST_NONE
-	:exitFor
-	| /if (${restartTwist}) /squelch /twist start
+:exitFor
+| /if (${restartTwist}) /squelch /twist start
 	/if (${restartTwist}) {
 		/if (${useMelody}) {
 			/squelch /melody ${combatGem1} ${combatGem2} ${combatGem3} ${combatGem4}
@@ -2592,19 +2792,30 @@ Sub CastSpell(string spellType, bool combatMem, bool faceTarg, bool AllowDiscs)
 			/squelch /twist start
 		}
 	}
-	
+
 	/varset priorityCombatSpellsTimer ${priorityCombatSpells}
 /return ${retValue}
 
+| --------------------------------------------------------------------------------------------
+| SUB: CheckFriendList
+| --------------------------------------------------------------------------------------------
 Sub CheckFriendList(int friendID)
+	/varset CurrentSub CheckFriendList
+	/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
+	/varset CurrentSub CheckFriendList
 	/if (${friendID} == NULL) /return FALSE
 	/call CreateFriendList
 	/if (${friendList.Find[|${friendID}|]}) /return TRUE
 /return FALSE
 
+| --------------------------------------------------------------------------------------------
+| SUB: IsDetectedAdd
+| --------------------------------------------------------------------------------------------
 Sub IsDetectedAdd(int checkID)
+	/varset CurrentSub IsDetectedAdd
+	/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
 	/declare idLoop				int local 0
-	
+
 	/if (${targCount}) {
 		/for idLoop 1 to ${targCount}
 			/if (${targArray[${idLoop}]}==${checkID}) /return TRUE
@@ -2612,18 +2823,23 @@ Sub IsDetectedAdd(int checkID)
 	}
 /return FALSE
 
+| --------------------------------------------------------------------------------------------
+| SUB: CheckForXTargetAdds
+| --------------------------------------------------------------------------------------------
 Sub CheckForXTargetAdds(int cDist, int checkID, bool checkAll, bool silentRun)
+	/varset CurrentSub CheckForXTargetAdds
+	/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
 	/if (${cDist} == NULL) /varset cDist ${campRadius}
 	/if (${checkAll} == NULL) /varset checkAll TRUE
 	/if (${silentRun} == NULL) /varset silentRun FALSE
 	/if (${checkID} == NULL) /varset checkID 0
-	
+
 	/declare xTargLoop			int local 0
 	/declare freeXTarget		int local 0
 	/declare xID						int local 0
 	/declare checkY					float local ${If[!${checkID},${homeY},${Spawn[${checkID}].Y}]}
 	/declare checkX					float local ${If[!${checkID},${homeX},${Spawn[${checkID}].X}]}
-	
+
 	HIGHERDEBUG "Checking XTarget for adds" TRUE 5
 	/for xTargLoop 1 to ${maxXTargets}
 		/if (${Me.XTarget[${xTargLoop}].${xTargType}.Equal[Auto Hater]} && !${Me.XTarget[${xTargLoop}].ID}) /varcalc freeXTarget ${freeXTarget} + 1
@@ -2643,17 +2859,22 @@ Sub CheckForXTargetAdds(int cDist, int checkID, bool checkAll, bool silentRun)
 					/if (!${checkAll}) /return 0
 				}
 			}
-		}	
+		}
 	/next xTargLoop
 /return ${freeXTarget}
 
+| --------------------------------------------------------------------------------------------
+| SUB: CheckForAdds
+| --------------------------------------------------------------------------------------------
 Sub CheckForAdds(int cDist, int checkID, bool useChoose, bool checkAll, bool silentRun)
+	/varset CurrentSub CheckForAdds
+	/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
 	/if (${priorityAddCheckTimer}) /return ABORT_TIMER
-	/if (${cDist} == NULL) /varset cDist ${campRadius}
-	/if (${checkID} == NULL) /varset checkID 0
-	/if (${useChoose} == NULL) /varset useChoose FALSE
-	/if (${checkAll} == NULL) /varset checkAll TRUE
-	/if (${silentRun} == NULL) /varset silentRun FALSE
+	/if (${cDist} == NULL || !${cDist}) /varset cDist ${campRadius}
+	/if (${checkID} == NULL || !${checkID}) /varset checkID 0
+	/if (${useChoose} == NULL || !${useChoose}) /varset useChoose FALSE
+	/if (${checkAll} == NULL || !${checkAll}) /varset checkAll TRUE
+	/if (${silentRun} == NULL || !${silentRun}) /varset silentRun FALSE
 
 	/if (${checkID} && !${Spawn[${checkID}].ID}) /varset checkID 0
 	/if (!${checkID} && (${followMode} || (${Defined[soloMode]} && ${soloMode}))) /varset checkID ${Me.ID}
@@ -2668,10 +2889,12 @@ Sub CheckForAdds(int cDist, int checkID, bool useChoose, bool checkAll, bool sil
 			/varset targCount 1
 			/varset targArray[1] ${Target.ID}
 		}
-		/return
-	}			
+	/return
+}
 
-	/declare sID 								int local 0
+	/if (!${Defined[sID]}) {
+		/declare sID int outer 0
+	}
 	/declare cID								int local 0
 	/declare mToTID							int local 0
 	/declare nCount 						int local	0
@@ -2679,7 +2902,7 @@ Sub CheckForAdds(int cDist, int checkID, bool useChoose, bool checkAll, bool sil
 	/declare detectType					string local npc
 	/declare fLoop							int local 0
 	/declare aHeading						float local
-	/declare aToFriendHeading		float local		
+	/declare aToFriendHeading		float local
 	/declare freeXTargets				int local 0
 	/declare spawnAggressive		bool local FALSE
 	/if (${useXTarget}) {
@@ -2688,49 +2911,49 @@ Sub CheckForAdds(int cDist, int checkID, bool useChoose, bool checkAll, bool sil
 		/varset freeXTargets ${Macro.Return}
 		/if (${newAddID} && !${checkAll}) /goto :endDetection
 	}
-	
+
 	/if (!${useXTarget} || (!${xTargetOnly} && !${freeXTargets})) {
 		/call CreateFriendList
-		:nextAdd
-			/varcalc nCount ${nCount} + 1
-			/varset sID ${NearestSpawn[${nCount},${detectType} radius ${cDist} loc ${checkX} ${checkY} Range ${minMobLvl} ${maxMobLvl} los noalert ${alertList}].ID}
-			/varset spawnAggressive TRUE
-			/if (!${emuMode}) {
-				/varset spawnAggressive ${Spawn[${sID}].Aggressive}
-			}
-			/if (${sID} && ${spawnAggressive} && (${Spawn[${sID}].Type.Equal[NPC]} || (${Spawn[${sID}].Type.Equal[Pet]} && ${Spawn[${sID}].Master.Type.NotEqual[PC]})) && (!${checkID} || ${Spawn[${sID}].FeetWet}==${Spawn[${checkID}].FeetWet})) {
-				/call IsDetectedAdd ${sID}
-				/if (${Macro.Return.Equal[FALSE]}) {
-					/if (${Me.LAHoTT} && ${Group.GroupSize} >= 3 && !${Me.Combat} && ${useLAHoTT}) {
-						| ====================================================================================
-						| Check the target of the mob to ensure it's targetting a friend
-						| ====================================================================================						
-						/varset mToTID ${Me.TargetOfTarget.ID}
-						/squelch /target id ${sID}
-						/delay 1s ${Target.ID}==${sID}
-						/delay 1s ${Me.TargetOfTarget.ID}!=${mToTID}
-						/if (${Me.TargetOfTarget.ID}) {
-							/call CheckFriendList ${Me.TargetOfTarget.ID}
-							/varset isAdd ${Macro.Return}
-						} else {
-							/varset isAdd FALSE
-						}
+	:nextAdd
+		/varcalc nCount ${nCount} + 1
+		/varset sID ${NearestSpawn[${nCount},${detectType} radius ${cDist} loc ${checkX} ${checkY} Range ${minMobLvl} ${maxMobLvl} los noalert ${alertList}].ID}
+		/varset spawnAggressive TRUE
+		/if (!${emuMode}) {
+			/varset spawnAggressive ${Spawn[${sID}].Aggressive}
+		}
+		/if (${sID} && ${spawnAggressive} && (${Spawn[${sID}].Type.Equal[NPC]} || (${Spawn[${sID}].Type.Equal[Pet]} && ${Spawn[${sID}].Master.Type.NotEqual[PC]})) && (!${checkID} || ${Spawn[${sID}].FeetWet}==${Spawn[${checkID}].FeetWet})) {
+			/call IsDetectedAdd ${sID}
+			/if (${Macro.Return.Equal[FALSE]}) {
+				/if (${Me.LAHoTT} && ${Group.GroupSize} >= 3 && !${Me.Combat} && ${useLAHoTT}) {
+				| ====================================================================================
+				| Check the target of the mob to ensure it's targetting a friend
+				| ====================================================================================
+					/varset mToTID ${Me.TargetOfTarget.ID}
+					/squelch /target id ${sID}
+					/delay 1s ${Target.ID}==${sID}
+					/delay 1s ${Me.TargetOfTarget.ID}!=${mToTID}
+					/if (${Me.TargetOfTarget.ID}) {
+						/call CheckFriendList ${Me.TargetOfTarget.ID}
+						/varset isAdd ${Macro.Return}
 					} else {
-						| ====================================================================================
-						| Check the heading of the mob to see if it's facing a friend if LA HoTT is not available
-						| ====================================================================================
 						/varset isAdd FALSE
-						
-						/for fLoop 1 to ${Math.Calc[${friendList.Count[|]}+1]}
-							/if (${friendList.Token[${fLoop},|].NotEqual[NULL]} && ${friendList.Token[${fLoop},|].Length}) {
-								/varset cID ${friendList.Token[${fLoop},|]}
-								/varset aHeading ${Spawn[${sID}].Heading.Degrees}
-								/varset aToFriendHeading ${Spawn[${sID}].HeadingToLoc[${Spawn[${cID}].Y},${Spawn[${cID}].X}].Degrees}
-								/if (${Math.Abs[${aHeading}-${aToFriendHeading}]} < 4) /varset isAdd TRUE
-							}
+					}
+				} else {
+				| ====================================================================================
+				| Check the heading of the mob to see if it's facing a friend if LA HoTT is not available
+				| ====================================================================================
+					/varset isAdd FALSE
+
+					/for fLoop 1 to ${Math.Calc[${friendList.Count[|]}+1]}
+						/if (${friendList.Token[${fLoop},|].NotEqual[NULL]} && ${friendList.Token[${fLoop},|].Length}) {
+							/varset cID ${friendList.Token[${fLoop},|]}
+							/varset aHeading ${Spawn[${sID}].Heading.Degrees}
+							/varset aToFriendHeading ${Spawn[${sID}].HeadingToLoc[${Spawn[${cID}].Y},${Spawn[${cID}].X}].Degrees}
+							/if (${Math.Abs[${aHeading}-${aToFriendHeading}]} < 4) /varset isAdd TRUE
+						}
 						/if (!${isAdd}) /next fLoop
 					}
-					
+
 					/if (${isAdd}) {
 						/varcalc targCount ${targCount} + 1
 						/varset targArray[${targCount}] ${sID}
@@ -2748,24 +2971,36 @@ Sub CheckForAdds(int cDist, int checkID, bool useChoose, bool checkAll, bool sil
 				/varset detectType Pet
 				/varset nCount 0
 				/goto :nextAdd
-			}		
-	}
+			}
+		}
 	:endDetection
-	HIGHERDEBUG "CheckForAdds completed.  newAddID: ${newAddID" TRUE 5
-	/if (${useChoose}) {
-		/call ChooseTarget ${newAddID}
-	} else {
-		/call CorpseCheck
-	}
-	/varset priorityAddCheckTimer ${priorityAddCheck}
-/return
+		HIGHERDEBUG "CheckForAdds completed.  newAddID: ${newAddID}" TRUE 5
+		/if (${useChoose}) {
+			/call ChooseTarget ${newAddID}
+		} else {
+			/call CorpseCheck
+		}
+		/if (${Defined[priorityAddCheck]}) {
+			/varset priorityAddCheckTimer ${priorityAddCheck}
+		}
+	/return
 
+| --------------------------------------------------------------------------------------------
+| SUB: checkTargHPs
+| --------------------------------------------------------------------------------------------
 Sub checkTargHPs
+	/varset CurrentSub checkTargHPs
+	/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
 	/if (${Target.Type.Equal[Corpse]} && ${allowInterrupt}) /call Interrupt
 	/call CheckForAggro
 /return
 
+| --------------------------------------------------------------------------------------------
+| SUB: CheckForAggro
+| --------------------------------------------------------------------------------------------
 Sub CheckForAggro(int mobCheck)
+	/varset CurrentSub CheckForAggro
+	/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
 	/declare nearID 				int local 0
 	/declare nearNum 				int local 0
 	/declare mobHeading 		float local
@@ -2774,28 +3009,28 @@ Sub CheckForAggro(int mobCheck)
 	/if (${mobCheck} == NULL) /varset mobCheck 0
 
 	/if (!${checkForAdds}) /varset mobCheck ${targID}
-	
+
 	/varset gotAggro FALSE
 	/varset gotAggroID 0
 	/if (${useXTarget} && !${Me.XTarget}) /return FALSE
-	:nextNearNPC
+:nextNearNPC
 	/if (!${mobCheck}) {
 		/varset nearNum ${Math.Calc[${nearNum}+1]}
 		/varset nearID ${Me.NearestSpawn[${nearNum}, npc radius ${Math.Calc[${minSafeDistance} - .5]} los noalert ${alertList}].ID}
 	} else {
 		/if (${Spawn[${mobCheck}].Distance} > ${minSafeDistance} || ${Math.Abs[${Spawn[${mobCheck}].Heading.Degrees}-${Spawn[${mobCheck}].HeadingToLoc[${Me.Y},${Me.X}].Degrees}]}>5) {
 			/if (!${rampageNoSit}) /varset allowSit TRUE
-			/return ${gotAggroID}
-		}
-		/varset nearID ${mobCheck}
+		/return ${gotAggroID}
 	}
+	/varset nearID ${mobCheck}
+}
 	/if (${nearID} && ${Spawn[${nearID}].Type.NotEqual[Untargetable]}) {
 		/varset mobHeading ${Spawn[${nearID}].Heading.Degrees}
 		/varset mobToMeHeading ${Spawn[${nearID}].HeadingToLoc[${Me.Y},${Me.X}].Degrees}
 		/varset allowSit FALSE
 		/if (${Me.LAHoTT} && ${Group.GroupSize}>=3 && !${Me.Combat} && !${Me.Casting.ID}) {
 			/varset mToTID ${Me.TargetOfTarget.ID}
-			/squelch /target id ${sID}
+			/squelch /target id ${nearID}
 			/delay 1s ${Target.ID}==${nearID}
 			/delay 1s ${Me.TargetOfTarget.ID}!=${mToTID}
 			/if (${Me.TargetOfTarget.ID}==${Me.ID}) {
@@ -2827,18 +3062,23 @@ Sub CheckForAggro(int mobCheck)
 	}
 /return ${gotAggroID}
 
+| --------------------------------------------------------------------------------------------
+| SUB: CommonINILoad
+| --------------------------------------------------------------------------------------------
 Sub CommonINILoad
+	/varset CurrentSub CommonIniLoad
+	/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
 	/declare ctArray										int local 0
-	
+
 	/call EchoLog "Common INI Load started, INI Name: ${iniName}"
 
 | ========================================
 |  Load command settings (custom commands)
 | ========================================
-	/call GetINISetting ${iniName} Commands EQBCCommands eqbcCommands TRUE
+	/call GetINISetting ${iniName} Commands EQBCCommands eqbcCommands FALSE
 	/call GetINISetting ${iniName} Commands GroupCommands groupCommands TRUE
-	/call GetINISetting ${iniName} Commands TellCommands tellCommands TRUE
-	/call GetINISetting ${iniName} Commands echoCommands echoCommands TRUE
+	/call GetINISetting ${iniName} Commands TellCommands tellCommands FALSE
+	/call GetINISetting ${iniName} Commands echoCommands echoCommands FALSE
 
 	/call GetINIArrayCount ${iniName} Commands CommandTrigger NULL
 	/varset commandCount ${Macro.Return}
@@ -2860,39 +3100,41 @@ Sub CommonINILoad
 	}
 	/call GetINISetting ${iniName} Commands CommandTrigger${Math.Calc[${commandCount}+1].Int} NULL NULL
 	/call GetINISetting ${iniName} Commands CommandTrigger${Math.Calc[${commandCount}+1].Int}Action1 NULL NULL
-		
+
 | ========================================
 |  Load watch list
 | ========================================
 	/call GetINIArrayCount ${iniName} WatchList WatchName NULL
 	/varset watchCount ${Macro.Return}
 	/call EchoLog "Loading ${watchCount} watched PCs" TRUE
-	
-	
+
 	/if (${watchCount}) {
-		/for nArray 1 to ${watchCount} 
+		/for nArray 1 to ${watchCount}
 			/call GetINISetting ${iniName} WatchList WatchName${nArray} watchList[${nArray}] NULL
 			/call EchoLog ".....NAME ${nArray}: ${watchList[${nArray}]} added to the watch list" TRUE
 		/next nArray
 	}
 	/call GetINISetting ${iniName} WatchList WatchName${Math.Calc[${watchCount}+1].Int} NULL NULL
-	
+
 | ========================================
 |  Load Debuffs
 | ========================================
 	/declare debuffAll						bool outer FALSE
 	/declare debuffAllOneTarget		bool outer TRUE
-	
+
+	/call EchoLog "Am I part of DebuffClasses: \ag${debuffClasses.Find[${Me.Class.ShortName}]}"
 	/if (${debuffClasses.Find[${Me.Class.ShortName}]}) {
 		/call GetINIArrayCount ${iniName} Debuffs DebuffSpell NULL
 		/varset debuffCount ${Macro.Return}
-		/call EchoLog "Loading ${debuffCount} debuff(s):" TRUE
+		/call EchoLog "Loading ${debuffCount} debuff(s):"
 		/call GetINISetting ${iniName} Debuffs DebuffAdds debuffAdds FALSE
 		/call GetINISetting ${iniName} Debuffs DebuffAllDebuffsAtOnce debuffAll TRUE
 		/call GetINISetting ${iniName} Debuffs DebuffAllDebuffsOneTarget debuffAllOneTarget TRUE FALSE
-		
-		/for nArray 1 to ${Math.Calc[${debuffCount}+1]}
+
+		/for nArray 1 to ${debuffCount}
+			/call Debug 2 "/if (Debuff${nArray} <= ${debuffCount})"
 			/if (${nArray} <= ${debuffCount}) {
+			| iniName   INISection  INIKey               VariableName           defaultValue createSettingStr variableType
 				/call GetINISetting ${iniName} Debuffs DebuffSpell${nArray} debuffSpells[${nArray}] NULL
 				/call GetINISetting ${iniName} Debuffs DebuffMinMana${nArray} debuffMinMana[${nArray}] 1
 				/call GetINISetting ${iniName} Debuffs DebuffMinHPs${nArray} debuffMinHPs[${nArray}] 1
@@ -2904,9 +3146,12 @@ Sub CommonINILoad
 				/call GetINISetting ${iniName} Debuffs DebuffAnnounce${nArray} debuffAnnounce[${nArray}] NULL
 				/call GetINISetting ${iniName} Debuffs DebuffAlias${nArray} debuffAlias[${nArray}] debuff${nArray}
 				/call GetINISetting ${iniName} Debuffs DebuffCastOnResist${nArray} debuffCOR[${nArray}] NULL
+			| iniName   INISection  INIKey               VariableName           defaultValue createSettingStr variableType
 				/call GetINISetting ${iniName} Debuffs DebuffEnabled${nArray} debuffEnabled[${nArray}] TRUE
+				/call Debug 2 "${debuffEnabled[${nArray}]}"
 				/call EchoLog ".....DEBUFF ${nArray}: NAME: ${debuffSpells[${nArray}]}" TRUE
 			} else {
+				/call Debug 2 "/if (Debuff${nArray} > ${debuffCount})"
 				/call GetINISetting ${iniName} Debuffs DebuffSpell${nArray} NULL NULL
 				/call GetINISetting ${iniName} Debuffs DebuffMinMana${nArray} NULL 1
 				/call GetINISetting ${iniName} Debuffs DebuffMinHPs${nArray} NULL 1
@@ -2918,7 +3163,7 @@ Sub CommonINILoad
 				/call GetINISetting ${iniName} Debuffs DebuffAnnounce${nArray} NULL NULL
 				/call GetINISetting ${iniName} Debuffs DebuffAlias${nArray} NULL debuff${nArray}
 				/call GetINISetting ${iniName} Debuffs DebuffCastOnResist${nArray} NULL NULL
-				/call GetINISetting ${iniName} Debuffs DebuffEnabled${nArray} NULL TRUE				
+				/call GetINISetting ${iniName} Debuffs DebuffEnabled${nArray} NULL TRUE
 			}
 		/next nArray
 	}
@@ -2929,7 +3174,7 @@ Sub CommonINILoad
 	/call GetINIArrayCount ${iniName} SelfBuffs SelfBuffName NULL
 	/varset selfBuffCount ${Macro.Return}
 	/call EchoLog ".....Loading ${selfBuffCount} self buff(s)" TRUE
-	/for nArray 1 to ${Math.Calc[${selfBuffCount}+1]}
+	/for nArray 1 to ${selfBuffCount}
 		/if (${nArray} <= ${selfBuffCount}) {
 			/call GetINISetting ${iniName} SelfBuffs SelfBuffName${nArray} buffName[${nArray}] NULL
 			/call GetINISetting ${iniName} SelfBuffs SelfBuffText${nArray} buffText[${nArray}] "${buffName[${nArray}]}"
@@ -2940,19 +3185,19 @@ Sub CommonINILoad
 			/varset buffEnabled[${nArray}] TRUE
 			/call EchoLog "..........${nArray} - NAME: ${buffName[${nArray}]} TEXT: ${buffText[${nArray}]} SLOT: ${buffSlot[${nArray}]} AUTO: ${buffAuto[${nArray}]} COMBAT: ${buffCombat[${nArray}]} ALIAS: ${buffAlias[${nArray}]}" TRUE
 			/if (${buffCombat[${nArray}]}) /varset combatBuffs TRUE
-			
-			| Load do not stack buffs
+
+		| Load do not stack buffs
 			/call GetINIArrayCount ${iniName} SelfBuffs SelfBuff${nArray}DoNotStack NULL
 			/varset buffDNSCount[${nArray}] ${Macro.Return}
 			/if (${buffDNSCount[${nArray}]}) {
 				/for ctArray 1 to ${buffDNSCount[${nArray}]}
 					/call GetINISetting ${iniName} SelfBuffs SelfBuff${nArray}DoNotStack${ctArray} buffDoNotStack[${nArray},${ctArray}] NULL
-					/call EchoLog "...............Do Not Stack ${ctArray}: ${buffDoNoStack[${nArray},${ctArray}]}" TRUE
+				|/call EchoLog "...............Do Not Stack ${ctArray}: ${buffDoNoStack[${nArray},${ctArray}]}" TRUE
 				/next ctArray
 			}
 			/call GetINISetting ${iniName} SelfBuffs SelfBuff${nArray}DoNotStack${Math.Calc[${buffDNSCount[${nArray}]}+1].Int} NULL NULL
-			
-			| Load stack buffs
+
+		| Load stack buffs
 			/call GetINIArrayCount ${iniName} SelfBuffs SelfBuff${nArray}Stack NULL
 			/varset buffSCount[${nArray}] ${Macro.Return}
 			/if (${buffSCount[${nArray}]}) {
@@ -2982,61 +3227,62 @@ Sub CommonINILoad
 			/call GetINIArrayCount ${iniName} PetBuffs PetBuffName NULL
 			/varset petBuffCount ${Macro.Return}
 			/call EchoLog ".....Loading ${petBuffCount} pet buff(s)" TRUE
-			/for nArray 1 to ${Math.Calc[${petBuffCount}+1]}
+			/for nArray 1 to ${petBuffCount}
 				/if (${nArray} <= ${petBuffCount}) {
 					/call GetINISetting ${iniName} PetBuffs PetBuffName${nArray} petBuff[${nArray}] NULL
 					/call GetINISetting ${iniName} PetBuffs PetBuffText${nArray} petBuffText[${nArray}] "${petBuff[${nArray}]}"
 					/call GetINISetting ${iniName} PetBuffs PetBuffSlot${nArray} petBuffSlot[${nArray}] gem1
 					/call GetINISetting ${iniName} PetBuffs PetBuffAuto${nArray} petBuffAuto[${nArray}] TRUE
 					/call GetINISetting ${iniName} PetBuffs PetBuffAlias${nArray} petBuffAlias[${nArray}] PET${nArray}
-					/call GetINISetting ${iniName} PetBuffs PetBuffCombat${nArray} petBuffCombat[${nArray}] FALSE					
+					/call GetINISetting ${iniName} PetBuffs PetBuffCombat${nArray} petBuffCombat[${nArray}] FALSE
 					/varset petBuffEnabled[${nArray}] TRUE
 					/call EchoLog "..........${nArray} - NAME: ${petBuff[${nArray}]} TEXT: ${petBuffText[${nArray}]} SLOT: ${petBuffSlot[${nArray}]} AUTO: ${petBuffAuto[${nArray}]} ALIAS: ${petBuffAlias[${nArray}]}" TRUE
 					/if (${petBuffCombat[${nArray}]}) /varset combatBuffs TRUE
 
-					| Load do not stack petbuffs
+				| Load do not stack petbuffs
 					/call GetINIArrayCount ${iniName} PetBuffs PetBuff${nArray}DoNotStack NULL
 					/varset petBuffDNSCount[${nArray}] ${Macro.Return}
-					/if (${petBuffDNSCount[${nArray}]}) {
-						/for ctArray 1 to ${petbuffDNSCount[${nArray}]}
+					/if (${Defined[petBuffDNSCount]}) {
+						/for ctArray 1 to ${petBuffDNSCount[${nArray}]}
 							/call GetINISetting ${iniName} PetBuffs PetBuff${nArray}DoNotStack${ctArray} petBuffDoNotStack[${nArray},${ctArray}] NULL
-							/call EchoLog "...............Do Not Stack ${ctArray}: ${petBuffDoNoStack[${nArray},${ctArray}]}" TRUE
+							/call EchoLog "...............Do Not Stack ${ctArray}: ${petBuffDoNotStack[${nArray},${ctArray}]}" TRUE
 						/next ctArray
 					}
 					/call GetINISetting ${iniName} PetBuffs PetBuff${nArray}DoNotStack${Math.Calc[${petBuffDNSCount[${nArray}]}+1].Int} NULL NULL
-					
-					| Load stack petbuffs
+
+				| Load stack petbuffs
 					/call GetINIArrayCount ${iniName} PetBuffs PetBuff${nArray}Stack NULL
 					/varset petBuffSCount[${nArray}] ${Macro.Return}
 					/if (${petBuffSCount[${nArray}]}) {
-						/for ctArray 1 to ${petbuffSCount[${nArray}]}
+						/for ctArray 1 to ${petBuffSCount[${nArray}]}
 							/call GetINISetting ${iniName} PetBuffs PetBuff${nArray}Stack${ctArray} petBuffStack[${nArray},${ctArray}] NULL
 							/call EchoLog "...............Allow Stack ${ctArray}: ${petBuffStack[${nArray},${ctArray}]}" TRUE
 						/next ctArray
 					}
-					/call GetINISetting ${iniName} PetBuffs PetBuff${nArray}Stack${Math.Calc[${petBuffSCount[${nArray}]}+1].Int} NULL NULL					
+					/call GetINISetting ${iniName} PetBuffs PetBuff${nArray}Stack${Math.Calc[${petBuffSCount[${nArray}]}+1].Int} NULL NULL
 				} else {
 					/call GetINISetting ${iniName} PetBuffs PetBuffName${nArray} NULL NULL
 					/call GetINISetting ${iniName} PetBuffs PetBuffText${nArray} NULL NULL
 					/call GetINISetting ${iniName} PetBuffs PetBuffSlot${nArray} NULL GEM1
 					/call GetINISetting ${iniName} PetBuffs PetBuffAuto${nArray} NULL TRUE
 					/call GetINISetting ${iniName} PetBuffs PetBuffAlias${nArray} NULL PET${nArray}
-					/call GetINISetting ${iniName} PetBuffs PetBuffCombat${nArray} NULL FALSE		
-					/call GetINISetting ${iniName} PetBuffs PetBuff${nArray}DoNotStack1 NULL NULL	
-					/call GetINISetting ${iniName} PetBuffs PetBuff${nArray}Stack1 NULL NULL			
+					/call GetINISetting ${iniName} PetBuffs PetBuffCombat${nArray} NULL FALSE
+					/call GetINISetting ${iniName} PetBuffs PetBuff${nArray}DoNotStack1 NULL NULL
+					/call GetINISetting ${iniName} PetBuffs PetBuff${nArray}Stack1 NULL NULL
 				}
 			/next nArray
 		}
 	}
-	
+
 | ====================
 | Load Group Buffs
 | ====================
 	/varset nArray 0
-	:groupBuffCountLoop
-		/varcalc nArray ${nArray} + 1
+:groupBuffCountLoop
+	/varcalc nArray ${nArray} + 1
 	/if (${Ini[${iniName},GroupBuffs,GroupBuffGroup${nArray},NULL].NotEqual[NULL]} || ${Ini[${iniName},GroupBuffs,GroupBuffSingle${nArray},NULL].NotEqual[NULL]}) /goto :groupBuffCountLoop
 	/varcalc nArray ${nArray} - 1
+	/if (!${nArray}) /varcalc nArray ${nArray}+1
 	/varset groupBuffCount ${nArray}
 	/call EchoLog ".....Loading ${groupBuffCount} group buff(s)" TRUE
 	/for nArray 1 to ${Math.Calc[${groupBuffCount}+1]}
@@ -3056,8 +3302,8 @@ Sub CommonINILoad
 			/varset groupBuffEnabled[${nArray}] TRUE
 			/call EchoLog "..........${nArray} - GROUP NAME: ${groupBuffGroup[${nArray}]} GROUP TEXT: ${groupBuffGroupDisplay[${nArray}]} SINGLE NAME: ${groupBuffSingle[${nArray}]} SINGLE TEXT: ${groupBuffSingleDisplay[${nArray}]} SLOT: ${groupBuffSlot[${nArray}]} ALIAS: ${groupBuffAlias[${nArray}]} TARGETS: ${groupBuffTargets[${nArray}]} COMBAT: ${groupBuffCombat[${nArray}]} AUTO: ${groupBuffAuto[${nArray}]} MIN GROUP: ${groupBuffGroupMin[${nArray}]}" TRUE
 			/if (${groupBuffCombat[${nArray}]}) /varset combatBuffs TRUE
-			
-			| Load do not stack groupbuffs
+
+		| Load do not stack groupbuffs
 			/call GetINIArrayCount ${iniName} GroupBuffs GroupBuff${nArray}DoNotStack NULL
 			/varset groupBuffDNSCount[${nArray}] ${Macro.Return}
 			/if (${groupBuffDNSCount[${nArray}]}) {
@@ -3067,8 +3313,8 @@ Sub CommonINILoad
 				/next ctArray
 			}
 			/call GetINISetting ${iniName} GroupBuffs GroupBuff${nArray}DoNotStack${Math.Calc[${groupBuffDNSCount[${nArray}]}+1].Int} NULL NULL
-			
-			| Load stack groupbuffs
+
+		| Load stack groupbuffs
 			/call GetINIArrayCount ${iniName} GroupBuffs GroupBuff${nArray}Stack NULL
 			/varset groupBuffSCount[${nArray}] ${Macro.Return}
 			/if (${groupBuffSCount[${nArray}]}) {
@@ -3078,8 +3324,8 @@ Sub CommonINILoad
 				/next ctArray
 			}
 			/call GetINISetting ${iniName} GroupBuffs GroupBuff${nArray}Stack${Math.Calc[${groupBuffSCount[${nArray}]}+1].Int} NULL NULL
-			
-			| Set display names
+
+		| Set display names
 			/if (${groupBuffGroupDisplay[${nArray}].Equal[NULL]} || ${groupBuffGroup[${nArray}].Equal[NULL]}) /varset groupBuffGroupDisplay[${nArray}] ${groupBuffGroup[${nArray}]}
 			/if (${groupBuffSingleDisplay[${nArray}].Equal[NULL]} || ${groupBuffSingle[${nArray}].Equal[NULL]}) /varset groupBuffSingleDisplay[${nArray}] ${groupBuffSingle[${nArray}]}
 		} else {
@@ -3095,15 +3341,15 @@ Sub CommonINILoad
 				/call GetINISetting ${iniName} GroupBuffs GroupBuffSingleAnnounce${nArray} NULL NULL
 				/call GetINISetting ${iniName} GroupBuffs GroupBuffCombat${nArray} NULL FALSE
 				/call GetINISetting ${iniName} GroupBuffs GroupBuffAuto${nArray} NULL TRUE
-				/call GetINISetting ${iniName} GroupBuffs GroupBuffGroupMin${nArray} NULL ${If[${groupBuffSingle[${nArray}].NotEqual[NULL]} || (${groupBuffSingle[${nArray}].Equal[NULL]} && ${groupBuffGroup[${nArray}].Equal[NULL]}),3,1]}			
+				/call GetINISetting ${iniName} GroupBuffs GroupBuffGroupMin${nArray} NULL ${If[${groupBuffSingle[${nArray}].NotEqual[NULL]} || (${groupBuffSingle[${nArray}].Equal[NULL]} && ${groupBuffGroup[${nArray}].Equal[NULL]}),3,1]}
 				/call GetINISetting ${iniName} GroupBuffs GroupBuff${nArray}DoNotStack1 NULL NULL
 				/call GetINISetting ${iniName} GroupBuffs GroupBuff${nArray}Stack1 NULL NULL
 			}
 		}
 	/next nArray
 
- /if (${combatBuffs}) /varset doCombatBuffs TRUE
- 
+	/if (${combatBuffs}) /varset doCombatBuffs TRUE
+
 | ====================
 | Load SafePCs
 | ====================
@@ -3118,14 +3364,14 @@ Sub CommonINILoad
 			/call GetINISetting ${iniName} SafePCs PCName${nArray} NULL NULL
 		}
 	/next nArray
-	
+
 | ====================
 | Load Mobs to ignore
 | ====================
 	/call GetINIArrayCount ${iniName} IgnoreMobs MobName NULL
 	/varset ignoreMobsCount ${Macro.Return}
 	/call EchoLog "Loading mobs to ignore:  ${ignoreMobsCount} mob(s)" TRUE
-	
+
 	/for nArray 1 to ${Math.Calc[${ignoreMobsCount}+1]}
 		/if (${nArray}<=${ignoreMobsCount}) {
 			/call GetINISetting ${iniName} IgnoreMobs MobName${nArray} ignoreMobs[${nArray}] NULL
@@ -3143,14 +3389,14 @@ Sub CommonINILoad
 	/call GetINISetting ${iniName} Alerts AlertEvac alertEvac NULL
 	/call GetINISetting ${iniName} Alerts AlertUnsafePC alertUnsafePC NULL
 	/call GetINISetting ${iniName} Alerts AlertGM alertGM NULL
-	
+
 	/call GetINIArrayCount ${iniName} Alerts AlertMobName NULL
 	/varset mobAlertsValue ${Macro.Return}
 	/call EchoLog ".....Death: ${alertDeath}" TRUE
 	/call EchoLog ".....Evac: ${alertEvac}" TRUE
 	/call EchoLog ".....UnsafePC: ${alertUnsafePC}" TRUE
 	/call EchoLog ".....Loading ${mobAlertsValue} mob alert(s)" TRUE
-	
+
 	/for nArray 1 to ${Math.Calc[${mobAlertsValue}+1]}
 		/if (${nArray}<=${mobAlertsValue}) {
 			/call GetINISetting ${iniName} Alerts AlertMobName${nArray} mobAlertsName[${nArray}] NULL
@@ -3158,7 +3404,7 @@ Sub CommonINILoad
 			/call EchoLog "..........${nArray} - MOBNAME: ${mobAlertsName[${nArray}]} ALERT: ${mobAlertsAudio[${nArray}]}" TRUE
 		} else {
 			/call GetINISetting ${iniName} Alerts AlertMobName${nArray} NULL NULL
-			/call GetINISetting ${iniName} Alerts AlertAudioFile${nArray} NULL NULL			
+			/call GetINISetting ${iniName} Alerts AlertAudioFile${nArray} NULL NULL
 		}
 	/next nArray
 
@@ -3179,20 +3425,22 @@ Sub CommonINILoad
 	/declare spellTypeValue							int outer
 	/declare spellTypes[100]						string outer
 	/call GetINIArrayCount ${iniName} Combat SpellSetType NULL
-	/varset spellTypeValue ${Macro.Return}
-	/call EchoLog "Load Spell Types: ${spellTypeValue} spell type(s)" TRUE
-	/for nArray 1 to ${Math.Calc[${spellTypeValue}+1]}
-		/if (${nArray}<=${spellTypeValue}) {
-			/call GetINISetting ${iniName} Combat SpellSetType${nArray} spellTypes[${nArray}] NULL
-			/call EchoLog "   ${nArray} - TYPE: ${spellTypes[${nArray}]}" TRUE
-		} else {
-			/call GetINISetting ${iniName} Combat SpellSetType${nArray} NULL NULL ${If[${spellSetTypeValue},TRUE,FALSE]}
-		}
-	/next nArray
+	/if (${Macro.Return} != 0) {
+		/varset spellTypeValue ${Macro.Return}
+		/call EchoLog "Load Spell Types: ${spellTypeValue} spell type(s)" TRUE
+		/for nArray 1 to ${Math.Calc[${spellTypeValue}+1]}
+			/if (${nArray}<=${spellTypeValue}) {
+				/call GetINISetting ${iniName} Combat SpellSetType${nArray} spellTypes[${nArray}] NULL
+				/call EchoLog "   ${nArray} - TYPE: ${spellTypes[${nArray}]}" TRUE
+			} else {
+				/call GetINISetting ${iniName} Combat SpellSetType${nArray} NULL NULL ${If[${spellTypeValue},TRUE,FALSE]}
+			}
+		/next nArray
+	}
 
 	/call GetINIArrayCount ${iniName} Combat SpellName NULL
 	/varset csCount ${Macro.Return}
-	| /if (${csCount}>30) /varset csCount 30
+| /if (${csCount}>30) /varset csCount 30
 	/call EchoLog "Loading combat spells:  ${csCount} combat spell(s)" TRUE
 
 	/for nArray 1 to ${Math.Calc[${csCount}+1]}
@@ -3210,7 +3458,7 @@ Sub CommonINILoad
 			/call GetINISetting ${iniName} Combat SpellMinHPs${nArray} csminSelfHPs[${nArray}] 0 FALSE
 			/call GetINISetting ${iniName} Combat SpellMaxHPs${nArray} csmaxSelfHPs[${nArray}] 100 FALSE
 			/call GetINISetting ${iniName} Combat SpellType${nArray} csType[${nArray}] NULL ${If[${Me.Class.ShortName.Equal[SHD]} || ${Me.Class.ShortName.Equal[PAL]},TRUE,FALSE]}
-			/call GetINISetting ${iniName} Combat SpellGOM${nArray} csGiftSpell[${nArray}] ${Me.Class.CanCast}
+			/call GetINISetting ${iniName} Combat SpellGOM${nArray} csGiftSpell[${nArray}] FALSE
 			/call GetINISetting ${iniName} Combat SpellFOP${nArray} csFlameSpell[${nArray}] ${Me.Class.ShortName.Equal[MAG]}
 			/if (${csType[${nArray}].Equal[null]}) /varset csType[${nArray}] ALL
 			/call EchoLog ".....${nArray} - NAME: ${combatSpells[${nArray}]} SLOT: ${csSpellSlot[${nArray}]} MAXMOBS: ${csmaxMobs[${nArray}]} MINMOBS: ${csminMobs[${nArray}]} MAXMOBHPS: ${csmaxHPs[${nArray}]} MINMOBHPS: ${csminHPs[${nArray}]} MINMANA: ${csminMana[${nArray}]} MAXMANA: ${csmaxMana[${nArray}]} RECAST: ${csrecastDly[${nArray}]} CONDITION: ${csCondition[${nArray}]} MINHPS: ${csminSelfHPs} MAXHPS: ${csmaxSelfHPs[${nArray}]} TYPE: ${csType[${nArray}]}" TRUE
@@ -3263,20 +3511,19 @@ Sub CommonINILoad
 			/call GetINISetting ${iniName} Combat SpellMaxHPs${nArray} NULL 100 FALSE
 			/call GetINISetting ${iniName} Combat SpellType${nArray} NULL NULL FALSE
 			/call GetINISetting ${iniName} Combat SpellGOM${nArray} NULL FALSE ${Me.Class.CanCast}
-			/call GetINISetting ${iniName} Combat SpellFOP${nArray} NULL FALSE ${Me.Class.ShortName.Equal[MAG]}			
+			/call GetINISetting ${iniName} Combat SpellFOP${nArray} NULL FALSE ${Me.Class.ShortName.Equal[MAG]}
 		}
 	/next nArray
 
 | ========================================
 |  Load General Settings
-| ========================================	
+| ========================================
 	/declare castWhileInvis				bool outer TRUE
 	/declare useLAHoTT						bool outer TRUE
 	/call EchoLog "Loading common general settings" TRUE
-	
-	
-	| /call GetINISetting ${iniName} General SpellCoolDown globalCDStr ${globalCDStr}
-	| Need to remove references to this setting
+
+| /call GetINISetting ${iniName} General SpellCoolDown globalCDStr ${globalCDStr}
+| Need to remove references to this setting
 	/varset globalCDStr 0s
 
 	/call GetINISetting ${iniName} General CampRadius campRadius 70
@@ -3294,14 +3541,14 @@ Sub CommonINILoad
 	/call GetINISetting ${iniName} General SelfBuffAtStart doSelfBuffs TRUE
 	/call GetINISetting ${iniName} General PetBuffAtStart doPetBuffs ${If[${petClasses.Find[${Me.Class.ShortName}]},TRUE,FALSE]} ${petClasses.Find[${Me.Class.ShortName}]}
 	/call GetINISetting ${iniName} General WatchBuffAtStart doWatchBuffs ${Me.Class.CanCast} ${Me.Class.CanCast}
-	| /call GetINISetting ${iniName} General AutoBuffAtStart doAutoBuffs TRUE
-	| /call GetINISetting ${iniName} General MinBuffCheckTimer minBuffCheckTimerStr 1m
-	
+| /call GetINISetting ${iniName} General AutoBuffAtStart doAutoBuffs TRUE
+| /call GetINISetting ${iniName} General MinBuffCheckTimer minBuffCheckTimerStr 1m
+
 	/call GetINISetting ${iniName} General PullerName pullerName Group
 	/call GetINISetting ${iniName} General MainTank mainTank Group
 	/call GetINISetting ${iniName} General MainAssist mainAssist Group
 	/call GetINISetting ${iniName} General SecondaryAssist secondaryAssist NULL
-	
+
 	/call GetINISetting ${iniName} General AssistPct assistPct ${assistPct}
 	/call GetINISetting ${iniName} General AllowInterrupt allowInterrupt TRUE ${Me.Class.CanCast}
 	/call GetINISetting ${iniName} General UnsafePCAction unsafePCAction continue
@@ -3311,8 +3558,8 @@ Sub CommonINILoad
 	/call GetINISetting ${iniName} General UseMerc useMerc FALSE
 	/call GetINISetting ${iniName} General ResistRetryTime resistRetryTime 0s
 	/call GetINISetting ${iniName} General CampAfterGate campAfterGate TRUE ${If[${Me.Book[Gate]} || ${Me.AltAbility[Gate]},TRUE,FALSE]}
-	/call GetINISetting ${iniName] General CheckForAdds checkForAdds TRUE FALSE
-	/call GetINISetting ${iniName} General UseEQBC useEQBC TRUE
+	/call GetINISetting ${iniName} General CheckForAdds checkForAdds FALSE FALSE
+	/call GetINISetting ${iniName} General UseEQBC useEQBC FALSE FALSE
 	/call GetINISetting ${iniName} General RelayChat relayChat FALSE FALSE
 	/call GetINISetting ${iniName} General RelayTells relayTells FALSE FALSE
 	/call GetINISetting ${iniName} General RelayTarget relayTarget /bca FALSE
@@ -3334,7 +3581,7 @@ Sub CommonINILoad
 	/call GetINISetting ${iniName} General ModRodMana modRodManaCommon 50 ${If[${Me.Class.CanCast} && ${Me.Class.ShortName.NotEqual[MAG]},TRUE,FALSE]}
 	/call GetINISetting ${iniName} General FaceStartupDirectionAtCamp useHomeDir FALSE FALSE
 	/call GetINISetting ${iniName} General AlwaysAttemptReturn alwaysAttemptReturn FALSE FALSE
-	/call GetINISetting ${iniName} General AutoBuffsEnabled autoBuffingEnabled FALSE	
+	/call GetINISetting ${iniName} General AutoBuffsEnabled autoBuffingEnabled FALSE
 	/call GetINISetting ${iniName} General CastWhileInvis castWhileInvis TRUE
 	/call GetINISetting ${iniName} General MinRezAcceptPercent minRezPercent 0
 	/call GetINISetting ${iniName} General MaxRezWaitTime maxRezWaitTime 0
@@ -3350,9 +3597,9 @@ Sub CommonINILoad
 	/declare medMode			bool outer FALSE
 	/call GetINISetting ${iniName} General MedModeManaThreshold medModeManaThreshold 0
 	/call GetINISetting ${iniName} General MedModeMedTo medModeMedTo 80
-	
+
 	/varset doAutoBuffs ${autoBuffingEnabled}
-	
+
 	/if (${castWhileInvis}) {
 		/varset noInvis FALSE
 	} else {
@@ -3364,25 +3611,25 @@ Sub CommonINILoad
 	/call EchoLog ".....Casting while invis: ${castWhileInvis}" TRUE
 	/if (!${unsafePCAction.Length}) /varset unsafePCAction pause
 	/if (!${announceChan.Length} || ${announceChan.Equal[NULL]}) /varset announceChan /g
-	/if (${announceChan.Left[1].NotEqual[/]}) /varset announceChan /${announceChan}	
+	/if (${announceChan.Left[1].NotEqual[/]}) /varset announceChan /${announceChan}
 
 	/if (${autoBuffingEnabled}) /call AutoBuffLoad
 	/call GetINISetting devCommonPremium.dat General Version devCommonPremiumDatVersion
 	/call EchoLog "Using \agdevCommonPremium.dat \awv${devCommonPremiumDatVersion}"
-	
-	/if (${useEQBC}) {
-		/squelch /plugin MQ2NetBots
-		/squelch /netbots on
-		/squelch /netbots grab on
-		/squelch /netbots send on
-	} else {
-		/squelch /plugin MQ2NetBots unload
-	}
-	
+
+|/if (${useEQBC}) {
+|	/squelch /plugin MQ2NetBots
+|	/squelch /netbots on
+|	/squelch /netbots grab on
+|	/squelch /netbots send on
+|} else {
+|	/squelch /plugin MQ2NetBots unload
+|}
+
 | ========================================
 |  Load Priority Settings
 | ========================================
-	|**/declare priorityDebuffs					string outer 20s
+|**/declare priorityDebuffs					string outer 20s
 	/declare priorityAutoBuffs				string outer 60s
 	/declare prioritySelfBuffs				string outer 60s
 	/declare priorityGroupBuffs				string outer 30s
@@ -3421,7 +3668,7 @@ Sub CommonINILoad
 | ========================================
 |  Load MQ2Navigation settings
 | ========================================
-	/call EchoLog "Checking for MQ2Navigation for movement" TRUE	
+	/call EchoLog "Checking for MQ2Navigation for movement" TRUE
 	/call GetINISetting ${iniName} General UseNavigation useNavigation TRUE FALSE
 	/if (${useNavigation} && !${Plugin[MQ2Navigation].Version}) /squelch /plugin MQ2Navigation
 	/if (${Navigation}) {
@@ -3444,26 +3691,26 @@ Sub CommonINILoad
 	} else {
 		/varset useNavigation FALSE
 	}
-	
+
 	/if (${useNavigation} && !${Plugin[MQ2EQDraw].Version}) /squelch /plugin MQ2EQDraw
-	
+
 | ========================================
 |  Load Merc Management Settings
-| ========================================	
+| ========================================
 	/call GetINISetting ${iniName} MercSettings BurnPct mercBurnPct 0
 	/call GetINISetting ${iniName} MercSettings ManageMerc manageMerc FALSE
 	/call GetINISetting ${iniName} MercSettings AssistPct mercAssistPct ${mercAssistPct} FALSE
 	/call GetINISetting ${iniName} MercSettings OutOfCombatStance mercOOCStance NULL
 	/call GetINISetting ${iniName} MercSettings InCombatStance mercICStance NULL
 	/varset mercStance NULL
-	
+
 | ====================
 | Load Summoned Items
 | ====================
 	/call GetINIArrayCount ${iniName} Summoned SummonedSpell NULL
 	/varset summonedCount ${Macro.Return}
 	/call EchoLog "Loading ${summonedCount} Summoned Items" true
-	
+
 	/if (${summonedCount}) {
 		/for nArray 1 to ${summonedCount}
 			/call GetINISetting ${iniName} Summoned SummonedSpell${nArray} summonedSpells[${nArray}] NULL
@@ -3483,29 +3730,39 @@ Sub CommonINILoad
 | ====================
 	/call GetINISetting ${iniName} Mission MissionMode missionMode FALSE bool
 	/call GetINISetting ${iniName} Mission MissionINI missionINI NULL string
-	| The PC that is the leader for the mission, can be SELF for the PC running the current bot, or GROUP for the group leader
+| The PC that is the leader for the mission, can be SELF for the PC running the current bot, or GROUP for the group leader
 	/call GetINISetting ${iniName} Mission MissionLeader missionLeader GROUP string
-	| Mission followers is either a comma separated list of names, or GROUP for all PCs in your group, only the leader will look at this setting
+| Mission followers is either a comma separated list of names, or GROUP for all PCs in your group, only the leader will look at this setting
 	/call GetINISetting ${iniName} Mission MissionFollowers missionFollowers GROUP string
 	/if (!${missionINI.Find[.ini]} && ${missionINI.NotEqual[NULL]}) /varset missionINI ${missionINI}.ini
-	| /if (${missionLeader.Equal[GROUP]}) /varset missionLeader ${Group.Leader.Name}
-	
+| /if (${missionLeader.Equal[GROUP]}) /varset missionLeader ${Group.Leader.Name}
+
 	/if (${emuMode}) {
 		/varset useMerc FALSE
 		/varset manageMerc FALSE
 		/varset xTargType Type
 	}
-	
+
 	/call LootInit FALSE ${lootININame}
-	/if (!${Defined[soloMode]} || !${soloMode}) /call PullInit
+	/if (!${Defined[soloMode]}) {
+		/declare soloMode bool outer false
+		/call PullInit
+	} else {
+		/call PullInit
+	}
 /return
 
+| --------------------------------------------------------------------------------------------
+| SUB: CorpseCheck
+| --------------------------------------------------------------------------------------------
 Sub CorpseCheck
+	/varset CurrentSub CorpseCheck
+	/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
 	/declare corpseLoop		int local
 	/declare cocLoop		int local
 	/declare corpseFound		bool local
 	/declare cKillCount			int local 0
-	
+
 	/varset lTargCount ${targCount}
 
 	/if (${targCount}) {
@@ -3519,7 +3776,7 @@ Sub CorpseCheck
 							/goto :addCorpseOnly
 						}
 					/next cocLoop
-					:addCorpseOnly
+				:addCorpseOnly
 				}
 				/if (!${corpseFound} && ${targArray[${corpseLoop}]}) {
 					/if (${Spawn[${targArray[${corpseLoop}]}].Named}) /varcalc namedCount ${namedCount} - 1
@@ -3547,7 +3804,12 @@ Sub CorpseCheck
 	}
 /return
 
+| --------------------------------------------------------------------------------------------
+| SUB: ChooseTarget
+| --------------------------------------------------------------------------------------------
 Sub ChooseTarget(int forceTarg, int baseAround)
+	/varset CurrentSub ChooseTarget
+	/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
 	/declare lowHealth 					int local
 	/declare lowDistance				float local
 	/declare mHealth 						int local
@@ -3566,7 +3828,7 @@ Sub ChooseTarget(int forceTarg, int baseAround)
 	/declare mercDistance				float local 5000
 	/declare merclowDistance		int local 0
 	/declare baID								int local 0
-	
+
 	/varset oTargID ${targID}
 	/varset lowHealth 100
 	/varset lowDistance 5000
@@ -3584,7 +3846,7 @@ Sub ChooseTarget(int forceTarg, int baseAround)
 
 	/if (${forceTarg} == NULL) /varset forceTarg 0
 	/if (${baseAround} == NULL) /varset baseAround ${Me.ID}
-	
+
 	/if ((!${forceTarg} || !${useForceTarg}) && (!${groupMode} || !${Spawn[${mainAssist}].ID} || ${Spawn[${mainAssist}].Type.Equal[Corpse]} || (${Spawn[${mainAssist}].Linkdead} && ${Spawn[${mainAssist}].Type.NotEqual[mercenary]}) || ${mainAssist.Equal[${Me.CleanName}]} || ${mainAssist.Equal[NULL]})) {
 		/for tLoop 1 to ${targCount}
 			/if (${Spawn[${targArray[${tLoop}]}].Type.Equal[NPC]}) {
@@ -3605,16 +3867,16 @@ Sub ChooseTarget(int forceTarg, int baseAround)
 					/varset mNew ${targArray[${tLoop}]}
 					/varset lnewAdd TRUE
 				}
-				/if (${Spawn[${targArray[${tLoop}]}].Class.HealerType}) /varset cMob ${targArray[${tLoop}]}	
+				/if (${Spawn[${targArray[${tLoop}]}].Class.HealerType}) /varset cMob ${targArray[${tLoop}]}
 				/if (${useMerc} && ${mercID}) {
 					/if (${Math.Distance[${Spawn[${mercID}].Y},${Spawn[${mercID}].X}:${Spawn[${targArray[${tLoop}]}].Y},${Spawn[${targArray[${tLoop}]}].X}]} < ${mercDistance}) {
 						/varset merclowDistance ${Math.Distance[${Spawn[${mercID}].Y},${Spawn[${mercID}].X}:${Spawn[${targArray[${tLoop}]}].Y},${Spawn[${targArray[${tLoop}]}].X}]}
 						/varset mercDistance ${targArray[${tLoop}]}
 					}
 				}
-			} 
+			}
 		/next tLoop
-	
+
 		/if (${baseAround} != ${Me.ID}) {
 			/if ((${lowDistance}<${minSafeDistance} && ${Me.Class.PureCaster}) || ${Spawn[${oTargID}].Type.NotEqual[NPC]}) {
 				/varset targID ${mDistance}
@@ -3656,13 +3918,18 @@ Sub ChooseTarget(int forceTarg, int baseAround)
 	/if (${targID} != ${oTargID} || ${Target.PctHPs} > 99) /varset newTarg TRUE
 /return
 
+| --------------------------------------------------------------------------------------------
+| SUB: ClearCursor
+| --------------------------------------------------------------------------------------------
 Sub ClearCursor(string clearType,string maxAttemptTime)
+	/varset CurrentSub ClearCursor
+	/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
 	/if (${clearType.Equal[NULL]}) /varset clearType AUTOINVENTORY
 	/if (${maxAttemptTime.Equal[NULL]}) /varset maxAttemptTime 15s
 	/if (!${Select[${clearType},AUTOINV,AUTO,AUTOINVENTORY,DESTROY,DEST]}) /varset clearType AUTOINVENTORY
 	/declare clearCursorTimer		timer local ${maxAttemptTime}
 
-	:clearCursorLoop
+:clearCursorLoop
 	/if (${Cursor.ID}) {
 		/if (${clearType.Find[AUTO]}) {
 			/autoinventory
@@ -3672,28 +3939,33 @@ Sub ClearCursor(string clearType,string maxAttemptTime)
 		/delay 5 !${Cursor.ID}
 	}
 	/if (${Cursor.ID} && ${clearCursorTimer}) /goto :clearCursorLoop
-	
+
 	/if (${Cursor.ID} && !${clearCursorTimer}) {
 		/call EchoLog "\ayFailed to clear ${Cursor.Name} from the cursor in the allotted time: ${maxAttemptTime}"
 	}
 /return
 
+| --------------------------------------------------------------------------------------------
+| SUB: CreateFriendList
+| --------------------------------------------------------------------------------------------
 Sub CreateFriendList
+	/varset CurrentSub CreateFriendList
+	/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
 	/declare cFLInt					int local
 	/declare watchID				int local
-	
+
 	/varset friendList |${Me.ID}|
 	/if (${Group.Members}) {
-		| /varset friendList ${friendList}|
+	| /varset friendList ${friendList}|
 		/for cFLInt 1 to ${Group.Members}
 			/if (${Group.Member[${cFLInt}].ID}) {
 				/varset friendList ${friendList}|${Group.Member[${cFLInt}].ID}|
 				/if (${Group.Member[${cFLInt}].Pet.ID} && !${Group.Member[${cFLInt}].Pet.Name.Find[familiar]}) /varset friendList ${friendList}|${Group.Member[${cFLInt}].Pet.ID}|
-				| /if (${cFLInt}<${Group.Members}) /varset friendList ${friendList}|
+			| /if (${cFLInt}<${Group.Members}) /varset friendList ${friendList}|
 			}
 		/next cFLInt
 	}
-		
+
 	/if (${watchCount}) {
 		/varset friendList ${friendList}|
 		/for cFLInt 1 to ${watchCount}
@@ -3708,18 +3980,23 @@ Sub CreateFriendList
 			/if (${cFLInt}<${watchCount}) /varset friendList ${friendList}|
 		/next cFLInt
 	}
-	
+
 	/if (${mainAssist.NotEqual[NULL]} && !${useGroupAssist} && ${Spawn[${mainAssist}].ID}) /varset friendList ${friendList}|${If[${Spawn[${mainAssist}].Type.NotEqual[Pet]},${Spawn[${mainAssist}].ID},${Spawn[${mainAssist}].Master.ID}]}|
 	/if (${mainTank.NotEqual[NULL]} && !${useGroupTank} && ${Spawn[${mainTank}].ID}) /varset friendList ${friendList}|${If[${Spawn[${mainTank}].Type.NotEqual[Pet]},${Spawn[${mainTank}].ID},${Spawn[${mainTank}].Master.ID}]}|
 	/if (${pullerName.NotEqual[NULL]} && !${useGroupPuller} && ${Spawn[${pullerName}].ID}) /varset friendList ${friendList}|${If[${Spawn[${pullerName}].Type.NotEqual[Pet]},${Spawn[${mainAssist}].ID},${Spawn[${pullerName}].Master.ID}]}|
 /return
 
+| --------------------------------------------------------------------------------------------
+| SUB: CreateIgnoreAlert
+| --------------------------------------------------------------------------------------------
 Sub CreateIgnoreAlert(int aListNum)
+	/varset CurrentSub CreateIgnoreAlert
+	/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
 	/if (${aListNum} == NULL) /varset aListNum ${alertList}
 	/varset alertList ${aListNum}
-	
+
 	/squelch /alert clear ${aListNum}
-	/call EchoLog "\aoCreating ignore alert list number \ag${alertList}"	
+	/call EchoLog "\aoCreating ignore alert list number \ag${alertList}"
 	/if (${ignoreMobsCount} > 0) {
 		/for nArray 1 to ${ignoreMobsCount}
 			/if (${ignoreMobs[${nArray}].NotEqual[NULL]} && ${ignoreMobs[${nArray}].Length}) {
@@ -3728,15 +4005,20 @@ Sub CreateIgnoreAlert(int aListNum)
 			}
 		/next nArray
 	}
-	
+
 	/call EchoLog ".....Adding untargetable mobs in the zone to the ignore list" TRUE
 	/squelch /alert add ${aListNum} Untargetable
 /return
 
+| --------------------------------------------------------------------------------------------
+| SUB: CreateSafeAlert
+| --------------------------------------------------------------------------------------------
 Sub CreateSafeAlert(int aListNum)
+	/varset CurrentSub CreateSafeAlert
+	/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
 	/if (${aListNum} == NULL) /varset aListNum ${safeAlertList}
 	/varset safeAlertList ${aListNum}
-	
+
 	/squelch /alert clear ${aListNum}
 	/if (${Group.Members} || ${safePCCount}) /call EchoLog "Creating safe pc alert list number \ag${safeAlertList}"
 	/if (${Group.Members}) {
@@ -3755,18 +4037,24 @@ Sub CreateSafeAlert(int aListNum)
 	}
 /return
 
+| --------------------------------------------------------------------------------------------
+| SUB: Debuff
+| --------------------------------------------------------------------------------------------
 Sub Debuff(int debuffNum, int mobID)
-	/if (${debuffSlot[${debuffNum}].Equal[Item]} && ${FindItem[${debuffSpells[${debuffNum}]}].Timer}) /return
-	/if (${debuffSlot[${debuffNum}].Equal[alt]} && !${Me.AltAbilityReady[${debuffSpells[${debuffNum}]}]}) /return
+	/varset CurrentSub Debuff
+	/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
+	/call Debug 2 "debuffSpellSlot[${debuffNum}] ${debuffSpellSlot[${debuffNum}]}"
+	/if (${debuffSpellSlot[${debuffNum}].Equal[Item]} && ${FindItem[${debuffSpells[${debuffNum}]}].Timer}) /return ITEM_NOTREADY
+	/if (${debuffSpellSlot[${debuffNum}].Equal[alt]} && !${Me.AltAbilityReady[${debuffSpells[${debuffNum}]}]}) /return ALTABILITY_NOTREADY
 
 	/squelch /target clear
 	/squelch /target ID ${mobID}
-	/delay 1s ${Target.ID}==${mobID}
+	/delay 2s ${Target.ID}==${mobID}
 	/if (${Target.ID}!=${mobID}) /return DEBUFF_NOTARGET
-	
+
 	/declare retValue							string local DEBUFF_CONDITIONS_FAIL
 	/declare dResTries						int local 1
-	
+
 	/if (${debuffMinMobs[${debuffNum}]}==1) /varset dResTries ${resistTries}
 
 	/call CheckForAggro
@@ -3777,118 +4065,150 @@ Sub Debuff(int debuffNum, int mobID)
 				/if (${Me.Gem[${debuffSpells[${debuffNum}]}]}) {
 					/if (${Me.GemTimer[${debuffSpells[${debuffNum}]}]} && ${Me.GemTimer[${debuffSpells[${debuffNum}]}].Float} > 5) {
 						/call EchoLog ".....Cannot cast debuff because it has a cooldown on it." TRUE
-						/return ${retValue}
-					}
-				} else {
-					/if (${Spell[${debuffSpells[${debuffNum}]}].RecoveryTime.Float} > 5) {
-						/call EchoLog ".....Cannot cast debuff because it is not memmed and has a long recovery time, will mem and attempt to cast later." TRUE
-						/memspell ${debuffSpellSlot[${debuffNum}].Right[-3]} "${debuffSpells[${debuffNum}]}"
-						/delay 5
-						/return ${retValue}
-					}
+					/return ${retValue}
 				}
-			}
-			/if (${faceWhenCasting}) /face fast nolook
-			/call MQ2Cast "${debuffSpells[${debuffNum}]}" ${debuffSpellSlot[${debuffNum}]} 0 CheckForAggro -targetid|${Target.ID} -maxtries|${dResTries}
-			/if (!${Defined[debuffTimer${debuffNum}Mob${mobID}]} && ${debuffMinMobs[${debuffNum}]}==1) /declare debuffTimer${debuffNum}Mob${mobID} timer outer 0s
-			/if (!${Defined[debuffTimer${debuffNum}]} && ${debuffMinMobs[${debuffNum}]}>1) /declare debuffTimer${debuffNum} timer outer 0s
-			/if (${CastResult.Equal[CAST_SUCCESS]} || ${CastResult.Equal[CAST_PARTIAL]}) {
-				/if (${debuffMinMobs[${debuffNum}]}>1) {
-					/varset debuffTimer${debuffNum} ${debuffRecastDly[${debuffNum}]}
-				} else {
-					/varset debuffTimer${debuffNum}Mob${mobID} ${debuffRecastDly[${debuffNum}]}
-				}
-				/call Announce "${debuffAnnounce[${debuffNum}]}"
-				/varset retValue DEBUFF_SUCCESS
-			} else /if (${CastResult.Equal[CAST_IMMUNE]}) {
-				/if (${debuffMinMobs[${debuffNum}]}>1) {
-					/varset debuffTimer${debuffNum} ${debuffRecastDly[${debuffNum}]}
-				} else {
-					/varset debuffTimer${debuffNum}Mob${mobID} 60m
-				}
-				/varset retValue DEBUFF_IMMUNE
-			} else /if (${CastResult.Equal[CAST_RESIST]}) {
-				/if (${debuffMinMobs[${debuffNum}]}>1) {
-					/varset debuffTimer${debuffNum} ${debuffRecastDly[${debuffNum}]}
-				} else {
-					/varset debuffTimer${debuffNum}Mob${mobID} ${resistRetryTime}
-					
-					/if (${debuffCOR[${debuffNum}].NotEqual[NULL]}) {
-						/declare corArray					int local
-						/for corArray 1 to ${debuffCount}
-							/if (${debuffAlias[${corArray}].Equal[${debuffCOR[${debuffNum}]}]}) {
-								/if (!${Defined[debuffTimer${corArray}Mob${mobID}]} || !${debuffTimer${corArray}Mob${mobID}}) {
-									/call EchoLog "Debuff ${debuffSpells[${debuffNum}]} was resisted, attempting to use CastOnResist spell ${debuffSpells[${corArray}]}" TRUE
-									/call Debuff ${corArray} ${mobID}
-									/return ${Macro.Return}
-								}
-							}
-						/next corArray
-					}
-				}
-				/varset retValue DEBUFF_RESIST
-			} else /if (${CastResult.Equal[CAST_TAKEHOLD]}) {
-				/if (${debuffMinMobs[${debuffNum}]}>1) {
-					/varset debuffTimer${debuffNum} ${debuffRecastDly[${debuffNum}]}
-				} else {
-					/varset debuffTimer${debuffNum}Mob${mobID} ${debuffRecastDly[${debuffNum}]}
-					/call EchoLog "Debuff was unable to take hold.  Using regular recast delay to try again. ${debuffRecastDly[${debuffNum}]}" TRUE
-				}
-				/varset retValue DEBUFF_RESIST				
 			} else {
-				/call EchoLog "Debuff cast unsuccessfull, reason: ${CastResult}" TRUE
-				/varset retValue DEBUFF_${CastResult}
+				/if (${Spell[${debuffSpells[${debuffNum}]}].RecoveryTime.Float} > 5) {
+					/call EchoLog ".....Cannot cast debuff because it is not memmed and has a long recovery time, will mem and attempt to cast later." TRUE
+					/memspell ${debuffSpellSlot[${debuffNum}].Right[-3]} "${debuffSpells[${debuffNum}]}"
+					/delay 5
+				/return ${retValue}
 			}
-			/varset sitTimer ${sitTimerString}
-			/varset globalCooldown ${globalCDStr}
 		}
 	}
+	/if (${faceWhenCasting}) /face fast nolook
+	/call EchoLog "MQ2Cast --> ${debuffSpells[${debuffNum}]} ${debuffSpellSlot[${debuffNum}]} 0 CheckForAggro -targetid|${Target.ID} -maxtries|${dResTries} Sub: ${CurrentSub}"
+	/call Cast "${debuffSpells[${debuffNum}]}" "${debuffSpellSlot[${debuffNum}]}" 5s NULL
+	/if (!${Defined[debuffTimer${debuffNum}Mob${mobID}]} && ${debuffMinMobs[${debuffNum}]}==1) /declare debuffTimer${debuffNum}Mob${mobID} timer outer 0s
+	/if (!${Defined[debuffTimer${debuffNum}]} && ${debuffMinMobs[${debuffNum}]}>1) /declare debuffTimer${debuffNum} timer outer 0s
+	/if (${CastResult.Equal[CAST_SUCCESS]} || ${CastResult.Equal[CAST_PARTIAL]}) {
+		/if (${debuffMinMobs[${debuffNum}]}>1) {
+			/varset debuffTimer${debuffNum} ${debuffRecastDly[${debuffNum}]}
+		} else {
+			/varset debuffTimer${debuffNum}Mob${mobID} ${debuffRecastDly[${debuffNum}]}
+		}
+		/call Announce "${debuffAnnounce[${debuffNum}]}"
+		/varset retValue DEBUFF_SUCCESS
+	} else /if (${CastResult.Equal[CAST_IMMUNE]}) {
+		/if (${debuffMinMobs[${debuffNum}]}>1) {
+			/varset debuffTimer${debuffNum} ${debuffRecastDly[${debuffNum}]}
+		} else {
+			/varset debuffTimer${debuffNum}Mob${mobID} 60m
+		}
+		/varset retValue DEBUFF_IMMUNE
+	} else /if (${CastResult.Equal[CAST_RESIST]}) {
+		/if (${debuffMinMobs[${debuffNum}]}>1) {
+			/varset debuffTimer${debuffNum} ${debuffRecastDly[${debuffNum}]}
+		} else {
+			/varset debuffTimer${debuffNum}Mob${mobID} ${resistRetryTime}
+
+			/if (${debuffCOR[${debuffNum}].NotEqual[NULL]}) {
+				/declare corArray					int local
+				/for corArray 1 to ${debuffCount}
+					/if (${debuffAlias[${corArray}].Equal[${debuffCOR[${debuffNum}]}]}) {
+						/if (!${Defined[debuffTimer${corArray}Mob${mobID}]} || !${debuffTimer${corArray}Mob${mobID}}) {
+							/call EchoLog "Debuff ${debuffSpells[${debuffNum}]} was resisted, attempting to use CastOnResist spell ${debuffSpells[${corArray}]}" TRUE
+							/call Debuff ${corArray} ${mobID}
+						/return ${Macro.Return}
+					}
+				}
+			/next corArray
+		}
+	}
+	/varset retValue DEBUFF_RESIST
+} else /if (${CastResult.Equal[CAST_TAKEHOLD]}) {
+	/if (${debuffMinMobs[${debuffNum}]}>1) {
+		/varset debuffTimer${debuffNum} ${debuffRecastDly[${debuffNum}]}
+	} else {
+		/varset debuffTimer${debuffNum}Mob${mobID} ${debuffRecastDly[${debuffNum}]}
+		/call EchoLog "Debuff was unable to take hold.  Using regular recast delay to try again. ${debuffRecastDly[${debuffNum}]}" TRUE
+	}
+	/varset retValue DEBUFF_RESIST
+} else {
+	/call EchoLog "Debuff cast unsuccessfull, reason: ${CastResult}" TRUE
+	/varset retValue DEBUFF_${CastResult}
+}
+	/varset sitTimer ${sitTimerString}
+	/varset globalCooldown ${globalCDStr}
+}
+}
 /return ${retValue}
 
+| --------------------------------------------------------------------------------------------
+| SUB: DebuffCheck
+| --------------------------------------------------------------------------------------------
 Sub DebuffCheck(int mobID)
+	/varset CurrentSub DebuffCheck
+	/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
 	/if (!${Spawn[${mobID}].ID} || ${Spawn[${mobID}].Type.NotEqual[NPC]}) {
+		/call Debug 2 "Calling DebuffCleanUp ${mobID}"
 		/call DebuffCleanUp ${mobID}
-		/return DEBUFF_NOMOB
-	}
-	/if (${Spawn[${mobID}].Distance} > ${campRadius}) /return DEBUFF_TOOFAR
+	/return DEBUFF_NOMOB
+}
+	/if (${Spawn[${mobID}].Distance} > ${campRadius}) {
+		/call EchoLog "Returning DEBUFF_TOOFAR"
+	/return DEBUFF_TOOFAR
+}
 
-	/declare dArray				int local
+	/declare dArray	int local
 	/for dArray 1 to ${debuffCount}
+		/call EchoLog "debuffEnabled${dArray}: ${debuffEnabled[${dArray}]}"
 		/if (${debuffEnabled[${dArray}]}) {
-			/if (${lTargCount}>=${debuffMinMobs[${dArray}]} && ${lTargCount}<=${debuffMaxMobs[${dArray}]}) {		
-				/if (${debuffMinMobs[${dArray}]}>1) {
-					/if (!${Defined[debuffTimer${dArray}]} || (${Defined[debuffTimer${dArray}]} && !${debuffTimer${dArray}})) {
+			/call EchoLog "${lTargCount} >= ${debuffMinMobs[${dArray}]} && ${lTargCount}<=${debuffMaxMobs[${dArray}]}"
+			/if (${lTargCount}>=${debuffMinMobs[${dArray}]} && ${lTargCount}<=${debuffMaxMobs[${dArray}]}) {
+				/if (${debuffMinMobs[${dArray}]}>= 1) {
+					/if (!${Defined[debuffTimer${dArray}]}) {
+						/call EchoLog "Calling Debuff ${dArray} on Mob: ${mobID}"
 						/call Debuff ${dArray} ${mobID}
 						/if (!${debuffAll}) /return ${Macro.Return}
+					} else /if (${Defined[debuffTimer${dArray}]}) {
+						/if (!${debuffTimer${dArray}}) {
+							/call EchoLog "Calling Debuff ${dArray} on Mob: ${mobID}"
+							/call Debuff ${dArray} ${mobID}
+							/if (!${debuffAll}) /return ${Macro.Return}
+						}
 					}
 				} else {
-					/if (!${Defined[debuffTimer${dArray}Mob${mobID}]} || (${Defined[debuffTimer${dArray}Mob${mobID}]} && !${debuffTimer${dArray}Mob${mobID}})) {
-						/call Debuff ${dArray} ${mobID}
-						/if (!${debuffAll}) /return ${Macro.Return}
+				|/if (!${Defined[debuffTimer${dArray}Mob${mobID}]} || (${Defined[debuffTimer${dArray}Mob${mobID}]})) {
+					/if (${Defined[debuffTimer${dArray}Mob${mobID}]}) {
+						/if (!${debuffTimer${dArray}Mob${mobID}}) {
+							/call Debuff ${dArray} ${mobID}
+							/if (!${debuffAll}) /return ${Macro.Return}
+						}
 					}
 				}
 			}
 		}
 	/next dArray
-/return DEBUFF_SUCCESS
+/return ${Macro.Return}
 
+| --------------------------------------------------------------------------------------------
+| SUB: DebuffCleanUp
+| --------------------------------------------------------------------------------------------
 Sub DebuffCleanUp(int mobID)
+	/varset CurrentSub DebuffCleanUp
+	/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
 	/declare dArray				int local
-	
+
 	/for dArray 1 to ${debuffCount}
 		/if (${Defined[debuffTimer${dArray}Mob${mobID}]}) /deletevar debuffTimer${dArray}Mob${mobID}
 		/if (${Defined[debuffTimer${dArray}]}) /varset debuffTimer${dArray} 0s
 	/next dArray
 /return
 
+| --------------------------------------------------------------------------------------------
+| SUB: DebuffRoutine
+| --------------------------------------------------------------------------------------------
 Sub DebuffRoutine(int mobID)
+	/varset CurrentSub DebuffRoutine
+	/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
 	/if (${priorityDebuffsTimer}) /return ABORT_TIMER
 	/if (${debuffCheckTimer}) /return ABORT_TIMER
 	/if (${Me.Moving}) /return ABORT_MOVING
 	/if (${mobID} == NULL) /varset mobID 0
 	/declare currID				int local
 	/declare dArray				int local
-	
+
 	/if (!${mobID}) {
 		/if (${debuffAdds}) {
 			/if (${targCount}) {
@@ -3910,16 +4230,29 @@ Sub DebuffRoutine(int mobID)
 	} else {
 		/call DebuffCheck ${mobID}
 	}
-	/if (!${Select[${Macro.Return},DEBUFF_SUCCESS,DEBUFF_IMMUNE,DEBUFF_RESIST]}) {
-		/varset debuffCheckTimer ${debuffCheckTime} 
-		/varset priorityDebuffsTimer ${priorityDebuffs}s
+	/if (!${Defined[theReturn]}) {
+		/declare theReturn string outer ${Macro.Return}
+	} else {
+		/varset theReturn ${Macro.Return}
+	}
+	/call EchoLog "Macro returned: ${theReturn} for DebuffCheck on ${mobID}"
+	/if (${Select[${theReturn},DEBUFF_SUCCESS,DEBUFF_IMMUNE,DEBUFF_RESIST]}) {
+		/call EchoLog "DebuffCheckTimer set to :${debuffCheckTimer}"
+		/varset debuffCheckTimer ${debuffCheckTime}
+		/call EchoLog "priorityDebuffsTimer set to :${priorityDebuffs}"
+		/varset priorityDebuffsTimer ${priorityDebuffs}
 	}
 /return
 
+| --------------------------------------------------------------------------------------------
+| SUB: DoNotAttackCheck
+| --------------------------------------------------------------------------------------------
 Sub DoNotAttackCheck
+	/varset CurrentSub DoNotAttackCheck
+	/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
 	/declare dnaBool				bool local TRUE
 	/declare dnaArray				int local 0
-	
+
 	/if (${Target.ID} && ${Target.BuffCount}) {
 		/for dnaArray 1 to 30
 			/if (${dnaString.Find[${Target.Buff[${dnaArray}]}]}) /varset dnaBool FALSE
@@ -3927,12 +4260,17 @@ Sub DoNotAttackCheck
 	}
 /return ${dnaBool}
 
+| --------------------------------------------------------------------------------------------
+| SUB: EchoLog
+| --------------------------------------------------------------------------------------------
 Sub EchoLog(string eMsg, bool logOnly, int msgLevel)
-	/declare sMsg			string local
+	/varset CurrentSub EchoLog
+	/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
+	/declare sMsg string local
 
 	/if (${eMsg.Equal[NULL]})	/return
 	/if (${logOnly} == NULL) /varset logOnly FALSE
-	/if (${msgLevel} == NULL) /varset msgLevel 0
+	/if (${msgLevel} == NULL) /varset msgLevel 1
 
 	/if (${msgLevel} <= ${debugLvl}) {
 		/call StripText "${eMsg}"
@@ -3940,23 +4278,30 @@ Sub EchoLog(string eMsg, bool logOnly, int msgLevel)
 		/varset eMsg ${defaultEchoColor}${eMsg}
 		/if (!${colorEcho}) /varset eMsg ${sMsg}
 		/if (!${logOnly} || ${debugMode}) /myecho >> ${eMsg}
-	
+
 		/mqlog ${sMsg}
 	}
 /return
 
+| --------------------------------------------------------------------------------------------
+| SUB: Evac
+| --------------------------------------------------------------------------------------------
 Sub Evac(bool campOut, bool campOutOnly, bool silentEvac)
+	/varset CurrentSub Evac
+	/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
 	/if (${campOut} == NULL) /varset campOut TRUE
 	/if (${campOutOnly} == NULL) /varset campOutOnly FALSE
 	/if (${silentEvac} == NULL) /varset silentEvac FALSE
-	
+
 	/if (!${campOutOnly}) {
 		/call EchoLog "Attempting to gate out"
 		/if (!${silentEvac}) /squelch /exec "${alertEvac}" bg
 		/if (${Me.AltAbilityReady[Gate]}) {
+			/call Debug 2 "MQ2Cast --> Gate alt Sub: ${CurrentSub}"
 			/call MQ2Cast "Gate" alt
 		} else {
 			/if (${Me.Book[Gate]}) {
+				/call Debug 2 "MQ2Cast --> Gate gem1"
 				/call MQ2Cast "Gate" gem1
 			} else {
 				/call EchoLog "This character does not have the gate spell." TRUE
@@ -3970,69 +4315,88 @@ Sub Evac(bool campOut, bool campOutOnly, bool silentEvac)
 		/varset campOut TRUE
 	}
 	/if (${campOut}) {
-		/if (${Me.Pet.ID} && ${Me.AltAbilityReady[Suspended Minion]})	/call MQ2Cast "Suspended Minion" alt
+		/if (${Me.Pet.ID} && ${Me.AltAbilityReady[Suspended Minion]}) {
+			/call Debug 2 "MQ2Cast --> Suspended Minion alt Sub: ${CurrentSub}"
+			/call MQ2Cast "Suspended Minion" alt
+		}
 		/call EchoLog "Camping"
 		/camp desktop
 	}
 	/endmacro
 /return
-
-Sub GetINISetting(string ININame,string INISection,string INIKey,string VariableName,string defaultValue,string createSettingStr,string variableType)
+|/call GetINISetting ${iniName}       General          UseEQBC           useEQBC                TRUE                    NULL
+| --------------------------------------------------------------------------------------------
+| SUB: GetINISetting
+| --------------------------------------------------------------------------------------------
+Sub GetINISetting(string ININame, string INISection, string INIKey, string VariableName, string defaultValue, string createSettingStr, string variableType)
+	/varset CurrentSub GetINISetting
+	/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
 	/if (${ININame.Equal[NULL]}) /return INVALIDINI
 	/if (${INISection.Equal[NULL]}) /return INVALIDSECTION
 	/if (${INIKey.Equal[NULL]}) /return INVALIDKEY
-	/if (${VariableName.Equal[NULL]}) /return INVALIDVARIABLE	
-	/if (${createSettingStr.NotEqual[NULL]} && ${createSettingStr.NotEqual[TRUE]} && ${createSettingStr.NotEqual[FALSE]} && ${variableType.Equal[NULL]}) {
-		| /declare variableType		string local ${createSettingStr}
+	/if (${VariableName.Equal[NULL]}) /return INVALIDVARIABLE
+	/if (${createSettingStr.Length} && !${variableType.Length}) {
 		/varset variableType ${createSettingStr}
 		/declare createSetting	bool local TRUE
-	} else /if (${createSettingStr.NotEqual[NULL]}) {
+	} else /if (${createSettingStr.NotEqual[NULL]} && ${createSettingStr.Length}) {
 		/declare createSetting	bool local ${createSettingStr}
 	}
-	/if (!${Defined[createSetting]}) /declare createSetting 	bool local TRUE
-	/declare iniValue						string local NULL
-	
-	/varset iniValue ${Ini[${ININame},${INISection},${INIKey},DOES_NOT_EXIST]}
-	/if (${iniValue.Equal[DOES_NOT_EXIST]}) {
-		/if (${createSetting}) /ini "${ININame}" "${INISection}" "${INIKey}" "${defaultValue}"
+	/if (!${Defined[createSetting]}) /declare createSetting bool local FALSE
+	/declare iniValue string local NULL
+	/call Debug 3 "${ININame}" "${INISection}" "${INIKey}" "${defaultValue}"
+	/if (${Ini[${ININame},${INISection},${INIKey}].Length}) {
+		/varset iniValue ${Ini[${ININame},${INISection},${INIKey}]}
+		/call Debug 3 "Used /varset because the INI had a value for Section: ${INISection}, Key: ${INIKey}"
+	} else {
+		/ini "${ININame}" "${INISection}" "${INIKey}" "${defaultValue}"
 		/varset iniValue ${defaultValue}
+		/call Debug 3 "Used /ini because the INI did not have a value for Section: ${INISection}, Key: ${INIKey}"
 	}
 
 	/declare variableDefName string local ${VariableName}
-	| /declare variableIndex int local 0
+| /declare variableIndex int local 0
 	/if (${VariableName.Find[[]}) {
 		/varset variableDefName ${VariableName.Left[${Math.Calc[${VariableName.Find[[]} - 1]}]}
-		| /varset variableIndex ${VariableName.Mid[${Math.Calc[${VariableName.Find[[]} + 1]},${Math.Calc[${VariableName.Find[]]} - ${VariableName.Find[[]} + 1]}]}
+	| /varset variableIndex ${VariableName.Mid[${Math.Calc[${VariableName.Find[[]} + 1]},${Math.Calc[${VariableName.Find[]]} - ${VariableName.Find[[]} + 1]}]}
 	}
-	/if (!${Defined[${variableDefName}]} && !${VariableName.Find[[]} && ${variableType.NotEqual[NULL]}) /declare ${VariableName} ${variableType} outer
-	/if (${Defined[${variableDefName}]} && ${VariableName.NotEqual[NULL]}) /varset ${VariableName} ${iniValue}
+
+	/if (!${Defined[${variableDefName}]}) {
+		/declare ${VariableName} ${variableType} outer ${iniValue}
+	} else {
+		/if (${Defined[${variableDefName}]} && ${VariableName.NotEqual[NULL]}) /varset ${VariableName} ${iniValue}
+	}
 /return COMPLETED
 
 | Needs to be worked on if you want to use!!  Is ok for simple applications
+| --------------------------------------------------------------------------------------------
+| SUB: GetINIArray
+| --------------------------------------------------------------------------------------------
 Sub GetINIArray(string ININame,string INISection,string INIKeyPrefix,string ArrayName,string ArrayType,string defaultValue,int createNum)
+	/varset CurrentSub GetINIArray
+	/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
 	/if (${ININame.Equal[NULL]}) /return INVALIDINI
 	/if (${INISection.Equal[NULL]}) /return INVALIDSECTION
 	/if (${INIKeyPrefix.Equal[NULL]}) /return INVALIDKEYPREFIX
-  /if (${ArrayName.Equal[NULL]}) /return INVALIDARRAY
-  /if (${ArrayType.Equal[NULL]}) /varset ArrayType string
-	/if (${createNum} == NULL) /varset createNum 1
-	/if (${defaultValue.Equal[NULL]}) /varset defaultValue NULL
+	/if (!${ArrayName.Length}) /return INVALIDARRAY
+	/if (${ArrayType.Equal[NULL]} || !${ArrayType.Length}) /varset ArrayType string
+	/if (!${createNum}) /varset createNum 1
+	/if (!${defaultValue.Length}) /varset defaultValue NULL
 	/declare iniValue						string local NULL
 	/declare iniArrayCount			int local 0
 	/declare arraySize					int local 0
-	
-	:iniCountArrayLoop
-		/varcalc iniArrayCount ${iniArrayCount} + 1
-		/varset iniValue ${Ini[${ININame},${INISection},${INIKeyPrefix}${iniArrayCount},DOES_NOT_EXIST]}
+
+:iniCountArrayLoop
+	/varcalc iniArrayCount ${iniArrayCount} + 1
+	/varset iniValue ${Ini[${ININame},${INISection},${INIKeyPrefix}${iniArrayCount},DOES_NOT_EXIST]}
 	/if (${iniValue.NotEqual[DOES_NOT_EXIST]}) /goto :iniCountArrayLoop
 	/varcalc iniArrayCount ${iniArrayCount} - 1
 	/varset arraySize ${iniArrayCount}
 	/if (${iniArrayCount} < ${createNum}) /varset iniArrayCount ${createNum}
-	
+
 	/if (!${Defined[${ArrayName}]} && ${iniArrayCount}) {
 		/declare ${ArrayName}[${arraySize}]					${ArrayType} outer
 	}
-	
+
 	/for nArray 1 to ${iniArrayCount}
 		/varset iniValue ${Ini[${ININame},${INISection},${INIKeyPrefix}${nArray},DOES_NOT_EXIST]}
 		/if (${iniValue.Equal[DOES_NOT_EXIST]}) {
@@ -4042,31 +4406,51 @@ Sub GetINIArray(string ININame,string INISection,string INIKeyPrefix,string Arra
 		/if (${nArray} <= ${arraySize}) /varset ${ArrayName}[${nArray}] ${iniValue}
 	/next nArray
 /return COMPLETED
-
+|/call GetINIArrayCount ${iniName}    "Pull Settings"      PullTarget            NULL
+| --------------------------------------------------------------------------------------------
+| SUB: GetINIArrayCount
+| --------------------------------------------------------------------------------------------
 Sub GetINIArrayCount(string ININame,string INISection,string INIKeyPrefix,string invalidValue)
-	/if (${ININame.Equal[NULL]}) /return 0
-	/if (${INISection.Equal[NULL]}) /return 0
-	/if (${INIKeyPrefix.Equal[NULL]}) /return 0
+	/varset CurrentSub GetINIArrayCount
+	/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
+	/if (${ININame.Equal[NULL]}) {
+		/echo ININame was NULL, returning 0.
+	/return 0
+}
+	/if (${INISection.Equal[NULL]}) {
+		/echo INISection was NULL, returning 0.
+	/return 0
+}
+	/if (${INIKeyPrefix.Equal[NULL]}) {
+		/echo INIKeyPrefix was NULL, returning 0.
+	/return 0
+}
 	/declare iniCount					int local 0
 	/declare nullCount				int local 0
-	
-	:iniArrayLoop
-		/varcalc iniCount ${iniCount} + 1
-		/if (${Ini[${ININame},${INISection},${INIKeyPrefix}${iniCount},${invalidValue}].Equal[${invalidValue}]}) {
-			/varcalc nullCount ${nullCount} + 1
-		} else {
-			/varset nullCount 0
-		}
-	| /if (${Ini[${ININame},${INISection},${INIKeyPrefix}${iniCount},${invalidValue}].NotEqual[${invalidValue}]}) /goto :iniArrayLoop
+
+:iniArrayLoop
+	/varcalc iniCount ${iniCount} + 1
+	/if (!${Ini[${ININame},${INISection},${INIKeyPrefix}${iniCount}].Length}) {
+		/varcalc nullCount ${nullCount} + 1
+	} else {
+		/varset nullCount 0
+	}
+| /if (${Ini[${ININame},${INISection},${INIKeyPrefix}${iniCount},${invalidValue}].NotEqual[${invalidValue}]}) /goto :iniArrayLoop
 	/if (${nullCount} < 5) /goto :iniArrayLoop
 	/varcalc iniCount ${iniCount} - ${nullCount}
+	/if (${iniCount}< 1) /varset iniCount 1
 /return ${iniCount}
 
+| --------------------------------------------------------------------------------------------
+| SUB: GetItemCount
+| --------------------------------------------------------------------------------------------
 Sub GetItemCount(string itemName)
+	/varset CurrentSub GetItemCount
+	/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
 	/declare itemCount		int local 0
 	/declare primaryLoop	int local 0
 	/declare bagLoop			int local 0
-	
+
 	/if (${FindItem[${itemName}].ID}) {
 		/if (!${FindItem[${itemName}].Stackable}) {
 			/for primaryLoop 1 to 10
@@ -4083,81 +4467,96 @@ Sub GetItemCount(string itemName)
 	}
 /return ${itemCount}
 
-Sub GetMATarget()
+| --------------------------------------------------------------------------------------------
+| SUB: GetMATarget
+| --------------------------------------------------------------------------------------------
+Sub GetMATarget
+	/varset CurrentSub GetMATarget
+	/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
 	/declare myID					int local 0
 	/declare xtNum				int local 0
 	/declare oMaTargetID	int local ${maTargetID}
 	/declare maTargLoop		int local 0
-	
+
 	/varset maTargetID 0
 	/if (${mainAssist.Equal[NULL]} && !${Group.MainAssist.ID}) {
 		/varset maTargetID 0
-		/return 0
-	}
+	/return 0
+}
 	/if (${mainAssist.Equal[${Me.CleanName}]}) /varset maTargetID ${Target.ID}
-	
+
 	/if (${mainAssist.Left[7].Equal[XTARGET]}) {
 		/varset xtNum ${mainAssist.Replace[XTARGET,]}
-		/varset maTargetID ${Me.XTarget[${xtNum}].ID}		
+		/varset maTargetID ${Me.XTarget[${xtNum}].ID}
 	}
-	
+
 	/if (!${maTargetID}) {
 		/for maTargLoop 1 to ${maxXTargets}
 			/if (${Me.XTarget[${maTargLoop}].${xTargType}.Equal[Group Assist Target]}) {
 				/varset maTargetID ${Me.XTarget[${maTargLoop}].ID}
 			}
-		/if (!${maTargetID}) /next maTargLoop
-	}
-			
-	/if (!${maTargetID} && ${Group.MainAssist.ID} && ${Group.MainAssist.Type.NotEqual[Corpse]} && (${Group.MainAssist.CleanName.Equal[${mainAssist}]} || ${Group.MainAssist.CleanName.Equal[${mainTank}]})) {
-		/for maTargLoop 1 to ${targCount}
-			/if (${Spawn[${targArray[${maTargLoop}]}].Assist}) /varset maTargetID ${targArray[${maTargLoop}]}
-		/if (!${maTargetID}) /next maTargLoop
-	}
-	
-	/if (!${maTargetID} && ${Spawn[${mainAssist}].ID}) {
-		/varset myID ${Target.ID}
-		/assist ${mainAssist}
-		/delay 1s ${Target.ID}!=${myID}
-		/if (${Target.ID}!=${myID} || ${oMaTargetID}==${myID}) /varset maTargetID ${Target.ID}
-	}
-/return ${maTargetID}
+			/if (!${maTargetID}) /next maTargLoop
+		}
 
-Sub GetMTTarget()
+		/if (!${maTargetID} && ${Group.MainAssist.ID} && ${Group.MainAssist.Type.NotEqual[Corpse]} && (${Group.MainAssist.CleanName.Equal[${mainAssist}]} || ${Group.MainAssist.CleanName.Equal[${mainTank}]})) {
+			/for maTargLoop 1 to ${targCount}
+				/if (${Spawn[${targArray[${maTargLoop}]}].Assist}) /varset maTargetID ${targArray[${maTargLoop}]}
+				/if (!${maTargetID}) /next maTargLoop
+			}
+
+			/if (!${maTargetID} && ${Spawn[${mainAssist}].ID}) {
+				/varset myID ${Target.ID}
+				/assist ${mainAssist}
+				/delay 1s ${Target.ID}!=${myID}
+				/if (${Target.ID}!=${myID} || ${oMaTargetID}==${myID}) /varset maTargetID ${Target.ID}
+			}
+		/return ${maTargetID}
+
+	| --------------------------------------------------------------------------------------------
+	| SUB: GetMTTarget
+	| --------------------------------------------------------------------------------------------
+	Sub GetMTTarget
+	/varset CurrentSub GetMTTarget
+	/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
 	/declare myID					int local 0
 	/declare oMtTargetID	int local ${mtTargetID}
 	/declare mtTargLoop		int local 0
-	
+
 	/varset mtTargetID 0
 	/if (${mainTank.Equal[NULL]} && !${Group.MainTank.ID}) {
 		/varset mtTargetID 0
-		/return 0
-	}
+	/return 0
+}
 	/if (${mainTank.Equal[${Me.CleanName}]}) /varset mtTargetID ${Target.ID}
-	
+
 	/if (!${mtTargetID}) {
 		/for mtTargLoop 1 to ${maxXTargets}
 			/if (${Me.XTarget[${mtTargLoop}].${xTargType}.Equal[Group Tank's Target]}) {
-				| '
+			| '
 				/varset mtTargetID ${Me.XTarget[${mtTargLoop}].ID}
 			}
-		/if (!${mtTargetID}) /next mtTargLoop
-	}
-	
-	/if (!${mtTargetID}) {
-		/varset myID ${Target.ID}
-		/assist ${mainTank}
-		/delay 1s ${Target.ID}!=${myID}
-		/if (${Target.ID}!=${myID} || ${oMtTargetID}==${myID}) /varset mtTargetID ${Target.ID}
-	}		
-/return ${mtTargetID}
+			/if (!${mtTargetID}) /next mtTargLoop
+		}
 
+		/if (!${mtTargetID}) {
+			/varset myID ${Target.ID}
+			/assist ${mainTank}
+			/delay 1s ${Target.ID}!=${myID}
+			/if (${Target.ID}!=${myID} || ${oMtTargetID}==${myID}) /varset mtTargetID ${Target.ID}
+		}
+	/return ${mtTargetID}
+
+| --------------------------------------------------------------------------------------------
+| SUB: CommonGetTarget
+| --------------------------------------------------------------------------------------------
 Sub CommonGetTarget(bool targNew)
+	/varset CurrentSub CommonGetTarget
+	/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
 	/if (${targNew} == NULL) /varset targNew TRUE
 	/declare newTargID						int local 0
 	/declare targLoop							int local 0
 
-	/if (${Target.ID} && ${Target.Type.Equal[Corpse]}) /squelch /target clear	
+	/if (${Target.ID} && ${Target.Type.Equal[Corpse]}) /squelch /target clear
 	/if (${mainAssist.NotEqual[${Me.CleanName}]} && ${mainAssist.NotEqual[NULL]}) {
 		/if (!${priorityAssistTimer}) {
 			/call GetMATarget
@@ -4187,10 +4586,15 @@ Sub CommonGetTarget(bool targNew)
 	/if (${newTargID} && ${targNew} && ${newTargID}!=${Target.ID}) {
 		/squelch /target id ${newTargID}
 		/delay 2s ${Target.ID}==${newTargID}
-	}	
+	}
 /return ${newTargID}
 
+| --------------------------------------------------------------------------------------------
+| SUB: GlobalCommands
+| --------------------------------------------------------------------------------------------
 Sub GlobalCommands(string comFrom, string comText, bool fromEQBC)
+	/varset CurrentSub GlobalCommands
+	/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
 	/if (${comFrom.Equal[NULL]} || ${comText.Equal[NULL]}) /return ABORT_PARAMS
 	/if (${fromEQBC} == NULL) /varset fromEQBC FALSE
 	/declare retValue									string local COMPLETED_NOTFOUND
@@ -4199,706 +4603,720 @@ Sub GlobalCommands(string comFrom, string comText, bool fromEQBC)
 	/declare cParams[${paramCount}]		string local
 	/declare strCommand								string local
 	/declare ctArray									int local 0
-	
+
 	/varset strCommand ${comText.Token[1, ]}
 	/call EchoLog "Global Command: ${strCommand} | ${comText}" TRUE
 	/if (${paramCount}) {
 		/for nArray 2 to ${paramCount}
 			/varset cParams[${Math.Calc[${nArray}-1]}] ${comText.Token[${nArray}, ]}
-		/if (${nArray} < 100) /next nArray
-	}
-	
+			/if (${nArray} < 100) /next nArray
+		}
+
 	| ======================================================
 	|  Check custom commands first
 	| ======================================================
-	/if (!${Defined[commandFrom]}) {
-		/declare commandFrom							string outer ${comFrom}
-		/declare commandText							string outer ${comText}
-		/declare commandFromEQBC					string outer ${fromEQBC}
-	} else {
-		/varset commandFrom ${comFrom}
-		/varset commandText ${comText}
-		/varset commandFromEQBC ${fromEQBC}
-	}
-	/if (${commandCount}) {
-		/for nArray 1 to ${commandCount}
-			/if (${commandTriggers[${nArray},1].Equal[${strCommand}]} || ${commandTriggers[${nArray},1].Equal[${comText}]}) {
+		/if (!${Defined[commandFrom]}) {
+			/declare commandFrom							string outer ${comFrom}
+			/declare commandText							string outer ${comText}
+			/declare commandFromEQBC					string outer ${fromEQBC}
+		} else {
+			/varset commandFrom ${comFrom}
+			/varset commandText ${comText}
+			/varset commandFromEQBC ${fromEQBC}
+		}
+		/if (${commandCount}) {
+			/for nArray 1 to ${commandCount}
+				/if (${commandTriggers[${nArray},1].Equal[${strCommand}]} || ${commandTriggers[${nArray},1].Equal[${comText}]}) {
 				| Custom command found for the trigger, execute it
-				/call EchoLog "Custom command ${commandTriggers[${nArray},1]} executing ${commandTriggers[${nArray},2]} action(s)." TRUE
-				/if (${commandTriggers[${nArray},2]}) {
-					/for ctArray 1 to ${commandTriggers[${nArray},2]}
-						/call GetINISetting ${iniName} Commands CommandTrigger${nArray}Action${ctArray} commandActions[${nArray},${ctArray}] NULL
-						/call EchoLog "...Action[${ctArray}]:  ${commandActions[${nArray},${ctArray}]}" TRUE
-						/docommand ${commandActions[${nArray},${ctArray}]}
-					/next ctArray
-				}
-				/varset retValue Custom command ${commandTriggers[${nArray},1]} executed
-			} else {
+					/call EchoLog "Custom command ${commandTriggers[${nArray},1]} executing ${commandTriggers[${nArray},2]} action(s)." TRUE
+					/if (${commandTriggers[${nArray},2]}) {
+						/for ctArray 1 to ${commandTriggers[${nArray},2]}
+							/call GetINISetting ${iniName} Commands CommandTrigger${nArray}Action${ctArray} commandActions[${nArray},${ctArray}] NULL
+							/call EchoLog "...Action[${ctArray}]:  ${commandActions[${nArray},${ctArray}]}" TRUE
+							/docommand ${commandActions[${nArray},${ctArray}]}
+						/next ctArray
+					}
+					/varset retValue Custom command ${commandTriggers[${nArray},1]} executed
+				} else {
 				/next nArray
 			}
-	}
-	
-	/if (${strCommand.Equal[watch]}) {
+		}
+		/call Debug 2 strCommand: ${strCommand}
+		/if (${strCommand.Equal[watch]}) {
 		| ======================================================
 		| watch <name>
 		| ======================================================
-		/if (${cParams[1].NotEqual[NULL]}) {
-			/declare watchAdd							bool local TRUE
-			/if (${watchCount}) {
-				/for nArray 1 to ${watchCount}
-					/if (${watchList[${nArray}].Equal[${cParams[1]}]}) {
-						/varset watchList[${nArray}] NULL
-						/varset watchAdd FALSE
-						/ini "${iniName}" "WatchList" "watchName${nArray}" "NULL"
-					}
-				/if (${watchAdd}) /next nArray
-			} else {
-				/varset watchAdd TRUE
-			}
-			/if (${watchAdd}) {
-				/varcalc watchCount ${watchCount} + 1
-				/varset watchList[${watchCount}] ${cParams[1]}
-				/ini "${iniName}" "WatchList" "WatchName${watchCount}" "${cParams[1]}"
-				/varset retValue \ag${cParams[1]} \aoadded to the watch List.
-			} else {
-				/varset retValue \ag${cParams[1]} \aoremoved fromt he watch List.
-			}
-		} else {
-			/if (${watchEnabled}) {
-				/varset watchEnabled FALSE
-			} else {
-				/varset watchEnabled TRUE
-			}
-			/varset retValue Watching people on the watch list: \ag${watchEnabled}
-		}
-	} else /if (${strCommand.Equal[loot]}) {
-		| =====================================================
-		| loot <state>
-		| =====================================================
-		/if (${cParams[1].Equal[ON]} || ${cParams[1].Equal[TRUE]}) {
-			/varset lootCorpses TRUE
-		} else /if (${cParams[1].Equal[OFF]} || ${cParams[1].Equal[FALSE]}) {
-			/varset lootCorpse FALSE
-		} else {
-			/if (${lootCorpses}) {
-				/varset lootCorpses FALSE
-			} else {
-				/varset lootCorpses TRUE
-			}
-		}
-		/varset retValue Looting set to: ${lootCorpses}
-	} else /if (${strCommand.Equal[safepc]}) {
-		| =====================================================
-		| safepc <name>
-		| =====================================================
-		/declare actAdd									bool local TRUE
-		/if (${cParams[1].NotEqual[NULL]}) {
-			/for nArray 1 to ${safePCCount}
-				/if (${safePC[${nArray}].Equal[${cParams[1]}]}) /varset actAdd FALSE
-			/if (${actAdd}) /next nArray
-			/if (${actAdd}) {
-				/call AddSafePC ${cParams[1]}
-				/varset retValue Successfully added the pc \ag${cParams[1]} \aofrom the safe pc List.
-			} else {
-				/call RemoveSafePC ${cParams[1]}
-				/varset retValue Successfully removed the pc \ag${cParams[1]} \aofrom the safe pc List.
-			}
-		} else {
-			/varset retValue ABORT_SYNTAX
-		}
-	} else /if (${strCommand.Equal[ignoremob]}) {
-		| =====================================================
-		| ignoremob <name>
-		| =====================================================
-		/declare actAdd									bool local TRUE
-		/declare tmpIgnoreString			string local NULL
-		/for ctArray 1 to ${Math.Calc[${paramCount}	- 1]}
-			/if (${cParams[${ctArray}].NotEqual[NULL]}) { 
-				/if (${tmpIgnoreString.Length} && ${tmpIgnoreString.NotEqual[NULL]}) {
-					/varset tmpIgnoreString ${tmpIngoreString} ${cParams[${ctArray}]}
-				} else {
-					/varset tmpIgnoreString ${cParams[${ctArray}]}
-				}
-			}
-		/next ctArray		
-		/if (${tmpIgnoreString.NotEqual[NULL]} && ${tmpIgnoreString.Length}) {
-			/for nArray 1 to ${ignoreMobsCount}
-				/if (${ignoreMobs[${nArray}].Equal[${tmpIgnoreString}]}) /varset actAdd FALSE
-			/if (${actAdd}) /next nArray
-			/if (${actAdd}) {
-				/call AddIgnoreMob ${tmpIgnoreString}
-				/varset retValue Successfully added the mob \ag${tmpIgnoreString} \aoto the ignore mob List.
-			} else {
-				/call RemoveIgnoreMob ${tmpIgnoreString}
-				/varset retValue Successfully removed the mob \ag${cParams[1]} \aofrom the ignore mob List.
-			}
-		} else {
-			/varset retValue ABORT_SYNTAX
-		}		
-	} else /if (${strCommand.Equal[docmd]}) {
-		| =====================================================
-		| docmd <command>
-		| =====================================================
-		/declare strDoCmd							string local
-		/if (${cParams[1].NotEqual[NULL]}) {
-			/for nArray 1 to ${paramCount}
-				/varset strDoCmd ${strDoCmd} ${cParams[${nArray}]}
-			/next nArray
-			/if (${strDoCmd.Left[1].Equal[ ]}) /varset strDoCmd ${strDoCmd.Right[${Math.Calc[${strDoCmd.Length}-1]}]}
-			/if (${strDoCmd.Left[1].NotEqual[/]}) /varset strDoCmd /${strDoCmd}
-			/docommand ${strDoCmd}
-			/varset retValue COMPLETED_SUCCESS
-		} else {
-			/varset retValue ABORT_SYNTAX
-		}
-	} else /if (${strCommand.Equal[follow]}) {
-		| =====================================================
-		| follow <target>
-		| =====================================================		
-		/declare folTarg							string local
-		/declare fID									int local
-		/if (${groupMode}) {
-			/varset folTarg ${cParams[1]}
-			/if (${cParams[1].Equal[Me]} || ${cParams[1].Equal[NULL]} || !${cParams[1].Length}) /varset folTarg ${comFrom}
-			/varset fID ${Spawn[${folTarg}].ID}
-			/if (${fID} && ${Spawn[${fID}].Type.Equal[Pet]}) /varset fID ${Spawn[${fID}].Master.ID}
-			/if (${fID} && ${Spawn[${fID}].Type.NotEqual[Corpse]}) {
-				/squelch /target clear
-				/squelch /target ID ${fID}
-				/delay 1s ${Target.ID}
-				/if (${Target.ID} && ${Target.Distance}<150) {
-					/if (${Me.Sitting}) /stand
-					/squelch /stick hold 15
-					/varset retValue Following \ag${folTarg}
-					/varset followMode TRUE
-					/varset followTarg ${folTarg}
-					/varset followTargID ${fID}
-					/varset curLoc 1
-				} else /if (!${Target.ID}) {
-					/varset retValue \aoI cannot follow \ag${folTarget} \aobecause I do not see them around
-				} else {
-					/varset retValue \aoI cannot follow \ag${folTarget} \aobecause they are too far away
-					/squelch /target clear
-				}
-			} else {
-				/varset retValue \aoI cannot follow \ag${folTarget} \aobecause I do not see them around
-			}
-		} else {
-			/varset retValue Cannot use follow command when groupmode is FALSE.
-		}
-	} else /if (${strCommand.Equal[Assist]}) {
-		| =====================================================
-		| assist <target>
-		| =====================================================			
-		/declare assistTarg						string local
-		/if (${cParams[1].NotEqual[NULL]}) {
-			/varset assistTarg ${cParams[1]}
-			/if (${cParams[1].Equal[Me]}) /varset assistTarg ${comFrom}
-			
-			/if (${assistTarg.Equal[Group]}) {
-				/varset mainAssist ${Group.MainAssist}
-				/varset useGroupAssist TRUE
-			} else {
-				/varset mainAssist ${assistTarg}
-				/varset useGroupAssist FALSE
-			}
-			/varset retValue Assist has been changed to \ag${mainAssist}
-		} else {
-			/varset retValue ABORT_SYNTAX
-		}
-	} else /if (${strCommand.Equal[puller]}) {
-		| =====================================================
-		| puller <target>
-		| =====================================================			
-		/declare pullerTarg						string local
-		/if (${cParams[1].NotEqual[NULL]}) {
-			/varset pullerTarg ${cParams[1]}
-			/if (${cParams[1].Equal[Me]}) /varset pullerTarg ${comFrom}
-			
-			/if (${pullerTarg.Equal[Group]}) {
-				/varset pullerName ${Group.Puller}
-				/varset useGroupPuller TRUE
-			} else {
-				/varset pullerName ${pullerTarg}
-				/varset useGroupPuller FALSE
-			}
-			/varset retValue Puller has been changed to \ag${pullerName}
-		} else {
-			/varset retValue ABORT_SYNTAX
-		}
-	} else /if (${strCommand.Equal[maintank]} || ${strCommand.Equal[tank]}) {
-		| =====================================================
-		| maintank / tank <target>
-		| =====================================================			
-		/declare tankTarg						string local
-		/if (${cParams[1].NotEqual[NULL]}) {
-			/varset tankTarg ${cParams[1]}
-			/if (${cParams[1].Equal[Me]}) /varset tankTarg ${comFrom}
-			
-			/if (${assistTarg.Equal[Group]}) {
-				/varset mainTank ${Group.MainTank}
-				/varset useGroupTank TRUE
-			} else {
-				/varset mainTank ${tankTarg}
-				/varset useGroupTank FALSE
-			}
-			/varset retValue MainTank has been changed to \ag${mainTank}
-		} else {
-			/varset retValue ABORT_SYNTAX
-		}
-	} else /if (${strCommand.Equal[stay]}) {
-		| =====================================================
-		| stay
-		| =====================================================
-		/if (${groupMode}) {
-			/squelch /stick off
-			/call SetHome
-			/varset LocArray[1] ${Me.Y},${Me.X},${Me.Z}
-			/varset followMode FALSE
-			/varset retValue Home location reset where I am, follow is now off
-		} else {
-			/varset retValue Cannot use stay command while groupmode is FALSE
-		}
-	} else /if (${strCommand.Equal[groupbuff]}) {
-		| =====================================================
-		| groupbuff
-		| =====================================================		
-		/if (${groupMode}) {
-			/if (${doGroupBuffs}) {
-				/varset doGroupBuffs FALSE
-			} else {
-				/varset doGroupBuffs TRUE
-				| /varset minBuffCheckTimer 0s
-			}
-			/varset retValue Group Buffing: ${doGroupBuffs}
-		}
-	} else /if (${strCommand.Equal[selfbuff]}) {
-		| =====================================================
-		| selfbuff
-		| =====================================================		
-		/if (${doSelfBuffs}) {
-			/varset doSelfBuffs FALSE
-		} else {
-			/varset doSelfBuffs TRUE
-			| /varset minBuffCheckTimer 0s
-		}
-		/varset retValue Self Buffing: ${doSelfBuffs}
-	} else /if (${strCommand.Equal[PetBuff]}) {
-		| =====================================================
-		| petbuff
-		| =====================================================				
-		/if (${doPetBuffs}) {
-			/varset doPetBuffs FALSE
-		} else {
-			/varset doPetBuffs TRUE
-			| /varset minBuffCheckTimer 0s
-		}
-		/varset retValue Pet Buffing: ${doPetBuffs}
-	} else /if (${strCommand.Equal[watchbuff]}) {
-		| =====================================================
-		| watchbuff
-		| =====================================================				
-		/varset doWatchBuffs ${If[${doWatchBuffs},FALSE,TRUE]}
-		/varset retValue Watch Buffing: ${doWatchBuffs}
-	} else /if (${strCommand.Equal[debuff]}) {
-		| =====================================================
-		| debuff [alias]
-		| =====================================================				
-		/if (${cParams[1].Equal[NULL]}) {
-			/if (${doDebuffs}) {
-				/varset doDebuffs FALSE
-			} else {
-				/varset doDebuffs TRUE
-			}
-			/varset retValue Debuffing: ${doDebuffs}
-		} else {
-			/declare eArray						int local
-			/for eArray 1 to ${debuffCount}
-				/if (${debuffAlias[${eArray}].Equal[${cParams[1]}]}) {
-					/if (${debuffEnabled[${eArray}]}) {
-						/varset debuffEnabled[${eArray}] FALSE
-					} else {
-						/varset debuffEnabled[${eArray}] TRUE
-					}
-					/varset retValue Debuff ${debuffSpells[${eArray}]} - Enabled: ${debuffEnabled[${eArray}]}
-				}
-			/next eArray
-		}
-	} else /if (${strCommand.Equal[Buff]}) {
-		| =====================================================
-		| buff <alias> <target>
-		| =====================================================
-		/if (${groupBuffCount}) {
-			/if (${cParams[1].NotEqual[NULL]} && ${cParams[2].NotEqual[NULL]}) {
-				/declare buffTarg 					string local ${cParams[2]}
-				/declare buffFound					bool local FALSE
-				/if (${buffTarg.Equal[Me]}) /varset buffTarg ${comFrom}
-				/if (${Spawn[${buffTarg}].ID}) {
-					/if (${cParams[1].NotEqual[all]}) {
-						/for nArray 1 to ${groupBuffCount}
-							/if (${groupBuffAlias[${nArray}].Equal[${cParams[1]}]}) {
-								/if (${groupBuffSingle[${nArray}].NotEqual[NULL]}) {
-									/varset buffFound TRUE
-									/if (${Me.CurrentMana} > ${Math.Calc[${Spell[${groupBuffSingle[${nArray}]}].Mana} + 100]}) {
-										/call CastBuff ${Spawn[${buffTarg}].ID} ${nArray} Group Single TRUE
-									} else {
-										/varset retValue Insufficient mana to do that Buff
-									}
-								} else /if (${groupBuffGroup[${nArray}].NotEqual[NULL]}) {
-									/varset buffFound TRUE
-									/if (${Me.CurrentMana} > ${Math.Calc[${Spell[${groupBuffGroup[${nArray}]}].Mana} + 100]}) {
-										/call CastBuff ${Spawn[${buffTarg}].ID} ${nArray} Group Group TRUE
-									} else {
-										/varset retValue Insufficient mana to do that Buff
-									}									
-								} else {
-									/varset retValue The Buff with that alias could not be found									
-								}
-								/if (${retValue.Equal[COMPLETED_NOTFOUND]} && ${Macro.Return.Equal[COMPLETED_SUCCESS]}) {
-									/varset retValue COMPLETED_SUCCESS
-								} else {
-									/call EchoLog "Attempt to buff failed: ${Macro.Return}" TRUE
-									/varset retValue COMLETED_FAIL
-								}
-							}
-						/next nArray
-						/if (!${buffFound}) /varset retValue The Buff with that alias could not be found
-					} else {
-						/varset buffFound TRUE
-						/varset retValue BUFFING
-						/for nArray 1 to ${groupBuffCount}
-							/if (${groupBuffSingle[${nArray}].NotEqual[NULL]}) {
-								/if (${Me.CurrentMana} > ${Math.Calc[${Spell[${groupBuffSingle[${nArray}]}].Mana} + 100]}) {
-									/call CastBuff ${Spawn[${buffTarg}].ID} ${nArray} Group Single TRUE
-								} else {
-									/varset retValue Insufficient mana to complete buffs
-								}
-							} else /if (${groupBuffGroup[${nArray}].NotEqual[NULL]}) {
-								/if (${Me.CurrentMana} > ${Math.Calc[${Spell[${groupBuffGroup[${nArray}]}].Mana} + 100]}) {
-									/call CastBuff ${Spawn[${buffTarg}].ID} ${nArray} Group Group TRUE
-								} else {
-									/varset retValue Insufficient mana to complete buffs
-								}								
-							}
-						/if (${retValue.Equal[BUFFING]}) /next nArray
-						/if (${retValue.Equal[BUFFING]}) /varset retValue COMPLETED_SUCCESS
-					}
-				} else {
-					/varset retValue The Target, ${buffTarg}, could not be found to Buff
-				}
-			} else {
-				/if (${cParams[1].NotEqual[NULL]}) {
-					/if (${groupBuffCount}) {
-						/for nArray 1 to ${groupBuffCount}
-							/if (${groupBuffAlias[${nArray}].Equal[${cParams[1]}]}) {
-								/if (${groupBuffEanbled[${nArray}]}) {
-									/varset groupBuffEnabled[${nArray}] FALSE
-								} else {
-									/varset groupBuffEnabled[${nArray}] TRUE
-								}
-							}
-						/next nArray
-					}
-				} else {
-					/varset retValue ABORT_SYNTAX
-				}
-			}
-		} else {
-			/varset retValue There are no Group buffs loaded.
-		}
-	} else /if (${strCommand.Equal[invite]}) {
-		| =====================================================
-		| invite <target>
-		| =====================================================		
-		/declare invTarget			string local
-		/if (${cParams[1].Equal[NULL]} || ${cParams[1].Equal[Me]} || !${cParams[1].Length}) {
-			/varset invTarget ${rFrom}
-		} else {
-			/varset invTarget ${cParams[1]}
-		}
-		/if (${groupMode}) {
-			/if ((${Group.GroupSize} > 1 && ${Group.Leader.CleanName.Equal[${Me.CleanName}]}) || !${Group.GroupSize}) {
-				/invite ${invTarget}
-				/varset retValue \ag${invTarget} has been Invited.
-			} else {
-				/varset retValue Cannot invite because I am not the Group Leader
-			}
-		} else {
-			/varset retValue Cannot invite people when I'm not Running in Group mode'
-		}
-	} else /if (${strCommand.Equal[buffcheck]}) {
-		| =====================================================
-		| buffcheck
-		| =====================================================	
-		/call buffCheck FALSE ${inCombat} ${inCombatBuffRoutine}
-		/varset retValue COMPLETED_SUCCESS
-	} else /if (${strCommand.Equal[combatspells]}) {
-		| =====================================================
-		| combatspells
-		| =====================================================	
-		/if (${doCombatSpells}) {
-			/varset doCombatSpells FALSE
-		} else {
-			/varset doCombatSpells TRUE
-		}
-		/varset retValue Combat spells Enabled; ${doCombatSpells}
-	} else /if (${strCommand.Equal[EndTimer]}) {
-		| =====================================================
-		| EndTimer [time/disable] [action] 
-		| (action can be gate, gatecamp, camp, stop, or quit)
-		| =====================================================	
-		/if (${cParams[1].NotEqual[NULL]}) {
-			/if (${cParams[1].NotEqual[disable]}) {
-				/varset useMacroEndTimer TRUE
-				/varset macroEndTimer ${cParams[1]}
-				/if (${cParams[2].NotEqual[NULL]} && ${cParams[2].Length}) /varset macroEndAction ${cParams[2]}
-				/varset retValue End timer has been Enabled with a Time of ${cParams[1]}, Action is set to ${macroEndAction}
-				/call EchoLog "Macro end timer has been Enabled with a Time of ${cParams[1]}, Action is set to ${macroEndAction}"
-			} else {
-				/if (${useMacroEndTimer}) {
-					/varset useMacroEndTimer FALSE
-					/varset macroEndTimer 0s
-					/varset retValue End timer has been disabled
-					/call EchoLog "Macro end timer has been disabled"
-				}
-			}
-		} else {
-			/if (${useMacroEndTimer}) {
-				/declare tempMinutes			int local
-				/declare tempSeconds			int local
-				/varcalc tempSeconds ${macroEndTimer} / 10
-				/varcalc tempMinutes ${tempSeconds} / 60
-				/varcalc tempSeconds ${tempSeconds} - (${tempMinutes} * 60)
-				/varset retValue End timer, Time remaining approixmately: ${tempMinutes} Minute(s) ${tempSeconds} Second(s), Action: ${macroEndAction}
-			} else {
-				/varset retValue End timer is not current Enabled.
-			}
-		}
-	} else /if (${strCommand.Equal[combatbuff]}) {
-		| =====================================================
-		| combatbuff
-		|  Enables / Disables combat buffing
-		| =====================================================		
-		/if (${doCombatBuffs}) {
-			/varset doCombatBuffs FALSE
-		} else {
-			/varset doCombatBuffs TRUE
-		}
-		/varset retValue Combat Buffing: ${doCombatBuffs}
-	} else /if (${strCommand.Equal[campradius]}) {
-		| =====================================================
-		| CampRadius [Value]
-		|  Changes the camp radius
-		| =====================================================			
-		/if (${cParams[1].NotEqual[NULL]} && ${cParams[1].Length}) {
-			/varset campRadius ${cParams[1]}
-			/varset retValue CampRadius has been set to ${cParams[1]}
-		} else {
-			/varset retValue You must specify a camp radius: CampRadius [Value]
-		}
-	} else /if (${strCommand.Equal[campreturn]}) {
-		| =====================================================
-		| campreturn
-		|  Forces bots to move back to their camp location
-		| =====================================================		
-		/call MoveToLoc ${homeY} ${homeX} ${inCombat}
-		/varset retValue Move to home result: ${Macro.Return}
-	} else /if (${strCommand.Equal[cast]}) {
-		| =====================================================
-		| cast [target] [spell]
-		|  Will have the bot cast the specified spell on the target
-		| =====================================================
-		/declare spTarget						int local 0
-		/declare spName							string local
-		/declare spInt							int local 0
-		/if (${cParams[1].NotEqual[NULL]} && ${cParams[1].Length}) {
-			/if (${cParams[1].Equal[me]}) /varset cParams[1] ${rFrom}
-			/if (${Spawn[${cParams[1]}].ID}) {
-				/varset spTarget ${Spawn[${cParams[1]}].ID}
-				/for spInt 2 to 20
-					/if (${cParams[${spInt}].NotEqual[NULL]} && ${cParams[${spInt}].Length}) {
-						/varset spName ${spName} ${cParams[${spInt}]}
-					}
-				/next spInt
-				/varset spName ${spName.Right[-1]}
-				/if (${spName.NotEqual[NULL]} && ${spName.Length}) {
-					/squelch /target ID ${spTarget}
-					/delay 1s ${Target.ID}==${spTarget}
-					/if (${Target.ID}==${spTarget}) {
-						/call MQ2Cast "${spName}"
-						/varset retValue Cast Result: ${CastResult}
-					} else {
-						/varset retValue Could not Target ${Spawn[${spTarget}].CleanName})
-					}
-				} else {
-					/varset retValue No Spell Name provided.
-				}
-			} else {
-				/varset retValue I do not see that Target around here
-			}
-		}
-	} else /if (${strCommand.Equal[castwhileinvis]}) {
-		| =====================================================
-		| castwhileinvis
-		|  toggles casting while invis true / false
-		| =====================================================
-		/if (${castWhileInvis}) {
-			/varset castWhileInvis FALSE
-			/varset noInvis TRUE
-		} else {
-			/varset castWhileInvis TRUE
-			/varset noInvis FALSE
-		}
-		/varset retValue Casting While Invis: ${castWhileInvis}
-	} else /if (${strCommand.Equal[pull]}) {
-		| ==========================
-		| Pull, Toggles pulling on and off
-		| ==========================
-		/if ((${cParams[1].Equal[TRUE]} || ${cParams[1].Equal[ON]}) && ${allowPullMode}) {
-			/varset pullMode TRUE
-		} else /if (${cParams[1].Equal[FALSE]} || ${cParams[1].Equal[OFF]}) {
-			/varset pullMode FALSE
-		} else /if (${cParams[1].NotEqual[NULL]}) {
-			/call PullLoadPath ${cParams[1]} FALSE
-			/varset pullPath ${cParams[1]}
-			/varset multiPaths FALSE
-			/varset usePullPath TRUE
-			/varset pullMode TRUE
-		} else {
-			/if (${pullMode} || !${allowPullMode}) {
-				/varset pullMode FALSE
-			} else {
-				/varset pullMode TRUE
-			}
-		}
-		/varset retValue ${If[!${allowPullMode},Pull mode is not allowed currently,PullMode set to: \ag${pullMode}]}
-	} else /if (${strCommand.Equal[pullradius]}) {
-		| ==========================
-		| PullRadius <radius>
-		| ==========================		
-		/if (${cParams[1].NotEqual[NULL]}) {
-			/varset pullRadius ${cParams[1]}
-			/varset retValue Pulling Radius set to: \ag${pullRadius}
-		} else {
-			/varset retValue You must specify a new radius, CMD: \agPullRadius <Radius>
-		}
- 	} else /if (${strCommand.Equal[pulllimit]}) {
-		| ==========================
-		| PullLimit <action> <param>
-		| ==========================		
-		/if (${cParams[1].Equal[CLEAR]}) {
-			/squelch /alert clear ${pullTargetAlert}
-		} else /if (${cParams[1].Equal[ADD]}) {
-			/declare plLoop	int local
-			/declare plParam	string local NULL
-			/for plLoop 2 to ${cParams.Size[1]}
-				/if (${cParams[${plLoop}].NotEqual[NULL]}) /varset plParam ${plParam}${If[${plParam.Length}, ,]}${cParams[${plLoop}]}
-			/next plLoop
-			/squelch /alert add ${pullTargetAlert} ${plParam}
-		}
-  } else /if (${strCommand.Equal[MissionMode]}) {
-		| ==========================
-		| MissionMode <MissionINI>
-		|  starts / stops mission mode, optional MissionINI sets the mission INI
-		| ==========================
-		/if ((!${missionMode} || ${cParams[1].NotEqual[NULL]}) && ${cParams[1].NotEqual[OFF]}) {
 			/if (${cParams[1].NotEqual[NULL]}) {
-				/varset missionINI ${cParams[1]}
-				/if (!${missionINI.Find[.ini]}) /varset missionINI ${missionINI}.ini
-			}
-			/if (${missionINI.NotEqual[NULL]}) {
-				/varset missionMode TRUE
-				/varset retValue MissionMode started
-			} else {
-				/varset retValue You tried to enable mission mode but there is no MissionINI specicfied.  Specify it with \agMissionMode MissionINI
-			}
-		} else {
-			/varset missionMode FALSE
-			/varset missionStatus NULL
-			/varset retValue MissionMode disabled.  If you are currently in a mission you will have to manually exit the mission.
-		}
-	} else /if (${strCommand.Equal[warp]}) {
-		| =====================================================
-		| warp [loc y x z] [t|target] [wp wpname] [me]
-		|  Will have the bot warp using the specified parameters
-		| =====================================================	
-		/if (${cParams[1].NotEqual[NULL]}) {
-			/if (${cParams[1].Equal[loc]}) {
-				/if (${cParams[2].NotEqual[NULL]} && ${cParams[3].NotEqual[NULL]} && ${cParams[4].NotEqual[NULL]}) {
-					/warp loc ${cParams[2]} ${cParams[3]} ${cParams[4]}
+				/declare watchAdd							bool local TRUE
+				/if (${watchCount}) {
+					/for nArray 1 to ${watchCount}
+						/if (${watchList[${nArray}].Equal[${cParams[1]}]}) {
+							/varset watchList[${nArray}] NULL
+							/varset watchAdd FALSE
+							/ini "${iniName}" "WatchList" "watchName${nArray}" "NULL"
+						}
+						/if (${watchAdd}) /next nArray
+					} else {
+						/varset watchAdd TRUE
+					}
+					/if (${watchAdd}) {
+						/varcalc watchCount ${watchCount} + 1
+						/varset watchList[${watchCount}] ${cParams[1]}
+						/ini "${iniName}" "WatchList" "WatchName${watchCount}" "${cParams[1]}"
+						/varset retValue \ag${cParams[1]} \aoadded to the watch List.
+					} else {
+						/varset retValue \ag${cParams[1]} \aoremoved fromt he watch List.
+					}
 				} else {
-					/varset retValue You must specify a y x z Value when using warp loc
+					/if (${watchEnabled}) {
+						/varset watchEnabled FALSE
+					} else {
+						/varset watchEnabled TRUE
+					}
+					/varset retValue Watching people on the watch list: \ag${watchEnabled}
 				}
-			} else /if (${cParams[1].Equal[t]} || ${cParams[1].Equal[Target]}) {
-				/warp t
-			} else /if (${cParams[1].Equal[wp]}) {
-				/if (${cParams[2].NotEqual[NULL]}) {
-					/warp wp ${cParams[2]}
+			} else /if (${strCommand.Equal[loot]}) {
+			| =====================================================
+			| loot <state>
+			| =====================================================
+				/if (${cParams[1].Equal[ON]} || ${cParams[1].Equal[TRUE]}) {
+					/varset lootCorpses TRUE
+				} else /if (${cParams[1].Equal[OFF]} || ${cParams[1].Equal[FALSE]}) {
+					/varset lootCorpse FALSE
 				} else {
-					/varset retValue You must specify a waypoint Name when using warp wp
+					/if (${lootCorpses}) {
+						/varset lootCorpses FALSE
+					} else {
+						/varset lootCorpses TRUE
+					}
 				}
-			} else /if (${cParams[1].Equal[Me]}) {
-				/squelch /target ${comFrom}
-				/delay 1s ${Target.CleanName.Equal[${comFrom}]}
-				/if (${Target.CleanName.Equal[${comFrom}]}) {
-					/warp t
-				} else {
-					/varset retValue Could not Find you in the current Zone to warp to.
-				}
-			} else {
-				/varset retValue The warp parameter ${cParams[1]} was not understood.  Valid parameters are /ag[loc y x z] [t|target] [wp wpname] [me]
-			}
-			/if (${retValue.Equal[COMPLETED_NOTFOUND]}) {
-					/delay 5
-					/varset retValue Warp complete and home location reset to current location
-					/call SetHome
-					/if (${followMode}) {
-						/varset followMode FALSE
-						/squelch /stick off
-					}				
-			}
-		} else {
-			/varset retValue You did not pass a parameter for the Type of warp.  /ayUSAGE: 	/agwarp [loc y x z] [t|target] [wp wpname] [me]
-		}
-	}
-/return ${retValue}
+				/varset retValue Looting set to: ${lootCorpses}
+			} else /if (${strCommand.Equal[safepc]}) {
+			| =====================================================
+			| safepc <name>
+			| =====================================================
+				/declare actAdd									bool local TRUE
+				/if (${cParams[1].NotEqual[NULL]}) {
+					/for nArray 1 to ${safePCCount}
+						/if (${safePC[${nArray}].Equal[${cParams[1]}]}) /varset actAdd FALSE
+						/if (${actAdd}) /next nArray
+						/if (${actAdd}) {
+							/call AddSafePC ${cParams[1]}
+							/varset retValue Successfully added the pc \ag${cParams[1]} \aofrom the safe pc List.
+						} else {
+							/call RemoveSafePC ${cParams[1]}
+							/varset retValue Successfully removed the pc \ag${cParams[1]} \aofrom the safe pc List.
+						}
+					} else {
+						/varset retValue ABORT_SYNTAX
+					}
+				} else /if (${strCommand.Equal[ignoremob]}) {
+				| =====================================================
+				| ignoremob <name>
+				| =====================================================
+					/declare actAdd									bool local TRUE
+					/declare tmpIgnoreString			string local NULL
+					/for ctArray 1 to ${Math.Calc[${paramCount}	- 1]}
+						/if (${cParams[${ctArray}].NotEqual[NULL]}) {
+							/if (${tmpIgnoreString.Length} && ${tmpIgnoreString.NotEqual[NULL]}) {
+								/varset tmpIgnoreString ${tmpIngoreString} ${cParams[${ctArray}]}
+							} else {
+								/varset tmpIgnoreString ${cParams[${ctArray}]}
+							}
+						}
+					/next ctArray
+					/if (${tmpIgnoreString.NotEqual[NULL]} && ${tmpIgnoreString.Length}) {
+						/for nArray 1 to ${ignoreMobsCount}
+							/if (${ignoreMobs[${nArray}].Equal[${tmpIgnoreString}]}) /varset actAdd FALSE
+							/if (${actAdd}) /next nArray
+							/if (${actAdd}) {
+								/call AddIgnoreMob ${tmpIgnoreString}
+								/varset retValue Successfully added the mob \ag${tmpIgnoreString} \aoto the ignore mob List.
+							} else {
+								/call RemoveIgnoreMob ${tmpIgnoreString}
+								/varset retValue Successfully removed the mob \ag${cParams[1]} \aofrom the ignore mob List.
+							}
+						} else {
+							/varset retValue ABORT_SYNTAX
+						}
+					} else /if (${strCommand.Equal[docmd]}) {
+					| =====================================================
+					| docmd <command>
+					| =====================================================
+						/declare strDoCmd							string local
+						/if (${cParams[1].NotEqual[NULL]}) {
+							/for nArray 1 to ${paramCount}
+								/varset strDoCmd ${strDoCmd} ${cParams[${nArray}]}
+							/next nArray
+							/if (${strDoCmd.Left[1].Equal[ ]}) /varset strDoCmd ${strDoCmd.Right[${Math.Calc[${strDoCmd.Length}-1]}]}
+							/if (${strDoCmd.Left[1].NotEqual[/]}) /varset strDoCmd /${strDoCmd}
+							/docommand ${strDoCmd}
+							/varset retValue COMPLETED_SUCCESS
+						} else {
+							/varset retValue ABORT_SYNTAX
+						}
+					} else /if (${strCommand.Equal[follow]}) {
+					| =====================================================
+					| follow <target>
+					| =====================================================
+						/declare folTarg							string local
+						/declare fID									int local
+						/if (${groupMode}) {
+							/varset folTarg ${cParams[1]}
+							/if (${cParams[1].Equal[Me]} || ${cParams[1].Equal[NULL]} || !${cParams[1].Length}) /varset folTarg ${comFrom}
+							/varset fID ${Spawn[${folTarg}].ID}
+							/if (${fID} && ${Spawn[${fID}].Type.Equal[Pet]}) /varset fID ${Spawn[${fID}].Master.ID}
+							/if (${fID} && ${Spawn[${fID}].Type.NotEqual[Corpse]}) {
+								/squelch /target clear
+								/squelch /target ID ${fID}
+								/delay 1s ${Target.ID}
+								/if (${Target.ID} && ${Target.Distance}<150) {
+									/if (${Me.Sitting}) /stand
+									/squelch /stick hold 15
+									/varset retValue Following \ag${folTarg}
+									/varset followMode TRUE
+									/varset followTarg ${folTarg}
+									/varset followTargID ${fID}
+									/varset curLoc 1
+								} else /if (!${Target.ID}) {
+									/varset retValue \aoI cannot follow \ag${folTarget} \aobecause I do not see them around
+								} else {
+									/varset retValue \aoI cannot follow \ag${folTarget} \aobecause they are too far away
+									/squelch /target clear
+								}
+							} else {
+								/varset retValue \aoI cannot follow \ag${folTarget} \aobecause I do not see them around
+							}
+						} else {
+							/varset retValue Cannot use follow command when groupmode is FALSE.
+						}
+					} else /if (${strCommand.Equal[Assist]}) {
+					| =====================================================
+					| assist <target>
+					| =====================================================
+						/declare assistTarg						string local
+						/if (${cParams[1].NotEqual[NULL]}) {
+							/varset assistTarg ${cParams[1]}
+							/if (${cParams[1].Equal[Me]}) /varset assistTarg ${comFrom}
 
-| Does this need to be updated for HoT inventory changes?
-Sub ItemSwapCheck(string itemName)
-	/declare needToSwap		bool local FALSE
-	/declare slotsReq		int local
-	/if (${itemName.Equal[NULL]} && !${itemSwapped}) {
-		/call EchoLog "No item specified to check for, aborting swap check." TRUE
-		/return
-	}
+							/if (${assistTarg.Equal[Group]}) {
+								/varset mainAssist ${Group.MainAssist}
+								/varset useGroupAssist TRUE
+							} else {
+								/varset mainAssist ${assistTarg}
+								/varset useGroupAssist FALSE
+							}
+							/varset retValue Assist has been changed to \ag${mainAssist}
+						} else {
+							/varset retValue ABORT_SYNTAX
+						}
+					} else /if (${strCommand.Equal[puller]}) {
+					| =====================================================
+					| puller <target>
+					| =====================================================
+						/declare pullerTarg						string local
+						/if (${cParams[1].NotEqual[NULL]}) {
+							/varset pullerTarg ${cParams[1]}
+							/if (${cParams[1].Equal[Me]}) /varset pullerTarg ${comFrom}
 
-	/if (!${Plugin[MQ2Exchange].Version} && ${FindItem[${itemName}].EffectType.Equal[Click Worn]}) {
-		/call EchoLog "MQ2Exchange is unavailable, cannot cast spells that are required to be worn to cast and are not currently worn."
-		/return
-	}
-	
-	/if (!${itemSwapped}) {
-		/if (${FindItem[${itemName}].EffectType.Equal[Click Worn]}) {
-			/if (${FindItem[${itemName}].WornSlot[1]} == 13 || ${FindItem[${itemName}].WornSlot[1]} == 14) {
-				/if (${FindItem[${itemName}].Type.Find[2h]}) {
-					/if (${FindItem[${itemName}].InvSlot} != 13 && !${InvSlot[13].Item.Type.Find[2h]}) /varset needToSwap TRUE
-				} else /if (${FindItem[${itemName}].WornSlot[1]} == 14 && ${FindItem[${itemName}].InvSlot} != 14 && ${InvSlot[13].Item.Type.Find[2h]}) {
-					/varset needToSwap TRUE
+							/if (${pullerTarg.Equal[Group]}) {
+								/varset pullerName ${Group.Puller}
+								/varset useGroupPuller TRUE
+							} else {
+								/varset pullerName ${pullerTarg}
+								/varset useGroupPuller FALSE
+							}
+							/varset retValue Puller has been changed to \ag${pullerName}
+						} else {
+							/varset retValue ABORT_SYNTAX
+						}
+					} else /if (${strCommand.Equal[maintank]} || ${strCommand.Equal[tank]}) {
+					| =====================================================
+					| maintank / tank <target>
+					| =====================================================
+						/declare tankTarg						string local
+						/if (${cParams[1].NotEqual[NULL]}) {
+							/varset tankTarg ${cParams[1]}
+							/if (${cParams[1].Equal[Me]}) /varset tankTarg ${comFrom}
+
+							/if (${assistTarg.Equal[Group]}) {
+								/varset mainTank ${Group.MainTank}
+								/varset useGroupTank TRUE
+							} else {
+								/varset mainTank ${tankTarg}
+								/varset useGroupTank FALSE
+							}
+							/varset retValue MainTank has been changed to \ag${mainTank}
+						} else {
+							/varset retValue ABORT_SYNTAX
+						}
+					} else /if (${strCommand.Equal[stay]}) {
+					| =====================================================
+					| stay
+					| =====================================================
+						/if (${groupMode}) {
+							/squelch /stick off
+							/call SetHome
+							/varset LocArray[1] ${Me.Y},${Me.X},${Me.Z}
+							/varset followMode FALSE
+							/varset retValue Home location reset where I am, follow is now off
+						} else {
+							/varset retValue Cannot use stay command while groupmode is FALSE
+						}
+					} else /if (${strCommand.Equal[groupbuff]}) {
+					| =====================================================
+					| groupbuff
+					| =====================================================
+						/if (${groupMode}) {
+							/if (${doGroupBuffs}) {
+								/varset doGroupBuffs FALSE
+							} else {
+								/varset doGroupBuffs TRUE
+							| /varset minBuffCheckTimer 0s
+							}
+							/varset retValue Group Buffing: ${doGroupBuffs}
+						}
+					} else /if (${strCommand.Equal[selfbuff]}) {
+					| =====================================================
+					| selfbuff
+					| =====================================================
+						/if (${doSelfBuffs}) {
+							/varset doSelfBuffs FALSE
+						} else {
+							/varset doSelfBuffs TRUE
+						| /varset minBuffCheckTimer 0s
+						}
+						/varset retValue Self Buffing: ${doSelfBuffs}
+					} else /if (${strCommand.Equal[PetBuff]}) {
+					| =====================================================
+					| petbuff
+					| =====================================================
+						/if (${doPetBuffs}) {
+							/varset doPetBuffs FALSE
+						} else {
+							/varset doPetBuffs TRUE
+						| /varset minBuffCheckTimer 0s
+						}
+						/varset retValue Pet Buffing: ${doPetBuffs}
+					} else /if (${strCommand.Equal[watchbuff]}) {
+					| =====================================================
+					| watchbuff
+					| =====================================================
+						/varset doWatchBuffs ${If[${doWatchBuffs},FALSE,TRUE]}
+						/varset retValue Watch Buffing: ${doWatchBuffs}
+					} else /if (${strCommand.Equal[debuff]}) {
+					| =====================================================
+					| debuff [alias]
+					| =====================================================
+						/call Debug 2 "cParams[1]: ${cParams[1]}"
+						/if (${cParams[1].Equal[NULL]}) {
+							/if (${doDebuffs}) {
+								/varset doDebuffs FALSE
+							} else {
+								/varset doDebuffs TRUE
+							}
+							/varset retValue Debuffing: ${doDebuffs}
+						} else {
+							/declare eArray						int local
+							/call Debug 2 "Entering Array to set debuffEnabled for ${debuffCount} debuffs!"
+							/for eArray 1 to ${debuffCount}
+								/if (${debuffAlias[${eArray}].Equal[${cParams[1]}]}) {
+									/if (${debuffEnabled[${eArray}]}) {
+										/call Debug 2 "debuffEnabled[${eArray}] is FALSE"
+										/varset debuffEnabled[${eArray}] FALSE
+									} else {
+										/call Debug 2 "debuffEnabled[${eArray}] is TRUE"
+										/varset debuffEnabled[${eArray}] TRUE
+									}
+									/varset retValue Debuff ${debuffSpells[${eArray}]} - Enabled: ${debuffEnabled[${eArray}]}
+								}
+							/next eArray
+						}
+					} else /if (${strCommand.Equal[Buff]}) {
+					| =====================================================
+					| buff <alias> <target>
+					| =====================================================
+						/if (${groupBuffCount}) {
+							/if (${cParams[1].NotEqual[NULL]} && ${cParams[2].NotEqual[NULL]}) {
+								/declare buffTarg 					string local ${cParams[2]}
+								/declare buffFound					bool local FALSE
+								/if (${buffTarg.Equal[Me]}) /varset buffTarg ${comFrom}
+								/if (${Spawn[${buffTarg}].ID}) {
+									/if (${cParams[1].NotEqual[all]}) {
+										/for nArray 1 to ${groupBuffCount}
+											/if (${groupBuffAlias[${nArray}].Equal[${cParams[1]}]}) {
+												/if (${groupBuffSingle[${nArray}].NotEqual[NULL]}) {
+													/varset buffFound TRUE
+													/if (${Me.CurrentMana} > ${Math.Calc[${Spell[${groupBuffSingle[${nArray}]}].Mana} + 100]}) {
+														/call Debug 2 "CastBuff --> ${Spawn[${buffTarg}].ID} ${nArray} Sub: ${CurrentSub}"
+														/call CastBuff ${Spawn[${buffTarg}].ID} ${nArray} Group Single TRUE
+													} else {
+														/varset retValue Insufficient mana to do that Buff
+													}
+												} else /if (${groupBuffGroup[${nArray}].NotEqual[NULL]}) {
+													/varset buffFound TRUE
+													/if (${Me.CurrentMana} > ${Math.Calc[${Spell[${groupBuffGroup[${nArray}]}].Mana} + 100]}) {
+														/call Debug 2 "CastBuff --> ${Spawn[${buffTarg}].ID} ${nArray} Sub: ${CurrentSub}"
+														/call CastBuff ${Spawn[${buffTarg}].ID} ${nArray} Group Group TRUE
+													} else {
+														/varset retValue Insufficient mana to do that Buff
+													}
+												} else {
+													/varset retValue The Buff with that alias could not be found
+												}
+												/if (${retValue.Equal[COMPLETED_NOTFOUND]} && ${Macro.Return.Equal[COMPLETED_SUCCESS]}) {
+													/varset retValue COMPLETED_SUCCESS
+												} else {
+													/call EchoLog "Attempt to buff failed: ${Macro.Return}" TRUE
+													/varset retValue COMLETED_FAIL
+												}
+											}
+										/next nArray
+										/if (!${buffFound}) /varset retValue The Buff with that alias could not be found
+									} else {
+										/varset buffFound TRUE
+										/varset retValue BUFFING
+										/for nArray 1 to ${groupBuffCount}
+											/if (${groupBuffSingle[${nArray}].NotEqual[NULL]}) {
+												/if (${Me.CurrentMana} > ${Math.Calc[${Spell[${groupBuffSingle[${nArray}]}].Mana} + 100]}) {
+													/call Debug 2 "CastBuff --> ${Spawn[${buffTarg}].ID} ${nArray} Sub: ${CurrentSub}"
+													/call CastBuff ${Spawn[${buffTarg}].ID} ${nArray} Group Single TRUE
+												} else {
+													/varset retValue Insufficient mana to complete buffs
+												}
+											} else /if (${groupBuffGroup[${nArray}].NotEqual[NULL]}) {
+												/if (${Me.CurrentMana} > ${Math.Calc[${Spell[${groupBuffGroup[${nArray}]}].Mana} + 100]}) {
+													/call Debug 2 "CastBuff --> ${Spawn[${buffTarg}].ID} ${nArray} Sub: ${CurrentSub}"
+													/call CastBuff ${Spawn[${buffTarg}].ID} ${nArray} Group Group TRUE
+												} else {
+													/varset retValue Insufficient mana to complete buffs
+												}
+											}
+											/if (${retValue.Equal[BUFFING]}) /next nArray
+											/if (${retValue.Equal[BUFFING]}) /varset retValue COMPLETED_SUCCESS
+										}
+									} else {
+										/varset retValue The Target, ${buffTarg}, could not be found to Buff
+									}
+								} else {
+									/if (${cParams[1].NotEqual[NULL]}) {
+										/if (${groupBuffCount}) {
+											/for nArray 1 to ${groupBuffCount}
+												/if (${groupBuffAlias[${nArray}].Equal[${cParams[1]}]}) {
+													/if (${groupBuffEanbled[${nArray}]}) {
+														/varset groupBuffEnabled[${nArray}] FALSE
+													} else {
+														/varset groupBuffEnabled[${nArray}] TRUE
+													}
+												}
+											/next nArray
+										}
+									} else {
+										/varset retValue ABORT_SYNTAX
+									}
+								}
+							} else {
+								/varset retValue There are no Group buffs loaded.
+							}
+						} else /if (${strCommand.Equal[invite]}) {
+						| =====================================================
+						| invite <target>
+						| =====================================================
+							/declare invTarget			string local
+							/if (${cParams[1].Equal[NULL]} || ${cParams[1].Equal[Me]} || !${cParams[1].Length}) {
+								/varset invTarget ${rFrom}
+							} else {
+								/varset invTarget ${cParams[1]}
+							}
+							/if (${groupMode}) {
+								/if ((${Group.GroupSize} > 1 && ${Group.Leader.CleanName.Equal[${Me.CleanName}]}) || !${Group.GroupSize}) {
+									/invite ${invTarget}
+									/varset retValue \ag${invTarget} has been Invited.
+								} else {
+									/varset retValue Cannot invite because I am not the Group Leader
+								}
+							} else {
+								/varset retValue Cannot invite people when I'm not Running in Group mode'
+							}
+						} else /if (${strCommand.Equal[buffcheck]}) {
+						| =====================================================
+						| buffcheck
+						| =====================================================
+							/call buffCheck FALSE ${inCombat} ${inCombatBuffRoutine}
+							/varset retValue COMPLETED_SUCCESS
+						} else /if (${strCommand.Equal[combatspells]}) {
+						| =====================================================
+						| combatspells
+						| =====================================================
+							/if (${doCombatSpells}) {
+								/varset doCombatSpells FALSE
+							} else {
+								/varset doCombatSpells TRUE
+							}
+							/varset retValue Combat spells Enabled; ${doCombatSpells}
+						} else /if (${strCommand.Equal[EndTimer]}) {
+						| =====================================================
+						| EndTimer [time/disable] [action]
+						| (action can be gate, gatecamp, camp, stop, or quit)
+						| =====================================================
+							/if (${cParams[1].NotEqual[NULL]}) {
+								/if (${cParams[1].NotEqual[disable]}) {
+									/varset useMacroEndTimer TRUE
+									/varset macroEndTimer ${cParams[1]}
+									/if (${cParams[2].NotEqual[NULL]} && ${cParams[2].Length}) /varset macroEndAction ${cParams[2]}
+									/varset retValue End timer has been Enabled with a Time of ${cParams[1]}, Action is set to ${macroEndAction}
+									/call EchoLog "Macro end timer has been Enabled with a Time of ${cParams[1]}, Action is set to ${macroEndAction}"
+								} else {
+									/if (${useMacroEndTimer}) {
+										/varset useMacroEndTimer FALSE
+										/varset macroEndTimer 0s
+										/varset retValue End timer has been disabled
+										/call EchoLog "Macro end timer has been disabled"
+									}
+								}
+							} else {
+								/if (${useMacroEndTimer}) {
+									/declare tempMinutes			int local
+									/declare tempSeconds			int local
+									/varcalc tempSeconds ${macroEndTimer} / 10
+									/varcalc tempMinutes ${tempSeconds} / 60
+									/varcalc tempSeconds ${tempSeconds} - (${tempMinutes} * 60)
+									/varset retValue End timer, Time remaining approixmately: ${tempMinutes} Minute(s) ${tempSeconds} Second(s), Action: ${macroEndAction}
+								} else {
+									/varset retValue End timer is not current Enabled.
+								}
+							}
+						} else /if (${strCommand.Equal[combatbuff]}) {
+						| =====================================================
+						| combatbuff
+						|  Enables / Disables combat buffing
+						| =====================================================
+							/if (${doCombatBuffs}) {
+								/varset doCombatBuffs FALSE
+							} else {
+								/varset doCombatBuffs TRUE
+							}
+							/varset retValue Combat Buffing: ${doCombatBuffs}
+						} else /if (${strCommand.Equal[campradius]}) {
+						| =====================================================
+						| CampRadius [Value]
+						|  Changes the camp radius
+						| =====================================================
+							/if (${cParams[1].NotEqual[NULL]} && ${cParams[1].Length}) {
+								/varset campRadius ${cParams[1]}
+								/varset retValue CampRadius has been set to ${cParams[1]}
+							} else {
+								/varset retValue You must specify a camp radius: CampRadius [Value]
+							}
+						} else /if (${strCommand.Equal[campreturn]}) {
+						| =====================================================
+						| campreturn
+						|  Forces bots to move back to their camp location
+						| =====================================================
+							/call MoveToLoc ${homeY} ${homeX} ${inCombat} ${homeZ}
+							/varset retValue Move to home result: ${Macro.Return}
+						} else /if (${strCommand.Equal[cast]}) {
+						| =====================================================
+						| cast [target] [spell]
+						|  Will have the bot cast the specified spell on the target
+						| =====================================================
+							/declare spTarget						int local 0
+							/declare spName							string local
+							/declare spInt							int local 0
+							/if (${cParams[1].NotEqual[NULL]} && ${cParams[1].Length}) {
+								/if (${cParams[1].Equal[me]}) /varset cParams[1] ${rFrom}
+								/if (${Spawn[${cParams[1]}].ID}) {
+									/varset spTarget ${Spawn[${cParams[1]}].ID}
+									/for spInt 2 to 20
+										/if (${cParams[${spInt}].NotEqual[NULL]} && ${cParams[${spInt}].Length}) {
+											/varset spName ${spName} ${cParams[${spInt}]}
+										}
+									/next spInt
+									/varset spName ${spName.Right[-1]}
+									/if (${spName.NotEqual[NULL]} && ${spName.Length}) {
+										/squelch /target ID ${spTarget}
+										/delay 1s ${Target.ID}==${spTarget}
+										/if (${Target.ID}==${spTarget}) {
+											/call Debug 2 "MQ2Cast --> ${spName} Sub: ${CurrentSub}"
+											/call MQ2Cast "${spName}"
+											/varset retValue Cast Result: ${CastResult}
+										} else {
+											/varset retValue Could not Target ${Spawn[${spTarget}].CleanName})
+										}
+									} else {
+										/varset retValue No Spell Name provided.
+									}
+								} else {
+									/varset retValue I do not see that Target around here
+								}
+							}
+						} else /if (${strCommand.Equal[castwhileinvis]}) {
+						| =====================================================
+						| castwhileinvis
+						|  toggles casting while invis true / false
+						| =====================================================
+							/if (${castWhileInvis}) {
+								/varset castWhileInvis FALSE
+								/varset noInvis TRUE
+							} else {
+								/varset castWhileInvis TRUE
+								/varset noInvis FALSE
+							}
+							/varset retValue Casting While Invis: ${castWhileInvis}
+						} else /if (${strCommand.Equal[pull]}) {
+						| ==========================
+						| Pull, Toggles pulling on and off
+						| ==========================
+							/if ((${cParams[1].Equal[TRUE]} || ${cParams[1].Equal[ON]}) && ${allowPullMode}) {
+								/varset pullMode TRUE
+							} else /if (${cParams[1].Equal[FALSE]} || ${cParams[1].Equal[OFF]}) {
+								/varset pullMode FALSE
+							} else /if (${cParams[1].NotEqual[NULL]}) {
+								/call PullLoadPath ${cParams[1]} FALSE
+								/varset pullPath ${cParams[1]}
+								/varset multiPaths FALSE
+								/varset usePullPath TRUE
+								/varset pullMode TRUE
+							} else {
+								/if (${pullMode} || !${allowPullMode}) {
+									/varset pullMode FALSE
+								} else {
+									/varset pullMode TRUE
+								}
+							}
+							/varset retValue ${If[!${allowPullMode},Pull mode is not allowed currently,PullMode set to: \ag${pullMode}]}
+						} else /if (${strCommand.Equal[pullradius]}) {
+						| ==========================
+						| PullRadius <radius>
+						| ==========================
+							/if (${cParams[1].NotEqual[NULL]}) {
+								/varset pullRadius ${cParams[1]}
+								/varset retValue Pulling Radius set to: \ag${pullRadius}
+							} else {
+								/varset retValue You must specify a new radius, CMD: \agPullRadius <Radius>
+							}
+						} else /if (${strCommand.Equal[pulllimit]}) {
+						| ==========================
+						| PullLimit <action> <param>
+						| ==========================
+							/if (${cParams[1].Equal[CLEAR]}) {
+								/squelch /alert clear ${pullTargetAlert}
+							} else /if (${cParams[1].Equal[ADD]}) {
+								/declare plLoop	int local
+								/declare plParam	string local NULL
+								/for plLoop 2 to ${cParams.Size[1]}
+									/if (${cParams[${plLoop}].NotEqual[NULL]}) /varset plParam ${plParam}${If[${plParam.Length}, ,]}${cParams[${plLoop}]}
+								/next plLoop
+								/squelch /alert add ${pullTargetAlert} ${plParam}
+							}
+						} else /if (${strCommand.Equal[MissionMode]}) {
+						| ==========================
+						| MissionMode <MissionINI>
+						|  starts / stops mission mode, optional MissionINI sets the mission INI
+						| ==========================
+							/if ((!${missionMode} || ${cParams[1].NotEqual[NULL]}) && ${cParams[1].NotEqual[OFF]}) {
+								/if (${cParams[1].NotEqual[NULL]}) {
+									/varset missionINI ${cParams[1]}
+									/if (!${missionINI.Find[.ini]}) /varset missionINI ${missionINI}.ini
+								}
+								/if (${missionINI.NotEqual[NULL]}) {
+									/varset missionMode TRUE
+									/varset retValue MissionMode started
+								} else {
+									/varset retValue You tried to enable mission mode but there is no MissionINI specicfied.  Specify it with \agMissionMode MissionINI
+								}
+							} else {
+								/varset missionMode FALSE
+								/varset missionStatus NULL
+								/varset retValue MissionMode disabled.  If you are currently in a mission you will have to manually exit the mission.
+							}
+						} else /if (${strCommand.Equal[warp]}) {
+						| =====================================================
+						| warp [loc y x z] [t|target] [wp wpname] [me]
+						|  Will have the bot warp using the specified parameters
+						| =====================================================
+							/if (${cParams[1].NotEqual[NULL]}) {
+								/if (${cParams[1].Equal[loc]}) {
+									/if (${cParams[2].NotEqual[NULL]} && ${cParams[3].NotEqual[NULL]} && ${cParams[4].NotEqual[NULL]}) {
+										/warp loc ${cParams[2]} ${cParams[3]} ${cParams[4]}
+									} else {
+										/varset retValue You must specify a y x z Value when using warp loc
+									}
+								} else /if (${cParams[1].Equal[t]} || ${cParams[1].Equal[Target]}) {
+									/warp t
+								} else /if (${cParams[1].Equal[wp]}) {
+									/if (${cParams[2].NotEqual[NULL]}) {
+										/warp wp ${cParams[2]}
+									} else {
+										/varset retValue You must specify a waypoint Name when using warp wp
+									}
+								} else /if (${cParams[1].Equal[Me]}) {
+									/squelch /target ${comFrom}
+									/delay 1s ${Target.CleanName.Equal[${comFrom}]}
+									/if (${Target.CleanName.Equal[${comFrom}]}) {
+										/warp t
+									} else {
+										/varset retValue Could not Find you in the current Zone to warp to.
+									}
+								} else {
+									/varset retValue The warp parameter ${cParams[1]} was not understood.  Valid parameters are \ag[loc y x z] [t|target] [wp wpname] [me]
+								}
+								/if (${retValue.Equal[COMPLETED_NOTFOUND]}) {
+									/delay 5
+									/varset retValue Warp complete and home location reset to current location
+									/call SetHome
+									/if (${followMode}) {
+										/varset followMode FALSE
+										/squelch /stick off
+									}
+								}
+							} else {
+								/varset retValue You did not pass a parameter for the Type of warp.  \ayUSAGE: 	\agwarp [loc y x z] [t|target] [wp wpname] [me]
+							}
+						}
+					/return ${retValue}
+
+				| Does this need to be updated for HoT inventory changes?
+				| --------------------------------------------------------------------------------------------
+				| SUB: ItemSwapCheck
+				| --------------------------------------------------------------------------------------------
+				Sub ItemSwapCheck(string itemName)
+				/varset CurrentSub ItemSwapCheck
+				/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
+				/declare needToSwap		bool local FALSE
+				/declare slotsReq		int local
+				/if (${itemName.Equal[NULL]} && !${itemSwapped}) {
+					/call EchoLog "No item specified to check for, aborting swap check." TRUE
+				/return
+			}
+
+			/if (!${Plugin[MQ2Exchange].Version} && ${FindItem[${itemName}].EffectType.Equal[Click Worn]}) {
+				/call EchoLog "MQ2Exchange is unavailable, cannot cast spells that are required to be worn to cast and are not currently worn."
+			/return
+		}
+
+		/if (!${itemSwapped}) {
+			/if (${FindItem[${itemName}].EffectType.Equal[Click Worn]}) {
+				/if (${FindItem[${itemName}].WornSlot[1]} == 13 || ${FindItem[${itemName}].WornSlot[1]} == 14) {
+					/if (${FindItem[${itemName}].Type.Find[2h]}) {
+						/if (${FindItem[${itemName}].InvSlot} != 13 && !${InvSlot[13].Item.Type.Find[2h]}) /varset needToSwap TRUE
+					} else /if (${FindItem[${itemName}].WornSlot[1]} == 14 && ${FindItem[${itemName}].InvSlot} != 14 && ${InvSlot[13].Item.Type.Find[2h]}) {
+						/varset needToSwap TRUE
+					}
 				}
 			}
-		}
-		/if (${needToSwap}) {
-			/varset slotsReq 2
-			/if (${InvSlot[13].Item.Type.Find[2h]}) /varset slotsReq 1
-			/if (${Me.FreeInventory[4]} >= ${slotsReq}) {
-				/varset itemPrimary ${InvSlot[13].Item}
-				/varset itemSecondary ${InvSlot[14].Item}
-				/squelch /unequip mainhand
-				/delay 2
-				/squelch /unequip offhand
-				/delay 2
-				/if ((${FindItem[${itemPrimary}].Name.NotEqual[null]} && ${FindItem[${itemPrimary}].InvSlot}<23) || (${FindItem[${itemSecondary}].Name.NotEqual[null]} && ${FindItem[${itemSecondary}].InvSlot}<23)) {
-					/call EchoLog "Failed to unequip items, item swap aborted." TRUE
+			/if (${needToSwap}) {
+				/varset slotsReq 2
+				/if (${InvSlot[13].Item.Type.Find[2h]}) /varset slotsReq 1
+				/if (${Me.FreeInventory[4]} >= ${slotsReq}) {
+					/varset itemPrimary ${InvSlot[13].Item}
+					/varset itemSecondary ${InvSlot[14].Item}
+					/squelch /unequip mainhand
+					/delay 2
+					/squelch /unequip offhand
+					/delay 2
+					/if ((${FindItem[${itemPrimary}].Name.NotEqual[null]} && ${FindItem[${itemPrimary}].InvSlot}<23) || (${FindItem[${itemSecondary}].Name.NotEqual[null]} && ${FindItem[${itemSecondary}].InvSlot}<23)) {
+						/call EchoLog "Failed to unequip items, item swap aborted." TRUE
 					/return
 				}
 				/if (${FindItem[${itemName}].WornSlot[1]}==13) {
@@ -4926,38 +5344,53 @@ Sub ItemSwapCheck(string itemName)
 	}
 /return
 
+| --------------------------------------------------------------------------------------------
+| SUB: pauseActions
+| --------------------------------------------------------------------------------------------
 Sub pauseActions
-	:pauseLoop
-		/call campCheck TRUE
+	/varset CurrentSub PauseActions
+	/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
+:pauseLoop
+	/call campCheck TRUE
 	/if (${Macro.Return.Equal[FALSE]}) /goto :pauseLoop
 /return
 
+| --------------------------------------------------------------------------------------------
+| SUB: SafePC
+| --------------------------------------------------------------------------------------------
 Sub SafePC(string pcName)
+	/varset CurrentSub SafePC
+	/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
 	/declare isSafe 	bool local FALSE
 	/declare inum			int local
 	/if (${pcName.Equal[NULL]}) {
 		/call EchoLog "Pc name not specified for safe pc check, aborting and returning as unsafe" TRUE
-		/return FALSE
-	}
-	
+	/return FALSE
+}
+
 	/if (${Group.Members}) {
 		/for inum 1 to ${Group.Members}
 			/if (${pcName.Equal[${Group.Member[${inum}].DisplayName}]}) /varset isSafe TRUE
 		/next inum
 	}
-	/if (${safePCCount}) { 
+	/if (${safePCCount}) {
 		/for inum 1 to ${safePCCount}
 			/if (${pcName.Equal[${safePC[${inum}]}]}) /varset isSafe TRUE
 		/next inum
 	}
 	/if (${missionLeader.Equal[${pcName}]}) /varset isSafe TRUE
-	
+
 	/if (!${isSafe} && ${pcName.Equal[${Me.CleanName}]}) /varset isSafe TRUE
 /return ${isSafe}
 
+| --------------------------------------------------------------------------------------------
+| SUB: SendTell
+| --------------------------------------------------------------------------------------------
 Sub SendTell(string tTo, string tMsg)
+	/varset CurrentSub SendTell
+	/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
 	/if (${tMsg.Length}) {
-		/if (${tTo.Equal[MQ2]}) { 
+		/if (${tTo.Equal[MQ2]}) {
 			/call EchoLog "${tMsg}"
 		} else /if (${tTo.Left[6].Equal[(EQBC)]}) {
 			/call StripText "${tMsg}"
@@ -4967,7 +5400,7 @@ Sub SendTell(string tTo, string tMsg)
 		} else {
 			/call StripText "${tMsg}"
 			/varset tMsg ${Macro.Return}
-			/if (${replyToTells}) {	
+			/if (${replyToTells}) {
 				/tell ${tTo} ${tMsg}
 				/call EchoLog "Tell sent to ${tTo} saying ${tMsg}" TRUE
 			} else {
@@ -4977,26 +5410,36 @@ Sub SendTell(string tTo, string tMsg)
 	}
 /return
 
+| --------------------------------------------------------------------------------------------
+| SUB: StripText
+| --------------------------------------------------------------------------------------------
 Sub StripText(string cString)
+	/varset CurrentSub StripText
+	/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
 	/declare argNum			int local
 	/declare wString		string local
 	/declare argString	string local
-	
+
 	/if (${cString.Equal[NULL]}) /return
 	/if (!${cString.Find[\]}) /return ${cString}
 	/varset wString ${cString}
-	
-	:nextArg
-		/varset argNum ${cString.Find[\a]}
-		/varset argString ${cString.Mid[${argNum},3]}
-		/if (${argString.Left[1].Equal[\]} && ${argString.Length} == 3) {
-			/if (${argString.Right[1].Equal[#]}) /varset argString ${wString.Mid[${argNum},9]}
-			/if (${cString.Find[${argString}]}) /varset cString ${cString.Replace[${argString},]}
-		}
-		/if (${cString.Find[\a]}) /goto :nextArg
+
+:nextArg
+	/varset argNum ${cString.Find[\a]}
+	/varset argString ${cString.Mid[${argNum},3]}
+	/if (${argString.Left[1].Equal[\]} && ${argString.Length} == 3) {
+		/if (${argString.Right[1].Equal[#]}) /varset argString ${wString.Mid[${argNum},9]}
+		/if (${cString.Find[${argString}]}) /varset cString ${cString.Replace[${argString},]}
+	}
+	/if (${cString.Find[\a]}) /goto :nextArg
 /return ${cString}
 
+| --------------------------------------------------------------------------------------------
+| SUB: SummonItem
+| --------------------------------------------------------------------------------------------
 Sub SummonItem(string spellName, string spellSlot, string targetName, string itemName, bool putInInv, bool unfold)
+	/varset CurrentSub SummonItem
+	/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
 	/if (${putInInv} == NULL) /varset putInInv TRUE
 	/if (${unfold} == NULL) /varset unfold TRUE
 	/declare pLoop		int local
@@ -5004,7 +5447,7 @@ Sub SummonItem(string spellName, string spellSlot, string targetName, string ite
 	/declare emptyPrimary		int local 0
 	/declare summonedID			int local 0
 	/declare maxCursorWait	timer local 0s
-	
+
 	/varset summonedPackNum 0
 	/varset summonedUnfoldedName NULL
 	/if (${Cursor.ID}) {
@@ -5012,14 +5455,14 @@ Sub SummonItem(string spellName, string spellSlot, string targetName, string ite
 		/delay 2s !${Cursor.ID}
 		/if (${Cursor.ID}) {
 			/call EchoLog "There is something on our cursor and we can't put it into inventory.  Unable to summon with an item on the cursor"
-			/return
-		}
-	}
-	/if (${targetName.Equal[NULL]}) {
-		/call EchoLog "Target name is somehow NULL, Aborting summmoning of ${spellName}" TRUE
 		/return
 	}
-	
+}
+	/if (${targetName.Equal[NULL]}) {
+		/call EchoLog "Target name is somehow NULL, Aborting summmoning of ${spellName}" TRUE
+	/return
+}
+
 	/if (!${Target.ID} || ${Target.CleanName.NotEqual[${targetName}]}) {
 		/squelch /target clear
 		/delay 1s !${Target.ID}
@@ -5027,28 +5470,29 @@ Sub SummonItem(string spellName, string spellSlot, string targetName, string ite
 		/delay 2s ${Target.CleanName.Equal[${targetName}]}
 		/if (${Target.CleanName.NotEqual[${targetName}]}) {
 			/call EchoLog "Unable to target summoning target.  Aborting summon." TRUE
-			/return
-		}
+		/return
 	}
+}
 	/call EchoLog "Attempting to summon ${If[${itemName.NotEqual[NULL]},${itemName} , ]}with spell: ${spellName} to target: ${Target.CleanName}" TRUE
 	/if (${spellSlot.Equal[Item]}) /call ItemSwapCheck "${spellName}"
 	/if (${spellSlot.Equal[disc]}) {
-		 /varset discTimer ${Spell[${spellName}].Duration.TotalSeconds}s
+		/varset discTimer ${Spell[${spellName}].Duration.TotalSeconds}s
 		/doability "${spellName}"
-		:discSummonCast
-			/call CheckForAggro
-			/if (${Window[CombatAbilityWnd].Open}) {
-				/if (${Window[CombatAbilityWnd].Child[CAW_CombatEffectLabel].Text.NotEqual[No Effect]}) {
-					/if (!${discTimer}) /varset discTimer ${Spell[${Window[CombatAbilityWnd].Child[CAW_CombatEffectLabel].Text}].Duration.TotalSeconds}s			
-				} else {
-					/varset discTimer 0s
-				}
+	:discSummonCast
+		/call CheckForAggro
+		/if (${Window[CombatAbilityWnd].Open}) {
+			/if (${Window[CombatAbilityWnd].Child[CAW_CombatEffectLabel].Text.NotEqual[No Effect]}) {
+				/if (!${discTimer}) /varset discTimer ${Spell[${Window[CombatAbilityWnd].Child[CAW_CombatEffectLabel].Text}].Duration.TotalSeconds}s
+			} else {
+				/varset discTimer 0s
 			}
+		}
 		/if (${discTimer}) /goto :discSummonCast
 	} else {
+		/call Debug 2 "MQ2Cast --> ${spellName} ${spellSlot} 0 CheckForAggro -maxtries|${resistTries} Sub: ${CurrentSub}"
 		/call MQ2Cast "${spellName}" ${spellSlot} 0 CheckForAggro -maxtries|${resistTries}
 	}
-	| /if (${itemSwapped}) /call ItemSwapCheck
+| /if (${itemSwapped}) /call ItemSwapCheck
 
 	/if (${Target.CleanName.Equal[${Me.CleanName}]} || ${targetName.Equal[NULL]} || ${targetName.Equal[${Me.CleanName}]}) {
 		/delay 1s ${Cursor.ID}
@@ -5059,18 +5503,18 @@ Sub SummonItem(string spellName, string spellSlot, string targetName, string ite
 			/delay 5
 			/for pLoop 1 to 10
 				/if (!${Me.Inventory[pack${pLoop}].Container}) /varset emptyPrimary ${pLoop}
-			/if (!${emptyPrimary}) /next pLoop
-			/if (${Cursor.Name.Find[Folded]} && ${unfold} && ${emptyPrimary}) {
-				/itemnotify pack${pLoop} leftmouseup
-				/delay 1s ${Cursor.ID}!=${summonedID}
-				/if (${Cursor.ID}) {
-					/varset maxCursorWait 10s
+				/if (!${emptyPrimary}) /next pLoop
+				/if (${Cursor.Name.Find[Folded]} && ${unfold} && ${emptyPrimary}) {
+					/itemnotify pack${pLoop} leftmouseup
+					/delay 1s ${Cursor.ID}!=${summonedID}
+					/if (${Cursor.ID}) {
+						/varset maxCursorWait 10s
 					:summonItemFreeCursor
 						/autoinv
 						/delay 1s !${Cursor.ID}
-					/if (${Cursor.ID} && ${maxCursorWait}) /goto :summonItemFreeCursor
-					/if (${Cursor.ID}) {
-						/call EchoLog ".....Unable to get item off the cursor, unable to fully complete summoning." TRUE
+						/if (${Cursor.ID} && ${maxCursorWait}) /goto :summonItemFreeCursor
+						/if (${Cursor.ID}) {
+							/call EchoLog ".....Unable to get item off the cursor, unable to fully complete summoning." TRUE
 						/return
 					}
 				}
@@ -5091,94 +5535,106 @@ Sub SummonItem(string spellName, string spellSlot, string targetName, string ite
 				/call EchoLog "You have summoned a folded bag but do not have an empty primary slot to unfold it into, summoning not fully completed"
 				/autoinv
 				/delay 2s !${Cursor.ID}
+			/return
+		}
+		/if (${Cursor.Container} && ${emptyPrimary}) {
+			/varset summonedPackNum ${emptyPrimary}
+			/itemnotify pack${emptyPrimary} leftmouseup
+			/delay 1s !${Cursor.ID}
+			/if (${Cursor.ID}) {
+				/varset maxCursorWait 10s
+			:summonItemFreeCursor
+				/autoinv
+				/delay 1s !${Cursor.ID}
+				/if (${Cursor.ID} && ${maxCursorWait}) /goto :summonItemFreeCursor
+				/if (${Cursor.ID}) {
+					/call EchoLog ".....Unable to get item off the cursor, unable to fully complete summoning." TRUE
 				/return
 			}
-			/if (${Cursor.Container} && ${emptyPrimary}) {
-				/varset summonedPackNum ${emptyPrimary}
-				/itemnotify pack${emptyPrimary} leftmouseup
-				/delay 1s !${Cursor.ID}
-				/if (${Cursor.ID}) {
-					/varset maxCursorWait 10s
-					:summonItemFreeCursor
-						/autoinv
-						/delay 1s !${Cursor.ID}
-					/if (${Cursor.ID} && ${maxCursorWait}) /goto :summonItemFreeCursor
-					/if (${Cursor.ID}) {
-						/call EchoLog ".....Unable to get item off the cursor, unable to fully complete summoning." TRUE
-						/return
-					}
-				}
-				/if (!${Cursor.ID}) /call EchoLog ".....Container summoned and placed in pack${emptyPrimary}" TRUE
+		}
+		/if (!${Cursor.ID}) /call EchoLog ".....Container summoned and placed in pack${emptyPrimary}" TRUE
 
-				/if (!${emptyPrimary}) { 
-					/if (${Cursor.Name.Equal[${itemName}]} || ${Cursor.Name.Equal[Folded ${itemName}]}) {
-						/call EchoLog ".....Could not find a place to put the summoned container, destroying it" TRUE
-						/dest
-					} else {
-						/autoinv
-					}
-				}
+		/if (!${emptyPrimary}) {
+			/if (${Cursor.Name.Equal[${itemName}]} || ${Cursor.Name.Equal[Folded ${itemName}]}) {
+				/call EchoLog ".....Could not find a place to put the summoned container, destroying it" TRUE
+				/dest
 			} else {
-				/if (${Cursor.Container} && !${emptyPrimary}) {
-					/call EchoLog "You have summoned a bag but have no free primary slots, summoning not fully completed"
-				} else {
-					/if (${Cursor.ID} && ${putInInv}) /autoinv	
-					/call EchoLog ".....Item successfully summoned" TRUE
-				}
+				/autoinv
 			}
 		}
+	} else {
+		/if (${Cursor.Container} && !${emptyPrimary}) {
+			/call EchoLog "You have summoned a bag but have no free primary slots, summoning not fully completed"
+		} else {
+			/if (${Cursor.ID} && ${putInInv}) /autoinv
+			/call EchoLog ".....Item successfully summoned" TRUE
+		}
 	}
+}
+}
 	/if (${itemSwapped}) /call ItemSwapCheck
 	/if (${Window[InventoryWindow].Open}) /windowstate InventoryWindow close
 /return
 
+| --------------------------------------------------------------------------------------------
+| SUB: SummonedItemsCheck
+| --------------------------------------------------------------------------------------------
 Sub SummonedItemsCheck
+	/varset CurrentSub SummonedItemsCheck
+	/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
 	/declare sLoop		int local
 	/declare pFree		bool local false
 	/declare gFree		bool local false
 	/declare maxCleanTime	timer local 0s
-	
-	/if (${myName.Equal[magebot2]} && ${modRodSpell.NotEqual[NULL]}) {
+
+	/if (${myName.Equal[magebot2]} && ${Defined[modRodSpell]}) {
 		/if (!${FindItem[${modRodName}].ID} && (${Me.CurrentMana} > ${Math.Calc[${Spell[${modRodSpell}].Mana}+200]} || !${modRodSlot.Find[Gem]})) {
-			/call SummonItem "${modRodSpell}" ${modRodSlot} ${Me.CleanName} "${modRodName}" TRUE
+			/if (${Spell[modRodSpell].ID}) {
+				/call SummonItem "${modRodSpell}" ${modRodSlot} ${Me.CleanName} "${modRodName}" TRUE
+			}
 		}
 	}
 	/if (${summonedCount}) {
-		|**/for sLoop 1 to 10
-			/if (!${Me.Inventory[pack${sLoop}].Container}) /varset pFree true
-		/next sLoop**|
+	|**/for sLoop 1 to 10
+		/if (!${Me.Inventory[pack${sLoop}].Container}) /varset pFree true
+	/next sLoop**|
 
-		/if (${Cursor.ID}) {
-			/varset maxCleanTime 10s
-			:summonCleanCursor
-				/autoinv
-				/delay 2s !${Cursor.ID}
-			/if (${Cursor.ID} && ${maxCleanTime}) /goto :summonCleanCursor
-			/if (${Cursor.ID} && !${maxCleanTimer}) {
-				/call EchoLog "Unable to clean the cursor to summon items, aborting"
-				/return
-			}
-		}
-		/if (${Me.FreeInventory[4]}) /varset gFree true
-
-		| /if (${pFree} && ${gFree}) {
-		/if (${gFree}) {
-			/for sLoop 1 to ${summonedCount}
-				/if (!${FindItem[${summonedItems[${sLoop}]}].ID} && ((${Me.CurrentMana} > ${Math.Calc[${Spell[${summonedSpells[${sLoop}]}].Mana}+200]} && ${Me.Book[${summonedSpells[${sLoop}]}]} && ${summonedSlots[${sLoop}].Find[Gem]}) || (${FindItem[${summonedSpells[${sLoop}]}].ID} && ${summonedSlots[${sLoop}].Equal[Item]}) || (${Me.CombatAbilityReady[${summonedSpells[${sLoop}]}]} && ${summonedSlots[${sLoop}].Equal[DISC]}))) {
-					:checkItem
-						/call SummonItem "${summonedSpells[${sLoop}]}" ${summonedSlots[${sLoop}]} ${Me.CleanName} "${summonedItems[${sLoop}]}" TRUE
-						/if (${gotAggro}) /return
-					/if (!${FindItem[${summonedItems[${sLoop}]}].ID} || (${FindItem[${summonedItems[${sLoop}]}].Stackable} && ${FindItem[${summonedItems[${sLoop}]}].StackCount} < ${summonedMinCount[${sLoop}]})) /goto :checkItem
-				}
-			/next sLoop		
-		} else {
-			| /if (!${pFree}) /call EchoLog "You must have at least one open primary inventory slot to summon items" TRUE
-			/if (!${gFree}) /call EchoLog "You must have at least one open giant sized bag slot to summon items" TRUE
-		}
+	/if (${Cursor.ID}) {
+		/varset maxCleanTime 10s
+	:summonCleanCursor
+		/autoinv
+		/delay 2s !${Cursor.ID}
+		/if (${Cursor.ID} && ${maxCleanTime}) /goto :summonCleanCursor
+		/if (${Cursor.ID} && !${maxCleanTimer}) {
+			/call EchoLog "Unable to clean the cursor to summon items, aborting"
+		/return
 	}
+}
+	/if (${Me.FreeInventory[4]}) /varset gFree true
+
+| /if (${pFree} && ${gFree}) {
+	/if (${gFree}) {
+		/for sLoop 1 to ${summonedCount}
+			/if (!${FindItem[${summonedItems[${sLoop}]}].ID} && ((${Me.CurrentMana} > ${Math.Calc[${Spell[${summonedSpells[${sLoop}]}].Mana}+200]} && ${Me.Book[${summonedSpells[${sLoop}]}]} && ${summonedSlots[${sLoop}].Find[Gem]}) || (${FindItem[${summonedSpells[${sLoop}]}].ID} && ${summonedSlots[${sLoop}].Equal[Item]}) || (${Me.CombatAbilityReady[${summonedSpells[${sLoop}]}]} && ${summonedSlots[${sLoop}].Equal[DISC]}))) {
+			:checkItem
+				/call SummonItem "${summonedSpells[${sLoop}]}" ${summonedSlots[${sLoop}]} ${Me.CleanName} "${summonedItems[${sLoop}]}" TRUE
+				/if (${gotAggro}) /return
+				/if (!${FindItem[${summonedItems[${sLoop}]}].ID} || (${FindItem[${summonedItems[${sLoop}]}].Stackable} && ${FindItem[${summonedItems[${sLoop}]}].StackCount} < ${summonedMinCount[${sLoop}]})) /goto :checkItem
+			}
+		/next sLoop
+	} else {
+	| /if (!${pFree}) /call EchoLog "You must have at least one open primary inventory slot to summon items" TRUE
+		/if (!${gFree}) /call EchoLog "You must have at least one open giant sized bag slot to summon items" TRUE
+	}
+}
 /return
 
+| --------------------------------------------------------------------------------------------
+| SUB: Timer
+| --------------------------------------------------------------------------------------------
 Sub Timer(string timerPrefix, int timerID, string setTo, bool delTimer)
+	/varset CurrentSub Timer
+	/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
 	/if (${delTimer}) {
 		/if (${timerID} >= 0) {
 			/if (!${Defined[${timerPrefix}Timer${timerID}]}) /deletevar ${timerPrefix}Timer${timerID}
@@ -5192,25 +5648,42 @@ Sub Timer(string timerPrefix, int timerID, string setTo, bool delTimer)
 				/varset ${timerPrefix}Timer${timerID} ${setTo}
 			} else {
 				/if (!${Defined[${timerPrefix}Timer]}) /declare ${timerPrefix}Timer timer outer 0s
-				/varset ${timerPrefix}Timer ${setTo}			
+				/varset ${timerPrefix}Timer ${setTo}
 			}
 		} else {
-			/if (${timerID} != NULL && ${timerID} >= 0 && (!${Defined[${timerPrefix}Timer${timerID}]} || !${${timerPrefix}Timer${timerID}})) {
-				/return FALSE
-			} else /if ((${timerID} == NULL || ${timerID} < 0) && (!${Defined[${timerPrefix}Timer]} || !${${timerPrefix}Timer})) {
-				/return FALSE
-			} else {
-				/return TRUE
-			}		
-		}
+			/if (${timerID} != NULL && ${timerID} >= 0 && !${Defined[${timerPrefix}Timer${timerID}]}) {
+			/return FALSE
+		} else /if (${Defined[${timerPrefix}Timer${timerID}]}) {
+			/if (!${${timerPrefix}Timer${timerID}}) {
+			/return FALSE
+		} else {
+		/return TRUE
 	}
+} else /if ((${timerID} == NULL || ${timerID} < 0) && !${Defined[${timerPrefix}Timer]}) {
+/return FALSE
+} else /if (${Defined[${${timerPrefix}Timer}]}) {
+	/if (!${${timerPrefix}Timer}) {
+	/return FALSE
+} else {
+/return TRUE
+}
+} else {
+/return TRUE
+}
+}
+}
 /return FALSE
 
+| --------------------------------------------------------------------------------------------
+| SUB: TrackKill
+| --------------------------------------------------------------------------------------------
 Sub TrackKill(string killName)
+	/varset CurrentSub TrackKill
+	/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
 	/declare tkLoop			int local 0
 	/declare knFound		bool local FALSE
 	/declare firstNull	int local 0
-	
+
 	/for tkLoop 1 to 200
 		/if (${killTrack[${tkLoop},1].Equal[killName]}) {
 			/if (${killTarck[${tkLoop},2].Equal[NULL]}) {
@@ -5221,42 +5694,57 @@ Sub TrackKill(string killName)
 			/varset knFound TRUE
 		}
 		/if (${killTrack[${tkLoop},1].Equal[NULL]} && !${firstNull}) /varset firstNull ${tkLoop}
-	/if (!${knFound} && ${killTrack[${tkLoop}].NotEqual[NULL]}) /next tkLoop
-	/if (!${knFound}) {
-		/varset killTrack[${firstNull},1] ${killName}
-		/varset killTrack[${firstNull},2] 1
-	}
-/return
+		/if (!${knFound} && ${killTrack[${tkLoop}].NotEqual[NULL]}) /next tkLoop
+		/if (!${knFound}) {
+			/varset killTrack[${firstNull},1] ${killName}
+			/varset killTrack[${firstNull},2] 1
+		}
+	/return
 
+| --------------------------------------------------------------------------------------------
+| SUB: TrackKillCount
+| --------------------------------------------------------------------------------------------
 Sub TrackKillCount(string killName,bool allMatches)
+	/varset CurrentSub TrackKillCount
+	/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
 	/declare tkLoop			int local 0
 	/declare knFound		bool local FALSE
 	/declare tkCount		int local 0
 	/if (${allMatches} == NULL) /varset allMatches FALSE
-	
+
 	/for tkLoop 1 to 200
 		/if ((!${allMatches} && ${killTrack[${tkLoop},1].Equal[${killName}]}) || (${allMatches} && ${killTrack[${tkLoop},1].Find[${killName}]})) {
 			/varcalc tkCount ${tkCount} + ${killTrack[${tkLoop},2]}
 			/varset knFound TRUE
 		}
-	/if ((!${knFound} || ${allMatches}) && ${killTrack[${tkLoop}].NotEqual[NULL]}) /next tkLoop
-/return ${tkCount}
+		/if ((!${knFound} || ${allMatches}) && ${killTrack[${tkLoop}].NotEqual[NULL]}) /next tkLoop
+	/return ${tkCount}
 
+| --------------------------------------------------------------------------------------------
+| SUB: TrackKillReset
+| --------------------------------------------------------------------------------------------
 Sub TrackKillReset(string killName,bool allMatches)
+	/varset CurrentSub TrackKillReset
+	/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
 	/declare tkLoop			int local 0
 	/declare knFound		bool local FALSE
 	/if (${allMatches} == NULL) /varset allMatches FALSE
-	
+
 	/for tkLoop 1 to 200
 		/if ((!${allMatches} && ${killTrack[${tkLoop},1].Equal[${killName}]}) || (${allMatches} && ${killTrack[${tkLoop},1].Find[${killName}]})) {
 			/varset killTrack[${tkLoop},2] 0
 			/varset knFound TRUE
 		}
-	/if ((!${knFound} || ${allMatches}) && ${killTrack[${tkLoop}].NotEqual[NULL]}) /next tkLoop
-/return
+		/if ((!${knFound} || ${allMatches}) && ${killTrack[${tkLoop}].NotEqual[NULL]}) /next tkLoop
+	/return
 
 | Needs to be updated for HoT inventory changes
+| --------------------------------------------------------------------------------------------
+| SUB: TradeCheck
+| --------------------------------------------------------------------------------------------
 Sub TradeCheck
+	/varset CurrentSub TradeCheck
+	/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
 	/declare intContainer								int local 0
 	/declare intLoop										int local 0
 	/declare intILoop										int local 0
@@ -5292,7 +5780,7 @@ Sub TradeCheck
 					/if (${InvSlot[trade${intLoop}].Item.Container}) {
 						/if (${openSize[${Math.Calc[${intLoop} - 8]}]} < 5) {
 							/call EchoLog "Cannot complete trade because there aren't enough primary inventory slots open, or the items are in a bad order." TRUE
-							/goto :cancelTrade							
+							/goto :cancelTrade
 						} else {
 							/varset openSize[${Math.Calc[${intLoop} - 8]}] -1
 						}
@@ -5303,41 +5791,46 @@ Sub TradeCheck
 								/varset openSize[${Math.Calc[${intLoop} - 8]}] -1
 								/varset slotFound TRUE
 							}
-						/if (!${slotFound}) /next intILoop
-						/if (!${slotFound}) {
-							/call EchoLog "Cannot complete trade because there aren't enough open inventory slots of size ${InvSlot[trade${intLoop}].Item.Size}, or the items are in a bad order" TRUE
-							/goto :cancelTrade
+							/if (!${slotFound}) /next intILoop
+							/if (!${slotFound}) {
+								/call EchoLog "Cannot complete trade because there aren't enough open inventory slots of size ${InvSlot[trade${intLoop}].Item.Size}, or the items are in a bad order" TRUE
+								/goto :cancelTrade
+							}
 						}
 					}
-				}
-			/next intLoop
-			/goto :acceptTrade
-		} else {
+				/next intLoop
+				/goto :acceptTrade
+			} else {
 			/return ABORT_NOTREADY
 		}
 	} else {
-		/return ABORT_NOTRADE
-	}
-	
-	:cancelTrade
-		/notify TradeWnd TRDW_Cancel_Button leftmouseup
-		/delay 2s !${Window[TradeWnd].Open}
-		/if (${Window[TradeWnd].Open}) /goto :cancelTrade
-		/return ABORT_CANCEL
-	:acceptTrade
-		/notify TradeWnd TRDW_Trade_Button leftmouseup
-		/delay 2s !${Window[TradeWnd].Open}
-		/if (${Window[TradeWnd].Open}) /goto :acceptTrade
+	/return ABORT_NOTRADE
+}
+
+:cancelTrade
+	/notify TradeWnd TRDW_Cancel_Button leftmouseup
+	/delay 2s !${Window[TradeWnd].Open}
+	/if (${Window[TradeWnd].Open}) /goto :cancelTrade
+/return ABORT_CANCEL
+:acceptTrade
+	/notify TradeWnd TRDW_Trade_Button leftmouseup
+	/delay 2s !${Window[TradeWnd].Open}
+	/if (${Window[TradeWnd].Open}) /goto :acceptTrade
 /return COMPLETED_SUCCESS
 
+| --------------------------------------------------------------------------------------------
+| SUB: WaitForRez
+| --------------------------------------------------------------------------------------------
 Sub WaitForRez(string maxWaitTime)
+	/varset CurrentSub WaitForRez
+	/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
 	/declare deathZone			int local ${Zone.ID}
 	/declare deathX					float local ${Me.X}
 	/declare deathY					float local ${Me.Y}
 	/declare deathZ					float local ${Me.Z}
 	/declare dText					string local NULL
 	/declare rezPercent			string local 0
-		
+
 	/if (${deathZone}!=${startZoneID}) {
 		/varset deathZone ${startZoneID}
 		/varset deathX ${homeX}
@@ -5349,100 +5842,133 @@ Sub WaitForRez(string maxWaitTime)
 		/declare maxWaitTimer timer local ${maxWaitTime}
 		/varset waitTimer TRUE
 	}
-		
+
 	/call EchoLog "\aoWe have died and are waiting for a rez"
 	/varset waitingForRez TRUE
-	/if ((!${Defined[rezSelf]} || !${rezSelf}) && ${Zone.ID}==${deathZone}) {
-		:rezWait
-			/if (${waitTimer} && !${maxWaitTimer}) {
-				/call EchoLog "\arWe have waited the maximum amount of time for a rez and have not received one, ending macro and camping."
-				/if (${Window[RespawnWnd].Open}) {
-					/nomodkey /notify RespawnWnd RW_OptionsList listselect 1
-					/delay 5
-					/nomodkey /notify RespawnWnd RW_SelectButton leftmouseup 
-					/delay 30s
-				}
-				/varset waitingForRez FALSE
-				/camp desktop
-				/endmacro
+	/if (!${Defined[rezSelf]}) {
+		/declare rezSelf bool outer FALSE
+	}
+	/if (!${rezSelf} && ${Zone.ID}==${deathZone}) {
+	:rezWait
+		/if (${waitTimer} && !${maxWaitTimer}) {
+			/call EchoLog "\arWe have waited the maximum amount of time for a rez and have not received one, ending macro and camping."
+			/if (${Window[RespawnWnd].Open}) {
+				/nomodkey /notify RespawnWnd RW_OptionsList listselect 1
+				/delay 5
+				/nomodkey /notify RespawnWnd RW_SelectButton leftmouseup
+				/delay 30s
 			}
-			/doevents
-			/if (${Me.State.NotEqual[HOVER]} && ${Zone.ID}==${deathZone} && ${Math.Distance[${deathY},${deathX},${deathZ}]} < ${Math.Calc[${campRadius}*2]}) {
-				/call EchoLog "\agIt appears we have accepted the rez by other means, attempting to continue operations."
-				/varset waitingForRez FALSE
-				/return
-			}
-			/delay 10s ${Window[ConfirmationDialogBox].Open} 
-		/if (!${Window[ConfirmationDialogBox].Open}) {
-			/goto :rezWait
-		} else {
-			/varset dText ${Window[ConfirmationDialogBox].Child[CD_TextOutput].Text}
-			/if (${dText.Find[wants to cast]} && ${dText.Find[percent]}) {
-				| Probably a rez box
-				/varset rezPercent ${dText.Mid[${Math.Calc[${dText.Find[(]}+1]},${Math.Calc[${dText.Find[)]} - ${dText.Find[(]} - 1]}].Replace[ percent,]}
-				/if (!${minRezPercent} || ${rezPercent} >= ${minRezPercent}) {
-					/nomodkey /notify ConfirmationDialogBox Yes_Button leftmouseup
-				}
-			}
+			/varset waitingForRez FALSE
+			/camp desktop
+			/endmacro
 		}
-		/delay 5
-		/if (${Window[RespawnWnd].Open}) {
-			/nomodkey /notify RespawnWnd RW_OptionsList listselect 2  
-			/delay 5
-			/nomodkey /notify RespawnWnd RW_SelectButton leftmouseup 
-		} else {
-			:zoneWait
-				/delay 10s ${Zone.ShortName.Equal[${startZone}]}
-			/if (!${Zone.ShortName.Equal[${startZone}]}) /goto :zoneWait
-		}
-		/call EchoLog "\agWe have been resurrected, continuing opertaions"
+		/doevents
+		/if (${Me.State.NotEqual[HOVER]} && ${Zone.ID}==${deathZone} && ${Math.Distance[${deathY},${deathX},${deathZ}]} < ${Math.Calc[${campRadius}*2]}) {
+			/call EchoLog "\agIt appears we have accepted the rez by other means, attempting to continue operations."
+			/varset waitingForRez FALSE
+		/return
+	}
+	/delay 10s ${Window[ConfirmationDialogBox].Open}
+	/if (!${Window[ConfirmationDialogBox].Open}) {
+		/goto :rezWait
 	} else {
-		/delay 30s
-		/if (${Window[RespawnWnd].Open}) {
-			/nomodkey /notify RespawnWnd RW_OptionsList listselect 1
-			/delay 5
-			/nomodkey /notify RespawnWnd RW_SelectButton leftmouseup 
-		}
-		/if (${Zone.ID}!=${startZoneID}) {
-			/call SetHome
-			/varset startZoneID ${Zone.ID}
-			/varset startZone ${Zone.ShortName}
+		/varset dText ${Window[ConfirmationDialogBox].Child[CD_TextOutput].Text}
+		/if (${dText.Find[wants to cast]} && ${dText.Find[percent]}) {
+		| Probably a rez box
+			/varset rezPercent ${dText.Mid[${Math.Calc[${dText.Find[(]}+1]},${Math.Calc[${dText.Find[)]} - ${dText.Find[(]} - 1]}].Replace[ percent,]}
+			/if (!${minRezPercent} || ${rezPercent} >= ${minRezPercent}) {
+				/nomodkey /notify ConfirmationDialogBox Yes_Button leftmouseup
+			}
 		}
 	}
+	/delay 5
+	/if (${Window[RespawnWnd].Open}) {
+		/nomodkey /notify RespawnWnd RW_OptionsList listselect 2
+		/delay 5
+		/nomodkey /notify RespawnWnd RW_SelectButton leftmouseup
+	} else {
+	:zoneWait
+		/delay 10s ${Zone.ShortName.Equal[${startZone}]}
+		/if (!${Zone.ShortName.Equal[${startZone}]}) /goto :zoneWait
+	}
+	/call EchoLog "\agWe have been resurrected, continuing opertaions"
+} else {
+	/delay 30s
+	/if (${Window[RespawnWnd].Open}) {
+		/nomodkey /notify RespawnWnd RW_OptionsList listselect 1
+		/delay 5
+		/nomodkey /notify RespawnWnd RW_SelectButton leftmouseup
+	}
+	/if (${Zone.ID}!=${startZoneID}) {
+		/call SetHome
+		/varset startZoneID ${Zone.ID}
+		/varset startZone ${Zone.ShortName}
+	}
+}
 	/varset waitingForRez FALSE
 /return
 
+| --------------------------------------------------------------------------------------------
+| SUB: Event_pullerChange
+| --------------------------------------------------------------------------------------------
 Sub Event_pullerChange(rLine,string pName)
+	/varset CurrentSub Event_pullerChange
+	/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
 	/if (${useGroupPuller}) {
 		/varset pullerName ${Group.Puller}
 	}
 /return
 
+| --------------------------------------------------------------------------------------------
+| SUB: Event_tankChange
+| --------------------------------------------------------------------------------------------
 Sub Event_tankChange(rLine,string pName)
+	/varset CurrentSub Event_tankChange
+	/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
 	/if (${useGroupTank}) {
 		/varset mainTank ${Group.MainTank}
 	}
 /return
 
+| --------------------------------------------------------------------------------------------
+| SUB: Event_assistChange
+| --------------------------------------------------------------------------------------------
 Sub Event_assistChange(rLine,string pName)
+	/varset CurrentSub Event_assistChange
+	/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
 	/if (${useGroupAssist}) {
 		/varset mainAssist ${Group.MainAssist}
 	}
 /return
 
+| --------------------------------------------------------------------------------------------
+| SUB: Event_newmember
+| --------------------------------------------------------------------------------------------
 Sub Event_newmember(rLine, string rName)
+	/varset CurrentSub Event_newmember
+	/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
 	/if (${Spawn[${rName}].Distance} < ${campRadius} && ${Me.PctMana} > 50 && ${doGroupBuffs} && ${groupBuffCount}) /call buffCheck FALSE ${inCombat} ${inCombatBuffRoutine}
 /return
 
+| --------------------------------------------------------------------------------------------
+| SUB: Event_rampage
+| --------------------------------------------------------------------------------------------
 Sub Event_rampage
+	/varset CurrentSub Event_rampage
+	/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
 	/if (${allowSit}) /call EchoLog "A mob we are fighting is rampaging on me, will not sit for the duration of this fight" TRUE
 	/varset allowSit FALSE
 	/varset rampageNoSit TRUE
 /return
 
+| --------------------------------------------------------------------------------------------
+| SUB: Event_died
+| --------------------------------------------------------------------------------------------
 Sub Event_died(eLine)
+	/varset CurrentSub Event_died
+	/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
 	/if (!${Defined[eLine]}) /declare eLine string local Died by unknown source
-	
+
 	/varset inCombat FALSE
 	/varset targCount 0
 	/varset lTargCount 0
@@ -5450,7 +5976,7 @@ Sub Event_died(eLine)
 	/varset targID 0
 	/attack off
 	/squelch /target clear
-	/if (${useNavigation} && ${Plugin[MQ2Naviagion].Version}) /nav stop
+	/if (${useNavigation} && ${Plugin[MQ2Navigation].Version}) /nav stop
 	/doevents flush died
 	/call EchoLog "${eLine}" TRUE
 	/squelch /exec "${alertDeath}" bg
@@ -5460,39 +5986,64 @@ Sub Event_died(eLine)
 			/call SetHome
 			/call EchoLog "Home location has been reset to the point of resurrection"
 		} else {
-			/call MoveToLoc ${homeY} ${homeX} FALSE
+			/call MoveToLoc ${homeY} ${homeX} FALSE ${homeZ}
 			/if (${moveCanceled} && !${Me.CombatState.Equal[COMBAT]}) {
 				/call EchoLog "\ayCould not get back to home location after rez, resetting home location for where we are now"
 				/call SetHome
 			}
 		}
 	} else {
-		/notify RespawnWnd RW_SelectButton leftmouseup		
+		/notify RespawnWnd RW_SelectButton leftmouseup
 	}
 	/doevents flush died
 	/call AfterDeath
 /return
 
+| --------------------------------------------------------------------------------------------
+| SUB: Event_bcTell
+| --------------------------------------------------------------------------------------------
 Sub Event_bcTell(rLine,string rFrom,string rMsg)
+	/varset CurrentSub Event_bcTell
+	/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
 	/if (${rMsg.Left[2].NotEqual[//]} && ${eqbcCommands}) /call Event_rTell "${rLine}" "(EQBC)${rFrom}" "${rMsg}" BCTELL
 /return
 
+| --------------------------------------------------------------------------------------------
+| SUB: Event_bcChatTell
+| --------------------------------------------------------------------------------------------
 Sub Event_bcChatTell(rLine,string rFrom,strng rMsgTo,string rMsg)
+	/varset CurrentSub Even_bcChatTell
+	/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
 	/if (${rMsgTo.Equal[${Me.CleanName}]} && ${eqbcCommands}) {
 		/if (${rMsg.Left[2].NotEqual[//]}) /call Event_rTell "${rLine}" "(EQBC)${rFrom}" "${rMsg}" BCCTELL
-	} 
+	}
 /return
 
+| --------------------------------------------------------------------------------------------
+| SUB: Event_MQ2Cmd
+| --------------------------------------------------------------------------------------------
 Sub Event_MQ2Cmd(rLine,string rMsg)
-	/if (${rMsg.Left[2].NotEqual[>>]} && ${rMsg.Left[1].NotEqual[[]} && ${echoCommands}) /call Event_rTell "${rLine}" MQ2 "${rMsg}" MQ2
+	/varset CurrentSub Event_MQ2Cmd
+	/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
+	/if (${rMsg.Left[2].NotEqual[>>]} && ${rMsg.Left[1].NotEqual[[]} && ${echoCommands} && ${rMsg.Left[3].NotEqual[DGB]}) /call Event_rTell "${rLine}" MQ2 "${rMsg}" MQ2
 /return
 
+| --------------------------------------------------------------------------------------------
+| SUB: Event_mq2navFail
+| --------------------------------------------------------------------------------------------
 Sub Event_mq2navFail
+	/varset CurrentSub Event_mq2navFail
+	/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
 	/call EchoLog "\aySetting UseNavigation to \arFALSE \aybecause MQ2Navigation does not work in this zone."
 	/varset useNavigation FALSE
 /return
 
+| --------------------------------------------------------------------------------------------
+| SUB: Event_Chat
+| --------------------------------------------------------------------------------------------
 Sub Event_Chat(ChatChannel,ChatSender,ChatText)
+	/varset CurrentSub Event_Chat
+	/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
 	/declare taArray					int local 0
 	/if (${textAlertsValue}) {
 		/for taArray 1 to ${textAlertsValue}
@@ -5501,14 +6052,19 @@ Sub Event_Chat(ChatChannel,ChatSender,ChatText)
 				/goto :alertSent
 			}
 		/next taArray
-		:alertSent
+	:alertSent
 	}
 	/if (${ChatSender.Left[1].Compare[ ]} < 0) /varset ChatSender ${ChatSender.Right[-2].Left[-1]}
 	/if (${relayChat} && ${relayTarget.Left[1].Equal[/]}) /docommand ${relayTarget} >> [${ChatChannel}]  ${ChatSender}: '${ChatText}'
 	/if (${ChatChannel.Equal[Group]} && ${groupCommands}) /call Event_rTell NULL ${ChatSender} "${ChatText}" Group
 /return
 
+| --------------------------------------------------------------------------------------------
+| SUB: Event_rTell
+| --------------------------------------------------------------------------------------------
 Sub Event_rTell(rLine,string rFrom,string rMsg, string rType)
+	/varset CurrentSub Event_rTell
+	/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
 	/declare risSafe bool local
 	/declare rnum int local
 	/declare hCommand	string local
@@ -5516,12 +6072,13 @@ Sub Event_rTell(rLine,string rFrom,string rMsg, string rType)
 	/declare hMsg		string local
 	/declare rFromID	int local 0
 	/declare rFromEQBC	bool local FALSE
+	/if (!${Defined[rType]}) /declare rType string outer TELL
 	/if (${rType.Equal[NULL]}) /varset rType TELL
-	
+
 	/if (${rFrom.Equal[${Me.Pet.CleanName}]}) /return
 	/if (${rType.Equal[TELL]} && !${tellCommands}) /return
 	/if (${rMsg.Find[Command not recognized]}) /return
-	
+
 	/if (${rFrom.NotEqual[MQ2]}) {
 		/if (${rFrom.Left[6].Equal[(EQBC)]}) {
 			/varset risSafe TRUE
@@ -5534,9 +6091,7 @@ Sub Event_rTell(rLine,string rFrom,string rMsg, string rType)
 				/call EchoLog "\au${Time} \aoReceived a tell from \ag${rFrom} \aosaying: \ay${rMsg}"
 				/if (${relayTells} && ${relayTarget.Left[1].Equal[/]}) /docommand ${relayTarget} >> [Tell]  ${rFrom}: '${rMsg}'
 			}
-							
 			/varset rFromID ${Spawn[pc ${rFrom}].ID}
-			
 			/call SafePC ${rFrom}
 			/varset risSafe ${Macro.Return}
 		}
@@ -5556,20 +6111,10 @@ Sub Event_rTell(rLine,string rFrom,string rMsg, string rType)
 					/varset hMsg \ag${Macro.Return}
 				}
 			} else {
-				/varset hMsg \ayMission command not recognized
+				/varset hMsg \ayMission command not recognized rTellA
 			}
-		}	else {
-			/call BotCommands ${rFrom} "${rMsg}" ${rFromEQBC}
-			/if (${Macro.Return.NotEqual[COMPLETED_NOTFOUND]}) {
-				/if (${Macro.Return.Equal[ABORT_SYNTAX]}) {
-					/varset hMsg \ayYour command could not be completed due to improper syntax
-				} else /if (${Macro.Return.Equal[COMPLETED_SUCCESS]}) {
-					/varset hMsg \agYour command was completed successfully.
-				} else {
-					/varset hMsg \ag${Macro.Return}
-				}
-			} else {
-				/call GlobalCommands ${rFrom} "${rMsg}" ${rFromEQBC}
+			}	else {
+				/call BotCommands ${rFrom} "${rMsg}" ${rFromEQBC}
 				/if (${Macro.Return.NotEqual[COMPLETED_NOTFOUND]}) {
 					/if (${Macro.Return.Equal[ABORT_SYNTAX]}) {
 						/varset hMsg \ayYour command could not be completed due to improper syntax
@@ -5579,21 +6124,36 @@ Sub Event_rTell(rLine,string rFrom,string rMsg, string rType)
 						/varset hMsg \ag${Macro.Return}
 					}
 				} else {
-					/varset hMsg \ayCommand not recognized
-				}	
+					/call GlobalCommands ${rFrom} "${rMsg}" ${rFromEQBC}
+					/if (${Macro.Return.NotEqual[COMPLETED_NOTFOUND]}) {
+						/if (${Macro.Return.Equal[ABORT_SYNTAX]}) {
+							/varset hMsg \ayYour command could not be completed due to improper syntax
+						} else /if (${Macro.Return.Equal[COMPLETED_SUCCESS]}) {
+							/varset hMsg \agYour command was completed successfully.
+						} else {
+							/varset hMsg \ag${Macro.Return}
+						}
+					} else {
+						/varset hMsg \ayCommand not recognized rTellB
+					}
+				}
+			}
+			/if (${hMsg.NotEqual[NULL]}) {
+				/if (${rFromEQBC}) /varset rFrom (EQBC)${rFrom}
+				/if (${rType.NotEqual[Group]}) /call SendTell ${rFrom} "${hMsg}"
 			}
 		}
-		/if (${hMsg.NotEqual[NULL]}) {
-			/if (${rFromEQBC}) /varset rFrom (EQBC)${rFrom}
-			/if (${rType.NotEqual[Group]}) /call SendTell ${rFrom} "${hMsg}"
-		}
-	}
-/return
+	/return
 
 | Need to update for using mq2navigation and always attempting return
+| --------------------------------------------------------------------------------------------
+| SUB: Event_summoned
+| --------------------------------------------------------------------------------------------
 Sub Event_summoned
+	/varset CurrentSub Event_summoned
+	/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
 	/if (${Math.Distance[${Me.Y},${Me.X}:${homeY},${homeX}]}<= ${Math.Calc[${campRadius}*2]} && ${mainTank.NotEqual[${Me.CleanName}]}) {
-		/call MoveToLoc ${homeY} ${homeX} TRUE
+		/call MoveToLoc ${homeY} ${homeX} TRUE ${homeZ}
 		/if (${Macro.Return.NotEqual[COMPLETED_SUCCESS]} && ${Macro.Return.NotEqual[ABORT_ROOT]}) {
 			/call EchoLog "\ayWe were summoned and cannot get back to camp location, resetting camp to current location."
 			/call SetHome
@@ -5601,11 +6161,21 @@ Sub Event_summoned
 	}
 /return
 
+| --------------------------------------------------------------------------------------------
+| SUB: Event_standAttack
+| --------------------------------------------------------------------------------------------
 Sub Event_standAttack
+	/varset CurrentSub Event_standAttack
+	/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
 	/if (${Me.Sitting}) /stand
 /return
 
+| --------------------------------------------------------------------------------------------
+| SUB: Event_spellFade
+| --------------------------------------------------------------------------------------------
 Sub Event_spellFade(rLine,string spellName,string charName)
+	/varset CurrentSub Event_spellFade
+	/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
 	/if (${Spell[${spellName}].SpellType.Find[Bene]}) {
 		/doevents flush spellFade
 		/if (${inCombat}) {
@@ -5617,15 +6187,20 @@ Sub Event_spellFade(rLine,string spellName,string charName)
 	}
 /return
 
+| --------------------------------------------------------------------------------------------
+| SUB: Event_enrage
+| --------------------------------------------------------------------------------------------
 Sub Event_enrage(rLine,string eName)
+	/varset CurrentSub Event_enrage
+	/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
 	/if (${Spawn[${eName}].Type.Equal[NPC]}) {
 		/if (${Me.Pet.ID} && !${Me.Pet.Name.Find[familiar]} && !${Me.PetBuff[Master's Aura Effect]}) {
-			|'
+		|'
 			/pet back off
 			/pet hold on
 		}
 		/if (${Target.ID} && !${Me.Song[Master's Aura Effect].ID} && ${Me.Combat}) {
-			| Need to find a way to check if behind the mob or not and verify it is the mob we are fighting that enraged'
+		| Need to find a way to check if behind the mob or not and verify it is the mob we are fighting that enraged'
 			/varset enrageID ${Target.ID}
 			/varset enrageAttackOff TRUE
 			/attack off
@@ -5633,10 +6208,15 @@ Sub Event_enrage(rLine,string eName)
 	}
 /return
 
+| --------------------------------------------------------------------------------------------
+| SUB: Event_enrageOff
+| --------------------------------------------------------------------------------------------
 Sub Event_enrageOff(rLine, string eName)
+	/varset CurrentSub Event_enrageOff
+	/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
 	/if (${Spawn[${eName}].Type.Equal[NPC]}) {
-		/if (${Me.Pet.ID} && !${Me.Pet.Name.Find[familiar]} && !${Me.PetBuff[Master's Aura Effect]}) { 
-			| '
+		/if (${Me.Pet.ID} && !${Me.Pet.Name.Find[familiar]} && !${Me.PetBuff[Master's Aura Effect]}) {
+		| '
 			/pet attack
 			/pet hold off
 		}
@@ -5648,20 +6228,40 @@ Sub Event_enrageOff(rLine, string eName)
 	}
 /return
 
+| --------------------------------------------------------------------------------------------
+| SUB: Event_noMerc
+| --------------------------------------------------------------------------------------------
 Sub Event_noMerc
+	/varset CurrentSub Event_noMerc
+	/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
 	/varset useMerc FALSE
 	/call EchoLog "Merc usage disabled because either the group is full or your account status is not high enough to use the mercenary." TRUE
 /return
 
+| --------------------------------------------------------------------------------------------
+| SUB: Event_membershipFail
+| --------------------------------------------------------------------------------------------
 Sub Event_membershipFail
+	/varset CurrentSub Event_membershipFail
+	/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
 	/varset membershipFail TRUE
 /return
 
+| --------------------------------------------------------------------------------------------
+| SUB: Event_mercStanceChange
+| --------------------------------------------------------------------------------------------
 Sub Event_mercStanceChange(line,string newStance)
+	/varset CurrentSub Event_mercStanceChange
+	/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
 	/varset mercStance ${newStance}
 /return
 
+| --------------------------------------------------------------------------------------------
+| SUB: MissionCommandHandler
+| --------------------------------------------------------------------------------------------
 Sub MissionCommandHandler(string comFrom, string comText, bool fromEQBC)
+	/varset CurrentSub MissionCommandHandler
+	/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
 	/if (${comFrom.Equal[NULL]} || ${comText.Equal[NULL]}) /return ABORT_PARAMS
 	/if (${fromEQBC} == NULL) /varset fromEQBC FALSE
 	/declare retValue									string local COMPLETED_NOTFOUND
@@ -5672,56 +6272,61 @@ Sub MissionCommandHandler(string comFrom, string comText, bool fromEQBC)
 	/declare ctArray									int local 0
 	/declare mcLoop										int local 0
 	/declare mcWhile									bool local TRUE
-	
+
 	/varset comText ${comText.Replace[MISSIONCOMM ,]}
-	
+
 	/varset strCommand ${comText.Token[1, ]}
 	/call EchoLog "Global Command: ${strCommand} | ${comText}" TRUE
 	/if (${paramCount}) {
 		/for nArray 2 to ${paramCount}
 			/varset cParams[${Math.Calc[${nArray}-1]}] ${comText.Token[${nArray}, ]}
-		/if (${nArray} < 100) /next nArray
-	}	
-	
-	/if (${strCommand.Equal[GETSTATUS]}) {
+			/if (${nArray} < 100) /next nArray
+		}
+
+		/if (${strCommand.Equal[GETSTATUS]}) {
 		| ======================================================
 		|  GETSTATUS
 		|   Used to have all bots report their status
 		| ======================================================
-		/call MissionCommandSend ${comFrom} "STATUS ${missionStatus}"
-	} else /if (${strCommand.Equal[STATUS]}) {
+			/call MissionCommandSend ${comFrom} "STATUS ${missionStatus}"
+		} else /if (${strCommand.Equal[STATUS]}) {
 		| =====================================================
 		|  STATUS
 		|   Status update, RUNNING,EXECUTINGACTION,ACTIONCOMPLETE,READY,NOTREADY,...
 		| =====================================================
 		| Need to add trackers for followers to make sure they are checked in
-		/call MissionFollowerStatus ${comFrom} ${cParams[1]}
-	} else /if (${strCommand.Equal[SETSTATUS]}) {
-		/varset missionStatus ${cParams[1]}
-		/varset missionActionAttempts 0
-		/varset missionActionMaxAttempts 0
-	} else /if (${strCommand.Equal[SETACTION]}) {
-		/varset missionCurrentAction ${cParams[1]}
-		/varset missionStatus STARTACTION
-		/varset missionActionAttmempts 0
-		/varset missionActionMaxAttempts 0
-	} else /if (${strCommand.Equal[GETSTATUS]}) {
-		/call MissionCommandSend ${comFrom} ${missionStatus}
-	} else /if (${strCommand.Equal[GETSTATS]}) {
-		/call MissionCommandSend ${comFrom} "STATS ${Me.PctHPs} ${If[!${Me.MaxMana},100,${Me.PctMana}]} ${If[!${Me.MaxEndurance},100,${Me.PctEndurance}]}"
-	} else /if (${strCommand.Equal[STATS]}) {
-		/while (${missionFollowerStatus[${mcLoop},1].NotEqual[NULL]} && ${mcLoop} <= ${missionFollowerStatus.Size[1]} && ${mcWhile}) {
-			/if (${missionFollowerStatus[${mcLoop},1].Equal[${comFrom},1]}) {
-				/varset missionFollowerStatus[${mcLoop},3] ${cParams[2]}
-				/varset missionFollowerStatus[${mcLoop},4] ${cParams[3]}
-				/varset missionFollowerStatus[${mcLoop},5] ${cParams[4]}
-				/varset mcWhile FALSE
+			/call MissionFollowerStatus ${comFrom} ${cParams[1]}
+		} else /if (${strCommand.Equal[SETSTATUS]}) {
+			/varset missionStatus ${cParams[1]}
+			/varset missionActionAttempts 0
+			/varset missionActionMaxAttempts 0
+		} else /if (${strCommand.Equal[SETACTION]}) {
+			/varset missionCurrentAction ${cParams[1]}
+			/varset missionStatus STARTACTION
+			/varset missionActionAttmempts 0
+			/varset missionActionMaxAttempts 0
+		} else /if (${strCommand.Equal[GETSTATUS]}) {
+			/call MissionCommandSend ${comFrom} ${missionStatus}
+		} else /if (${strCommand.Equal[GETSTATS]}) {
+			/call MissionCommandSend ${comFrom} "STATS ${Me.PctHPs} ${If[!${Me.MaxMana},100,${Me.PctMana}]} ${If[!${Me.MaxEndurance},100,${Me.PctEndurance}]}"
+		} else /if (${strCommand.Equal[STATS]}) {
+			/while (${missionFollowerStatus[${mcLoop},1].NotEqual[NULL]} && ${mcLoop} <= ${missionFollowerStatus.Size[1]} && ${mcWhile}) {
+				/if (${missionFollowerStatus[${mcLoop},1].Equal[${comFrom},1]}) {
+					/varset missionFollowerStatus[${mcLoop},3] ${cParams[2]}
+					/varset missionFollowerStatus[${mcLoop},4] ${cParams[3]}
+					/varset missionFollowerStatus[${mcLoop},5] ${cParams[4]}
+					/varset mcWhile FALSE
+				}
 			}
 		}
-	}
-/return ${retValue}
+	/return ${retValue}
 
+| --------------------------------------------------------------------------------------------
+| SUB: MissionCommandSend
+| --------------------------------------------------------------------------------------------
 Sub MissionCommandSend(string sendTo,string sendText,bool missionCommTagged)
+	/varset CurrentSub MissionCommandSend
+	/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
 	/declare commandMethod		string local /bct
 	/declare mcLoop						int local 0
 	/declare postSendDelay		int local 2
@@ -5735,9 +6340,9 @@ Sub MissionCommandSend(string sendTo,string sendText,bool missionCommTagged)
 	} else /if (${sendTo.Equal[LEADER]}) {
 		/varset sendTo ${missionLeader}
 	}
-	
+
 	/if (${sendTo.Equal[ALL]}) {
-		| /bca ${sendText}
+	| /bca ${sendText}
 		/if (${missionFollowers.Equal[GROUP]}) {
 			/for mcLoop 1 to ${Group.Members}
 				/if (${Group.Member[${mcLoop}].Type.Equal[PC]}) {
@@ -5747,29 +6352,34 @@ Sub MissionCommandSend(string sendTo,string sendText,bool missionCommTagged)
 			/next mcLoop
 		} else {
 			/varset mcLoop 0
-			:mcSendLoop
-				/varcalc mcLoop ${mcLoop} + 1
-				/if (${missionFollowers.Arg[${mcLoop},,].Length}) {
-					/docommand ${commandMethod} ${missionFollowers.Arg[${mcLoop},,]} ${If[${missionCommTagged},MISSIONCOMM ,]}${sendText}
-					/delay ${postSendDelay}
-				} else {
-					/goto :mcSendLoopEnd
-				}
+		:mcSendLoop
+			/varcalc mcLoop ${mcLoop} + 1
+			/if (${missionFollowers.Arg[${mcLoop},,].Length}) {
+				/docommand ${commandMethod} ${missionFollowers.Arg[${mcLoop},,]} ${If[${missionCommTagged},MISSIONCOMM ,]}${sendText}
+				/delay ${postSendDelay}
+			} else {
+				/goto :mcSendLoopEnd
+			}
 			/goto :mcSendLoop
-			:mcSendLoopEnd
+		:mcSendLoopEnd
 		}
 	} else {
 		/docommand ${commandMethod} ${sendTo} ${If[${missionCommTagged},MISSIONCOMM ,]}${sendText}
 		/delay ${postSendDelay}
-	}	
+	}
 /return
 
+| --------------------------------------------------------------------------------------------
+| SUB: MissionFollowerStatus
+| --------------------------------------------------------------------------------------------
 Sub MissionFollowerStatus(string followerName,string statusString,bool setStatus)
+	/varset CurrentSub MissionFollowerStatus
+	/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
 	/declare mfLoop			int local 1
 	/declare mfWhile		bool local TRUE
 	/declare mfRetValue	string local TRUE
 	/if (${setStatus} == NULL) /varset setStatus FALSE
-	
+
 	/if (!${setStatus}) {
 		/if (${followerName.Equal[ANY]}) /varset mfRetValue FALSE
 		/if (${followerName.Equal[FIND]}) /varset mfRetValue NULL
@@ -5820,13 +6430,18 @@ Sub MissionFollowerStatus(string followerName,string statusString,bool setStatus
 	}
 /return ${mfRetValue}
 
+| --------------------------------------------------------------------------------------------
+| SUB: MissionLoad
+| --------------------------------------------------------------------------------------------
 Sub MissionLoad
+	/varset CurrentSub MissionLoad
+	/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
 	/declare mlLoop				int local 0
 	/declare mlWhile			bool local TRUE
 	/declare mlInt				int local 0
-	
+
 	/call EchoLog "Attempting to load mission information from ${missionINI}" TRUE
-	
+
 	/call GetINISetting ${missionINI} General MissionName missionName NULL
 	/call GetINISetting ${missionINI} General RequestZone missionRequestZone NULL
 	/call GetINISetting ${missionINI} General RequestNPC missionRequestNPC NULL
@@ -5841,32 +6456,32 @@ Sub MissionLoad
 	/call GetINISetting ${missionINI} General CommunicationMethod missionCommMethod BC
 	/call GetINISetting ${missionINI} General CompleteAction missionCompleteAction CAMP
 	/call GetINISetting ${missionINI} General RepeatCount missionRepeatCount 0
-	/call GetINISetting ${missionINI} General RepeatDelay missionRepeatDelay 30m 
+	/call GetINISetting ${missionINI} General RepeatDelay missionRepeatDelay 30m
 	/call GetINISetting ${missionINI} General RepeatRequestDelay missionRequestDelay 360m
 	/call GetINISetting ${missionINI} General MissionStartAtAction missionStartAtAction 1 FALSE
-	
+
 	/if (${missionRequestZone.NotEqual[${Zone.ShortName}]}) {
-		| Not in the correct zone for this mission
+	| Not in the correct zone for this mission
 		/call EchoLog ".....We are not in the correct zone to start this mission."
 		/varset missionStatus LOADFAILED
-		/return FALSE
-	}
+	/return FALSE
+}
 
 	/declare repPer				int local
 	/declare repRawDelay	int local
-	/varset missionRepeatDelayType 
+	/varset missionRepeatDelayType
 	/if (${missionRepeatDelay.Find[m]}) /varset missionRepeatDelayType m
 	/if (${misisonRepeatDelay.Find[s]}) /varset missionRepeatDelayType s
 	/varset repRawDelay ${missionRepeatDealy.Replace[${missionRepeatDelayType},]}
 	/varcalc repPer ${repRawDelay} * .15
 	/varcalc missionRepeatMinDelay ${repRawDelay} - ${repPer}
 	/varcalc missionRepeatMaxDelay ${repRawDelay} + ${repPer}
-	
+
 	/for mlLoop 1 to ${missionFollowerStatus.Size[1]}
 		/varset missionFollowerStatus[${mlLoop},1] NULL
 		/varset missionFollowerStatus[${mlLoop},2] NULL
 	/next mlLoop
-	
+
 	/varset mlInt 1
 	/if (${missionFollowers.Equal[GROUP]}) {
 		/for mlLoop 1 to ${Group.Members}
@@ -5883,28 +6498,33 @@ Sub MissionLoad
 		/varset mlLoop 1
 		/while (${missionFollowers.Arg[${mlLoop},,].Length}) {
 			/varset missionFollowerStatus[${mlLoop},1] ${missionFollowers.Arg[${mlLoop},,]}
-			/varset missionFollowerStatus[${mlLoop},2] UNKNOWN			
+			/varset missionFollowerStatus[${mlLoop},2] UNKNOWN
 			/varset missionFollowerStatus[${mlLoop},3] 100
 			/varset missionFollowerStatus[${mlLoop},4] 100
 			/varset missionFollowerStatus[${mlLoop},5] 100
 			/varcalc mlLoop ${mlLoop} + 1
 		}
 	}
-	
+
 	/varset pullMode FALSE
 	/varset lootCorpses FALSE
 
 	/varset missionCurrentAction ${Math.Calc[${missionStartAtAction}-1].Int}
 	/varset missionWaitTimer 0s
-	/varset missionWaitCondition NULL	
+	/varset missionWaitCondition NULL
 	/varset missionActionAttempts 0
 	/varset missionActionMaxAttempts 0
-	
+
 	/if (${missionLeader.Equal[${Me.CleanName}]} || (${missionLeader.Equal[GROUP]} && ${Me.GroupLeader})) /varset missionAmLeader TRUE
 	/varset missionStatus LOADED
 /return TRUE
 
+| --------------------------------------------------------------------------------------------
+| SUB: MissionLoadAction
+| --------------------------------------------------------------------------------------------
 Sub MissionLoadAction(int actionNumber,bool buildINI)
+	/varset CurrentSub MissionLoadAction
+	/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
 	/declare mlLoop				int local 0
 	/declare mlWhile			bool local TRUE
 	/declare mlInt				int local 0
@@ -5913,24 +6533,24 @@ Sub MissionLoadAction(int actionNumber,bool buildINI)
 	/declare actionPuller		string local NULL
 	/declare actionMainAssist string local NULL
 	/if (${buildINI} == NULL) /varset buildINI FALSE
-	
+
 	/call EchoLog "Attempting to load mission action ${actionNumber} from INI ${missionINI}" TRUE
-	
+
 	/call GetINISetting ${missionINI} ${iniSection} Action missionActionType NULL
-	
+
 	/if (${missionActionType.Equal[NULL]}) {
-		| No action found, mission completed?
-		/return ACTION_NOT_FOUND
-	}
-	
+	| No action found, mission completed?
+	/return ACTION_NOT_FOUND
+}
+
 	/if (!${Select[${missionActionType},HAIL,SPEAK,MOVE,MAKECAMP,PULL,IDLE,GIVE,USEITEM]} && !${buildINI}) {
 		/call EchoLog ".....${missionActionType} is not a valid Action.  Aborting action load."
-		/return INVALID_ACTION_TYPE
-	}
-	
-	| ======================================
-	|  ActionConditions
-	| ======================================
+	/return INVALID_ACTION_TYPE
+}
+
+| ======================================
+|  ActionConditions
+| ======================================
 	/call GetINIArrayCount ${missionINI} ${iniSection} ActionCondition NULL
 	/varset mlInt ${Macro.Return}
 	/call EchoLog ".....Checking ${mlInt} ActionConditions" TRUE
@@ -5940,13 +6560,13 @@ Sub MissionLoadAction(int actionNumber,bool buildINI)
 			/call GetINISetting ${missionINI} ${iniSection} ActionCondition${mlLoop} actionConditions[${mlLoop}] NULL
 			/if (!${buildINI} && !${${actionConditions[${mlLoop}]}}) {
 				/call EchoLog "........Failed ActionCondition${mlLoop}, skipping action."
-				/return ACTION_CONDITION_FAIL
-			}
-		/next mlLoop
-	} else {
-		/call GetINISetting ${missionINI} ${iniSection} ActionCondition1 NULL NULL
-	}
-	
+			/return ACTION_CONDITION_FAIL
+		}
+	/next mlLoop
+} else {
+	/call GetINISetting ${missionINI} ${iniSection} ActionCondition1 NULL NULL
+}
+
 	/call GetINISetting ${missionINI} ${iniSection} DoActionByCommand missionActionByCommand TRUE
 	/call GetINISetting ${missionINI} ${iniSection} FollowLeader missionActionFollowLeader TRUE
 	/call GetINISetting ${missionINI} ${iniSection} LocX missionActionLocX NULL FALSE
@@ -5957,9 +6577,9 @@ Sub MissionLoadAction(int actionNumber,bool buildINI)
 	/call GetINISetting ${missionINI} ${iniSection} LocFuzziness missionActionLocFuzziness 10
 	/call GetINISetting ${missionINI} ${iniSection} TargetNPC missionActionTargetNPC NULL
 
-	| ======================================
-	|  TargetPullNPCs
-	| ======================================	
+| ======================================
+|  TargetPullNPCs
+| ======================================
 	/varset missionActionKillCounts FALSE
 	/call GetINIArrayCount ${missionINI} ${iniSection} TargetPullNPC NULL
 	/varset mlInt ${Macro.Return}
@@ -5974,7 +6594,7 @@ Sub MissionLoadAction(int actionNumber,bool buildINI)
 		/call GetINISetting ${missionINI} ${iniSection} TargetPullNPC1 NULL NULL
 		/call GetINISetting ${missionINI} ${iniSection} TargetPullNPC1KillCount NULL 0
 	}
-	
+
 	/call GetINISetting ${missionINI} ${iniSection} TargetRadius missionActionTargetRadius 20
 	/call GetINISetting ${missionINI} ${iniSection} SpeakText missionActionSpeakText NULL
 	/call GetINISetting ${missionINI} ${iniSection} SetMainTank actionMainTank NULL
@@ -5983,9 +6603,9 @@ Sub MissionLoadAction(int actionNumber,bool buildINI)
 	/call GetINISetting ${missionINI} ${iniSection} LootMobs missionActionLootMobs TRUE
 	/call GetINISetting ${missionINI} ${iniSection} Looter missionActionLooter LEADER
 
-	| ======================================
-	|  ActionItems
-	| ======================================
+| ======================================
+|  ActionItems
+| ======================================
 	/call GetINIArrayCount ${missionINI} ${iniSection} ActionItem NULL
 	/varset mlInt ${Macro.Return}
 	/if (${mlInt}) {
@@ -5995,12 +6615,12 @@ Sub MissionLoadAction(int actionNumber,bool buildINI)
 		/next mlLoop
 	} else {
 		/call GetINISetting ${missionINI} ${iniSection} ActionItem1 NULL NULL
-		/call GetINISetting ${missionINI} ${iniSection} ActionItem1Count NULL 0		
+		/call GetINISetting ${missionINI} ${iniSection} ActionItem1Count NULL 0
 	}
 
-	| ======================================
-	|  PreExecuteCommands
-	| ======================================
+| ======================================
+|  PreExecuteCommands
+| ======================================
 	/call GetINIArrayCount ${missionINI} ${iniSection} PreExecuteCommand NULL
 	/varset mlInt ${Macro.Return}
 	/if (${mlInt}) {
@@ -6011,9 +6631,9 @@ Sub MissionLoadAction(int actionNumber,bool buildINI)
 		/call GetINISetting ${missionINI} ${iniSection} PreExecuteCommand1 NULL NULL
 	}
 
-	| ======================================
-	|  PostExecuteCommands
-	| ======================================
+| ======================================
+|  PostExecuteCommands
+| ======================================
 	/call GetINIArrayCount ${missionINI} ${iniSection} PostExecuteCommand NULL
 	/varset mlInt ${Macro.Return}
 	/if (${mlInt}) {
@@ -6023,12 +6643,12 @@ Sub MissionLoadAction(int actionNumber,bool buildINI)
 	} else {
 		/call GetINISetting ${missionINI} ${iniSection} PostExecuteCommand1 NULL NULL
 	}
-	
+
 	/call GetINISetting ${missionINI} ${iniSection} ActionMaxTime missionActionMaxTime 999m
 
-	| ======================================
-	|  CompleteConditions
-	| ======================================
+| ======================================
+|  CompleteConditions
+| ======================================
 | These should probably loaded and checked during the action so that any variables are correctly parsed
 	/call GetINIArrayCount ${missionINI} ${iniSection} CompleteCondition NULL
 	/varset mlInt ${Macro.Return}
@@ -6039,12 +6659,12 @@ Sub MissionLoadAction(int actionNumber,bool buildINI)
 		/next mlLoop
 	} else {
 		/call GetINISetting ${missionINI} ${iniSection} CompleteCondition1 NULL NULL
-	}	
+	}
 	/call GetINISetting ${missionINI} ${iniSection} CompleteConditionRequire missionActionCompleteConditionRequire ALL
-	
+
 	/call GetINISetting ${missionINI} ${iniSection} CompleteBy missionActionCompleteBy ALL
 	/call GetINISetting ${missionINI} ${iniSection} CompleteDelay missionActionCompleteDelay 2s
-	
+
 	/if (${actionMainTank.NotEqual[NULL]}) {
 		/if (${actionMainTank.Equal[group]}) {
 			/varset mainTank ${Group.MainTank}
@@ -6074,25 +6694,35 @@ Sub MissionLoadAction(int actionNumber,bool buildINI)
 	}
 /return TRUE
 
+| --------------------------------------------------------------------------------------------
+| SUB: MissionModeEnd
+| --------------------------------------------------------------------------------------------
 Sub MissionModeEnd(string endReason)
+	/varset CurrentSub MissionModeEnd
+	/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
 	/if (${endReason.NotEqual[NULL]}) /call EchoLog "${endReason}"
 	/if (${missionAmLeader}) /call MissionCommandSend ALL "MissionMode OFF" FALSE
 	/varset missionMode FALSE
-	/varset missionStatus NULL	
+	/varset missionStatus NULL
 /return
 
+| --------------------------------------------------------------------------------------------
+| SUB: MissionModeHandler
+| --------------------------------------------------------------------------------------------
 Sub MissionModeHandler
+	/varset CurrentSub MissionModeHandler
+	/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
 	/if (!${missionMode}) /return NOT_MISSION_MODE
 	/declare mmLoop				int local 0
 	/declare mmInt				int local 0
 	/declare mmWhile			bool local FALSE
-	
+
 	/if (${missionActionMaxAttempts}!=0 && ${missionActionAttempts}>=${missionActionMaxAttempts}) {
-		| Reached maximum attempts for the current action
+	| Reached maximum attempts for the current action
 		/varset missionStatus ACTIONFAILED
 		/varset missionActionMaxAttempts 0
 		/if (!${missionAmLeader})) /call MissionCommandSend LEADER "STATUS ACTIONFAILED"
-	}	
+	}
 	/if (${missionStatus.NotEqual[ACTIONFAILED]} && ${missionAmLeader}) {
 		/call MissionFollowerStatus ANY ACTIONFAILED
 		/if (${Macro.Return.Equal[TRUE]}) {
@@ -6100,10 +6730,10 @@ Sub MissionModeHandler
 			/varset missionWaitTimer 0s
 		}
 	}
-		
+
 	/if (${missionWaitTimer}) {
 		/if (${missionWaitCondition.NotEqual[NULL]}) {
-			| /varset missionWaitTimer 0s
+		| /varset missionWaitTimer 0s
 			/if (${missionWaitCondition.Left[6].Equal[STATUS]}) {
 				/call MissionCommandSend ALL "GETSTATUS"
 				/declare statusCheck string local ${missionWaitCondition.Replace[STATUS ,]}
@@ -6117,14 +6747,14 @@ Sub MissionModeHandler
 	/if (${missionWaitTimer}) /return MISSION_WAIT_TIMER
 
 	/if (${missionStatus.Equal[NULL]} || !${missionStatus.Length}) {
-		| Load the mission
+	| Load the mission
 		/call MissionLoad
 	} else /if (${missionStatus.Equal[LOADED]}) {
-		| Check in with followers, wait for all to be running
+	| Check in with followers, wait for all to be running
 		/if (${missionAmLeader}) {
 			/varset missionActionMaxAttempts 6
 			/varcalc missionActionAttempts ${missionActionAttempts} + 1
-			
+
 			/call MissionFollowerStatus ALL LOADED
 			/if (${Macro.Return.Equal[FALSE]}) {
 				/call MissionFollowerStatus ANY LOADFAILED
@@ -6162,7 +6792,7 @@ Sub MissionModeHandler
 			/if (${Window[TaskWnd].Open}) {
 				/for mmLoop 1 to ${Window[TaskWnd].Child[TASK_TaskList].Items}
 					/if (${Window[TaskWnd].Child[TASK_TaskList].List[${mmLoop},2].Equal[${missionName}]}) {
-						| Already have the mission
+					| Already have the mission
 						/windowstate TaskWnd close
 						/delay 5s !${Window[TaskWnd].Open}
 						/varset missionStatus REQUESTDONE
@@ -6176,7 +6806,7 @@ Sub MissionModeHandler
 				/delay 2s ${Target.CleanName.Find[${missionRequestNPC}]}
 				/if (${Target.CleanName.Find[${missionRequestNPC}]}) {
 					/if (${Target.Distance} > 20) {
-						| To far from the NPC
+					| To far from the NPC
 						/call EchoLog "To far from ${missionRequestNPC} to request the mission."
 						/varset missionActionAttempts 0
 						/varset missionActionMaxAttempts 0
@@ -6186,7 +6816,7 @@ Sub MissionModeHandler
 						/say ${missionRequestText}
 						/delay 5s ${Window[TaskSelectWnd].Open}
 						/if (${Window[TaskSelectWnd].Open}) {
-							| Mission names with commas will cause problems here, should probably fix that
+						| Mission names with commas will cause problems here, should probably fix that
 							/for mmLoop 1 to ${Window[TaskSelectWnd].Child[TSEL_TaskList].Items}
 								/if (${Window[TaskSelectWnd].Child[TSEL_TaskList].List[${mmLoop}].Equal[${missionName}]}) {
 									/notify TaskSelectWnd TSEL_TaskList listselect ${mmLoop}
@@ -6290,682 +6920,703 @@ Sub MissionModeHandler
 		/if (${Macro.Return.Equal[ACTION_CONDITION_FAIL]}) {
 			/varset missionStatus COMPLETEACTION
 		} else /if (${Macro.Return.Equal[ACTION_NOT_FOUND]}) {
-			| Mission must be completed
+		| Mission must be completed
 			/varset missionStatus COMPLETEMISSION
 		} else {
-			
+
 		}
-		
+
 		/varset missionPrimaryActionCompleted FALSE
-		
+
 		/if (${missionActionLootMobs}) {
 			/for mmLoop 1 to ${missionActionItem.Size[1]}
 				/if (${missionActionItem[${mmLoop},1].NotEqual[NULL]}) /ini "${lootININame}" ${missionActionItem[${mmLoop},1].Left[1]} "${missionActionItem[${mmLoop},1]}" KEEP
 				/call GetItemCount "${missionActionItem[${mmLoop},1]}"
 				/varset missionActionItem[${mmLoop},3] ${Macro.Return}
-			/if (${missionActionItem[${mmLoop},1].NotEqual[NULL]}) /next mmLoop
-		}
-		
-		/if (${missionActionKillCounts}) {
-			/varset trackKills TRUE
-			/for mmLoop 1 to ${missionActionPullNPC.Size[1]}
-				/if (${missionActionPullNPC[${mmLoop},1].NotEqual[NULL]}) /call TrackKillReset "${missionActionPullNPC[${mmLoop},1]}" TRUE
-			/if (${missionActionPullNPC[${mmLoop},1].NotEqual[NULL]}) /next mmLoop
-		}
-		
-		| Execute mission leader only stuff
-		/if (${missionAmLeader}) {
-			/varset missionActionMaxTimer ${missionActionMaxTime}
-			/if (${missionActionLootMobs}) {
-				/call MissionCommandSend ALL "Loot OFF" FALSE
-				/delay 2
-				/if (!${Select[${missionActionLooter},NULL,ALL,LEADER]}) {
-					/call MissionCommandSend ${missionActionLooter} "Loot ON" FALSE
-				} else /if (${missionActionLooter.Equal[LEADER]} || ${missionActionLooter.Equal[NULL]}) {
-					/varset lootCorpses TRUE
-				}
+				/if (${missionActionItem[${mmLoop},1].NotEqual[NULL]}) /next mmLoop
 			}
 
-			/call missionCommandSend ALL "Pull OFF" FALSE
-			/delay 2
-			/if (${missionActionType.Equal[PULL]}) {
-				/if (${pullerName.NotEqual[${Me.CleanName}]}) {
-					/call MissionCommandSend ${pullerName} "pullradius ${missionActionTargetRadius}" FALSE
-					/delay 2
-					/call MissionCommandSend ${pullerName} "pull ${missionActionPullPath}" FALSE
-					
-					/if (${missionActionPullLimit}) {
-						/delay 2
-						/call MissionCommandSend ${pullerName} "pulllimit clear" FALSE
-						/delay 2
-						/for mmLoop 1 to ${missionActionPullNPC.Size[1]}
-							/if (${missionActionPullNPC[${mmLoop},1].NotEqual[NULL]}) /call MissionCommandSend ${pullerName} "pulllimit add ${missionActionPullNPC[${mmLoop},1]}" FALSE
-							/delay 2
-						/if (${missionActionPullNPC[${mmLoop},1].NotEqual[NULL]}) /next mmLoop
-					}
-				} else {
-					/varset pullRadius ${missionActionTargetRadius}
-					/squelch /alert clear ${pullTargetAlert}
-					/for mmLoop 1 to ${missionActionPullNPC.Size[1]}
-						/if (${missionActionPullNPC[${mmLoop},1].NotEqual[NULL]}) /squelch /alert add ${pullTargetAlert} ${missionActionPullNPC[${mmLoop},1]}
+			/if (${missionActionKillCounts}) {
+				/varset trackKills TRUE
+				/for mmLoop 1 to ${missionActionPullNPC.Size[1]}
+					/if (${missionActionPullNPC[${mmLoop},1].NotEqual[NULL]}) /call TrackKillReset "${missionActionPullNPC[${mmLoop},1]}" TRUE
 					/if (${missionActionPullNPC[${mmLoop},1].NotEqual[NULL]}) /next mmLoop
-					/echo pull ${missionActionPullPath}
 				}
-			}
-			
-			/if (${missionActionCompleteBy.Equal[ALL]} && !${missionActionByCommand}) {
-				/call MissionCommandSend ALL "SETACTION ${missionCurrentAction}"
-			} else {
-				/call MissionCommandSend ALL "SETSTATUS IDLEACTION"
-			}
-		}
-		
-		| Do Pre Commands
-		/for mmLoop 1 to ${missionActionPreCommand.Size[1]}
-			/if (${missionActionPreCommand.NotEqual[NULL]}) /docommand ${missionActionPreCommand[${mmLoop}]}
-		/next mmLoop
-		
-		| If we need to move for this mission
-		/if (${missionActionPathName.NotEqual[NULL]} || (${missionActionLocX.NotEqual[NULL]} && ${missionActionLocY.NotEqual[NULL]})) {
-			/if (${missionActionFollowLeader} && ${missionAmLeader}) {
-				/call MissionSendCommand ALL "Follow me" FALSE
-				/delay 1s
-			}
-			/if (${missionAmLeader} || !${missionActionFollowLeader}) {
-				/if (${missionActionPathName.NotEqual[NULL]}) {
-					/call LoadPath ${missionActionPathName}
-					/call SetNearestLoc
-					/call Movement ${curLoc} ${maxLoc}
-				} else /if (${missionActionLocX.NotEqual[NULL]} && ${missionActionLocY.NotEqual[NULL]}) {
-					/call MoveToLoc ${missionActionLocY} ${missionActionLocX}${If[${missionActionLocZ.NotEqual[NULL]},FALSE ${missionActionLocZ},]}
-				}
-			}
-			/if (${missionActionFollowLeader} && ${missionAmLeader}) /call MissionSendCommand ALL "stay" FALSE
-		}
-		
-		/if (${missionActionLooter.Equal[ALL]}) /echo loot on
 
-		/varset missionStatus DOACTION
-		| Possibly look into having CompleteBy as a comma separated list so that only certian characters have to complete it?
-	} else /if (${missionStatus.Equal[DOACTION]}) {
-		/declare killCountsComplete			bool local TRUE
-		/declare lootCountsComplete			bool local TRUE
-		/declare giveItemCount					int local 0
-		| HAIL - hail a specified NPC 
-		| SPEAK - speak to a specified NPC saying specified text
-		| MOVE - move
-		| MAKECAMP - make a camp at the area, usually for the purpose of pulling mobs to
-		| PULL - pull mobs (more on filters for what to pull later, also, only the bot configured as puller will PULL during a PULL action)
-		| IDLE - just stand around and wait (bots will engage in combat if they are engaged), use this also if the group should med / heal up before moving to the next action
-		| GIVE - give items to an NPC
-		| USEITEM - Use specified items (right click them, from your inventory, if you need to interact with world objects that can be handled in the recorded path and set as PathName)
-		/if (!${missionPrimaryActionCompleted}) {		
-			/if (${Select[${missionActionType},HAIL,SPEAK,GIVE]}) {
-				/squelch /target npc ${missionActionTargetNPC}
-				/delay 2s ${Target.CleanName.Find[${missionActionTargetNPC}]}
-				/if (${Target.CleanName.Find[${missionActionTargetNPC}]}) {
-					/squelch /stick 15
-					/delay 5s ${Target.Distance} <= 20
-					/squelch /stick off
-					/if (${missionActionType.Equal[HAIL]}) {
-						/hail
-					} else /if (${missionActionType.Equal[SPEAK]}) {
-						/say ${missionActionSpeakText}
-					} else /if (${missionActionType.Equal[GIVE]}) {
-						/call Open_Packs
-						/for mmLoop 1 to ${missionActionItem.Size[1]}
-							/if (${missionActionItem[${mmLoop},1].NotEqual[NULL]}) {
-								/for mmInt 1 to ${If[${missionActionItem[${mmLoop},2]}==0,1,${missionActionItem[${mmLoop},2]}]}
-									/if (${FindItem[${missionActionItem[${mmLoop},1]}].ID}) {
-										:mmPickupItem
-											/ctrlkey /itemnotify "${missionActionItem[${mmLoop},1]}" leftmouseup
-											/delay 2s ${Cursor.ID}
-											/if (${Cursor.ID}) {
-												/click left target
-												/delay 2s ${Window[GiveWnd].Open}
-												/varcalc giveItemCount ${giveItemCount} + 1
-											} else {
-												/goto :mmPickupItem
-											}
-									} else {
-										| Don't have the item??
-									}
-									/if (${giveItemCount}>=4) {
-										:mmWaitForGive
-											/notify GiveWnd GVW_Give_Button leftmouseup 
-											/delay 1s !${Window[GiveWnd].Open}
-										/if (${Window[GiveWnd].Open}) /goto :mmWaitForGive
-										/varset giveItemCount 0
-									}
-								/next mmInt
-							}
-							/if (${giveItemCount}>=4) {
-								:mmWaitForGive1
-									/notify GiveWnd GVW_Give_Button leftmouseup 
-									/delay 1s !${Window[GiveWnd].Open}
-								/if (${Window[GiveWnd].Open}) /goto :mmWaitForGive1
-								/varset giveItemCount 0
-							}							
-						/next mmLoop
-						/if (${Window[GiveWnd].Open}) {
-							:mmWaitForGive2
-								/notify GiveWnd GVW_Give_Button leftmouseup 
-								/delay 1s !${Window[GiveWnd].Open}
-							/if (${Window[GiveWnd].Open}) /goto :mmWaitForGive2
-							/varset giveItemCount 0
-						}
-					}
-					/varset missionPrimaryActionCompleted TRUE
-				}
-			} else /if (${missionActionType.Equal[MAKECAMP]}) {
-				| Perhaps change this to actually emulating the stay command instead of echoing it?				
-				/echo stay
-				/varset missionPrimaryActionCompleted TRUE
-			} else /if (${missionActionType.Equal[USEITEM]}) {
-				/for mmLoop 1 to ${missionActionItem.Size[1]}
-					/if (${missionActionItem[${mmLoop},1].NotEqual[NULL]}) {
-						/for mmInt 1 to ${If[${missionActionItem[${mmLoop},2]}==0,1,${missionActionItem[${mmLoop},2]}]}
-							/call MQ2Cast "${missionActionItem[${mmLoop},1]}" ITEM
-							/delay 3
-						/next mmInt
-					}
-				/next mmLoop
-				/varset missionPrimaryActionCompleted TRUE
-			} else /if (${missionActionType.Equal[PULL]}) {
-				| Track Kill count / Loot count
-				/if (${missionActionKillCounts}) {
-					/for mmLoop 1 to ${missionActionPullNPC.Size[1]}
-						/if (${missionActionPullNPC[${mmLoop},1].NotEqual[NULL]}) {
-							/call TrackKillCount "${missionActionPullNPC[${mmLoop},1]}"
-							/if (${Macro.Return} < ${missionActionPullNPC[${mmLoop},2]}) /varset killCountsComplete FALSE
-						}
-					/if (${missionActionPullNPC[${mmLoop},1].NotEqual[NULL]} && ${killCountsComplete}) /next mmLoop
-				}
-				/if (${missionActionLootMobs}) {
-					/for mmLoop 1 to ${missionActionItem.Size[1]}
-						/call GetItemCount "${missionActionItem[${mmLoop},1]}"
-						/if (${Math.Calc[${Macro.Return}-${missionActionItem[${mmLoop},3]}]} < ${missionActionItem[${mmLoop},2]}) /varset lootCountsComplete FALSE
-					/if (${missionActionItem[${mmLoop},1].NotEqual[NULL]} && ${lootCountsComplete}) /next mmLoop
-				}				
-				
-				/if (${lootCountsComplete} && ${killCountsComplete}) /varset missionPrimaryActionCompleted TRUE
-			} else {
-				| MOVE,IDLE, unrecognized, these don't require any further actual actions right now
-				/varset missionPrimaryActionCompleted TRUE
-			}
-		}
-		
-		| Check complete rules for setting missionStatus to COMPLETEACTION
-		/if (${missionActionCompleteConditionCount}) {
-			/declare completeConditionsMet		int local 0
-			/declare completeConditionRequire	int local 0
-			/declare groupMeets								bool local FALSE
-			
-			/call MissionCommandSend ALL GETSTATS
-			/if (${missionActionCompleteConditionRequire.Equal[ALL]}) {
-				/varset completeConditionRequire ${missionActionCompleteConditionCount}
-			} else /if (${missionActionCompleteConditionRequire.Equal[ANY]}) {
-				/varset completeConditionRequire 1
-			} else {
-				/varset completeConditionRequire ${missionActionCompleteConditionRequire}
-			}
-			| KILLCOUNT - this condition will be true when it has met the KillCount specified for all PullNPCs.  If any KillCounts are set to 0 this will never be TRUE.
-			| LOOTCOUNT - this condition will be true when all the LootItemCounts have been met for the LootItems.  If any LootItemCounts are 0 this will never be TRUE.
-			| MANA>XX - condition is completed if mana is greater than or equal to XX, so if you want to say a completed condition is when mana is at 100% you would use MANA>100
-			| HP>XX - same as mana, except for hitpoints
-			| ENDURANCE>XX - same as mana and HP, except for endurance			
-			/for mmLoop 1 to ${missionActionCompleteConditionCount}
-				/if (${missionActionCompleteCondition[${mmLoop}].Equal[KILLCOUNT]}) {
-					| Track Kill count / Loot count
-					/if (${missionActionKillCounts}) {
-						/varset killCountsComplete TRUE
-						/for mmLoop 1 to ${missionActionPullNPC.Size[1]}
-							/if (${missionActionPullNPC[${mmLoop},1].NotEqual[NULL]}) {
-								/call TrackKillCount "${missionActionPullNPC[${mmLoop},1]}"
-								/if (${Macro.Return} < ${missionActionPullNPC[${mmLoop},2]}) /varset killCountsComplete FALSE
-							}
-						/if (${missionActionPullNPC[${mmLoop},1].NotEqual[NULL]} && ${killCountsComplete}) /next mmLoop
-						/if (${killCountsComplete}) /varcalc completeConditionsMet ${completeConditionsMet} + 1
-					} else {
-						/varcalc completeConditionsMet ${completeConditionsMet} + 1
-					}
-				} else /if (${missionActionCompleteCondition[${mmLoop}].Equal[LOOTCOUNT]}) {
+			| Execute mission leader only stuff
+				/if (${missionAmLeader}) {
+					/varset missionActionMaxTimer ${missionActionMaxTime}
 					/if (${missionActionLootMobs}) {
-						/varset lootCountsComplete TRUE
-						/for mmLoop 1 to ${missionActionItem.Size[1]}
-							/call GetItemCount "${missionActionItem[${mmLoop},1]}"
-							/if (${Math.Calc[${Macro.Return}-${missionActionItem[${mmLoop},3]}]} < ${missionActionItem[${mmLoop},2]}) /varset lootCountsComplete FALSE
-						/if (${missionActionItem[${mmLoop},1].NotEqual[NULL]} && ${lootCountsComplete}) /next mmLoop
-							/if (${lootCountsComplete}) /varcalc completeConditionsMet ${completeConditionsMet} + 1
-					}	else {
-						/varcalc completeConditionsMet ${completeConditionsMet} + 1
+						/call MissionCommandSend ALL "Loot OFF" FALSE
+						/delay 2
+						/if (!${Select[${missionActionLooter},NULL,ALL,LEADER]}) {
+							/call MissionCommandSend ${missionActionLooter} "Loot ON" FALSE
+						} else /if (${missionActionLooter.Equal[LEADER]} || ${missionActionLooter.Equal[NULL]}) {
+							/varset lootCorpses TRUE
+						}
 					}
-				} else /if (${missionActionCompleteCondition[${mmLoop}].Left[5].Equal[MANA>]}) {
-					/if (${missionCompleteBy.Equal[LEADER]} && ${missionAmLeader}) {
-						/call MissionFollowerStatus STATMANA ${missionActionCompleteCondition[${mmLoop}].Replace[MANA>,]}
-						/if (${Macro.Return.Equal[TRUE]}) /varcalc completeConditionsMet ${completeConditionsMet} + 1
-					} else {
-						/if (${Me.PctMana} >= ${missionActionCompleteCondition[${mmLoop}].Replace[MANA>,]}) /varcalc completeConditionsMet ${completeConditionsMet} + 1
-					}
-				} else /if (${missionActionCompleteCondition[${mmLoop}].Left[3].Equal[HP>]}) {
-					/if (${missionCompleteBy.Equal[LEADER]} && ${missionAmLeader}) {
-						/call MissionFollowerStatus STATHP ${missionActionCompleteCondition[${mmLoop}].Replace[HP>,]}
-						/if (${Macro.Return.Equal[TRUE]}) /varcalc completeConditionsMet ${completeConditionsMet} + 1						
-					} else {
-						/if (${Me.PctHPs} >= ${missionActionCompleteCondition[${mmLoop}].Replace[HP>,]}) /varcalc completeConditionsMet ${completeConditionsMet} + 1
-					}					
-				} else /if (${missionActionCompleteCondition[${mmLoop}].Left[10].Equal[ENDURANCE>]}) {
-					/if (${missionCompleteBy.Equal[LEADER]} && ${missionAmLeader}) {
-						/call MissionFollowerStatus STATENDURANCE ${missionActionCompleteCondition[${mmLoop}].Replace[ENDURANCE>,]}
-						/if (${Macro.Return.Equal[TRUE]}) /varcalc completeConditionsMet ${completeConditionsMet} + 1						
-					} else {
-						/if (${Me.PctEndurance} >= ${missionActionCompleteCondition[${mmLoop}].Replace[ENDURANCE>,]}) /varcalc completeConditionsMet ${completeConditionsMet} + 1
-					}					
-				} else {
-					/if (${${Ini[${missionINI},Action${missionCurrentAction},CompleteCondition${mmLoop},FALSE]}}) /varcalc completeConditionsMet ${completeConditionsMet} + 1
+
+					/call missionCommandSend ALL "Pull OFF" FALSE
+					/delay 2
+					/if (${missionActionType.Equal[PULL]}) {
+						/if (${pullerName.NotEqual[${Me.CleanName}]}) {
+							/call MissionCommandSend ${pullerName} "pullradius ${missionActionTargetRadius}" FALSE
+							/delay 2
+							/call MissionCommandSend ${pullerName} "pull ${missionActionPullPath}" FALSE
+
+							/if (${missionActionPullLimit}) {
+								/delay 2
+								/call MissionCommandSend ${pullerName} "pulllimit clear" FALSE
+								/delay 2
+								/for mmLoop 1 to ${missionActionPullNPC.Size[1]}
+									/if (${missionActionPullNPC[${mmLoop},1].NotEqual[NULL]}) /call MissionCommandSend ${pullerName} "pulllimit add ${missionActionPullNPC[${mmLoop},1]}" FALSE
+									/delay 2
+									/if (${missionActionPullNPC[${mmLoop},1].NotEqual[NULL]}) /next mmLoop
+								}
+							} else {
+								/varset pullRadius ${missionActionTargetRadius}
+								/squelch /alert clear ${pullTargetAlert}
+								/for mmLoop 1 to ${missionActionPullNPC.Size[1]}
+									/if (${missionActionPullNPC[${mmLoop},1].NotEqual[NULL]}) /squelch /alert add ${pullTargetAlert} ${missionActionPullNPC[${mmLoop},1]}
+									/if (${missionActionPullNPC[${mmLoop},1].NotEqual[NULL]}) /next mmLoop
+									/echo pull ${missionActionPullPath}
+								}
+							}
+
+							/if (${missionActionCompleteBy.Equal[ALL]} && !${missionActionByCommand}) {
+								/call MissionCommandSend ALL "SETACTION ${missionCurrentAction}"
+							} else {
+								/call MissionCommandSend ALL "SETSTATUS IDLEACTION"
+							}
+						}
+
+					| Do Pre Commands
+						/for mmLoop 1 to ${missionActionPreCommand.Size[1]}
+							/if (${missionActionPreCommand.NotEqual[NULL]}) /docommand ${missionActionPreCommand[${mmLoop}]}
+						/next mmLoop
+
+					| If we need to move for this mission
+						/if (${missionActionPathName.NotEqual[NULL]} || (${missionActionLocX.NotEqual[NULL]} && ${missionActionLocY.NotEqual[NULL]})) {
+							/if (${missionActionFollowLeader} && ${missionAmLeader}) {
+								/call MissionSendCommand ALL "Follow me" FALSE
+								/delay 1s
+							}
+							/if (${missionAmLeader} || !${missionActionFollowLeader}) {
+								/if (${missionActionPathName.NotEqual[NULL]}) {
+									/call LoadPath ${missionActionPathName}
+									/call SetNearestLoc
+									/call Movement ${curLoc} ${maxLoc}
+								} else /if (${missionActionLocX.NotEqual[NULL]} && ${missionActionLocY.NotEqual[NULL]}) {
+									/call MoveToLoc ${missionActionLocY} ${missionActionLocX}${If[${missionActionLocZ.NotEqual[NULL]},FALSE ${missionActionLocZ},]}
+								}
+							}
+							/if (${missionActionFollowLeader} && ${missionAmLeader}) /call MissionSendCommand ALL "stay" FALSE
+						}
+
+						/if (${missionActionLooter.Equal[ALL]}) /echo loot on
+
+						/varset missionStatus DOACTION
+					| Possibly look into having CompleteBy as a comma separated list so that only certian characters have to complete it?
+					} else /if (${missionStatus.Equal[DOACTION]}) {
+						/declare killCountsComplete			bool local TRUE
+						/declare lootCountsComplete			bool local TRUE
+						/declare giveItemCount					int local 0
+					| HAIL - hail a specified NPC
+					| SPEAK - speak to a specified NPC saying specified text
+					| MOVE - move
+					| MAKECAMP - make a camp at the area, usually for the purpose of pulling mobs to
+					| PULL - pull mobs (more on filters for what to pull later, also, only the bot configured as puller will PULL during a PULL action)
+					| IDLE - just stand around and wait (bots will engage in combat if they are engaged), use this also if the group should med / heal up before moving to the next action
+					| GIVE - give items to an NPC
+					| USEITEM - Use specified items (right click them, from your inventory, if you need to interact with world objects that can be handled in the recorded path and set as PathName)
+						/if (!${missionPrimaryActionCompleted}) {
+							/if (${Select[${missionActionType},HAIL,SPEAK,GIVE]}) {
+								/squelch /target npc ${missionActionTargetNPC}
+								/delay 2s ${Target.CleanName.Find[${missionActionTargetNPC}]}
+								/if (${Target.CleanName.Find[${missionActionTargetNPC}]}) {
+									/squelch /stick 15
+									/delay 5s ${Target.Distance} <= 20
+									/squelch /stick off
+									/if (${missionActionType.Equal[HAIL]}) {
+										/hail
+									} else /if (${missionActionType.Equal[SPEAK]}) {
+										/say ${missionActionSpeakText}
+									} else /if (${missionActionType.Equal[GIVE]}) {
+										/call Open_Packs
+										/for mmLoop 1 to ${missionActionItem.Size[1]}
+											/if (${missionActionItem[${mmLoop},1].NotEqual[NULL]}) {
+												/for mmInt 1 to ${If[${missionActionItem[${mmLoop},2]}==0,1,${missionActionItem[${mmLoop},2]}]}
+													/if (${FindItem[${missionActionItem[${mmLoop},1]}].ID}) {
+													:mmPickupItem
+														/ctrlkey /itemnotify "${missionActionItem[${mmLoop},1]}" leftmouseup
+														/delay 2s ${Cursor.ID}
+														/if (${Cursor.ID}) {
+															/click left target
+															/delay 2s ${Window[GiveWnd].Open}
+															/varcalc giveItemCount ${giveItemCount} + 1
+														} else {
+															/goto :mmPickupItem
+														}
+													} else {
+													| Don't have the item??
+													}
+													/if (${giveItemCount}>=4) {
+													:mmWaitForGive
+														/notify GiveWnd GVW_Give_Button leftmouseup
+														/delay 1s !${Window[GiveWnd].Open}
+														/if (${Window[GiveWnd].Open}) /goto :mmWaitForGive
+														/varset giveItemCount 0
+													}
+												/next mmInt
+											}
+											/if (${giveItemCount}>=4) {
+											:mmWaitForGive1
+												/notify GiveWnd GVW_Give_Button leftmouseup
+												/delay 1s !${Window[GiveWnd].Open}
+												/if (${Window[GiveWnd].Open}) /goto :mmWaitForGive1
+												/varset giveItemCount 0
+											}
+										/next mmLoop
+										/if (${Window[GiveWnd].Open}) {
+										:mmWaitForGive2
+											/notify GiveWnd GVW_Give_Button leftmouseup
+											/delay 1s !${Window[GiveWnd].Open}
+											/if (${Window[GiveWnd].Open}) /goto :mmWaitForGive2
+											/varset giveItemCount 0
+										}
+									}
+									/varset missionPrimaryActionCompleted TRUE
+								}
+							} else /if (${missionActionType.Equal[MAKECAMP]}) {
+							| Perhaps change this to actually emulating the stay command instead of echoing it?
+								/echo stay
+								/varset missionPrimaryActionCompleted TRUE
+							} else /if (${missionActionType.Equal[USEITEM]}) {
+								/for mmLoop 1 to ${missionActionItem.Size[1]}
+									/if (${missionActionItem[${mmLoop},1].NotEqual[NULL]}) {
+										/for mmInt 1 to ${If[${missionActionItem[${mmLoop},2]}==0,1,${missionActionItem[${mmLoop},2]}]}
+											/call Debug 2 "MQ2Cast --> ${missionActionItem[${mmLoop},1]} ITEM Sub: ${CurrentSub}"
+											/call MQ2Cast "${missionActionItem[${mmLoop},1]}" ITEM
+											/delay 3
+										/next mmInt
+									}
+								/next mmLoop
+								/varset missionPrimaryActionCompleted TRUE
+							} else /if (${missionActionType.Equal[PULL]}) {
+							| Track Kill count / Loot count
+								/if (${missionActionKillCounts}) {
+									/for mmLoop 1 to ${missionActionPullNPC.Size[1]}
+										/if (${missionActionPullNPC[${mmLoop},1].NotEqual[NULL]}) {
+											/call TrackKillCount "${missionActionPullNPC[${mmLoop},1]}"
+											/if (${Macro.Return} < ${missionActionPullNPC[${mmLoop},2]}) /varset killCountsComplete FALSE
+										}
+										/if (${missionActionPullNPC[${mmLoop},1].NotEqual[NULL]} && ${killCountsComplete}) /next mmLoop
+									}
+									/if (${missionActionLootMobs}) {
+										/for mmLoop 1 to ${missionActionItem.Size[1]}
+											/call GetItemCount "${missionActionItem[${mmLoop},1]}"
+											/if (${Math.Calc[${Macro.Return}-${missionActionItem[${mmLoop},3]}]} < ${missionActionItem[${mmLoop},2]}) /varset lootCountsComplete FALSE
+											/if (${missionActionItem[${mmLoop},1].NotEqual[NULL]} && ${lootCountsComplete}) /next mmLoop
+										}
+
+										/if (${lootCountsComplete} && ${killCountsComplete}) /varset missionPrimaryActionCompleted TRUE
+									} else {
+									| MOVE,IDLE, unrecognized, these don't require any further actual actions right now
+										/varset missionPrimaryActionCompleted TRUE
+									}
+								}
+
+							| Check complete rules for setting missionStatus to COMPLETEACTION
+								/if (${missionActionCompleteConditionCount}) {
+									/declare completeConditionsMet		int local 0
+									/declare completeConditionRequire	int local 0
+									/declare groupMeets								bool local FALSE
+
+									/call MissionCommandSend ALL GETSTATS
+									/if (${missionActionCompleteConditionRequire.Equal[ALL]}) {
+										/varset completeConditionRequire ${missionActionCompleteConditionCount}
+									} else /if (${missionActionCompleteConditionRequire.Equal[ANY]}) {
+										/varset completeConditionRequire 1
+									} else {
+										/varset completeConditionRequire ${missionActionCompleteConditionRequire}
+									}
+								| KILLCOUNT - this condition will be true when it has met the KillCount specified for all PullNPCs.  If any KillCounts are set to 0 this will never be TRUE.
+								| LOOTCOUNT - this condition will be true when all the LootItemCounts have been met for the LootItems.  If any LootItemCounts are 0 this will never be TRUE.
+								| MANA>XX - condition is completed if mana is greater than or equal to XX, so if you want to say a completed condition is when mana is at 100% you would use MANA>100
+								| HP>XX - same as mana, except for hitpoints
+								| ENDURANCE>XX - same as mana and HP, except for endurance
+									/for mmLoop 1 to ${missionActionCompleteConditionCount}
+										/if (${missionActionCompleteCondition[${mmLoop}].Equal[KILLCOUNT]}) {
+										| Track Kill count / Loot count
+											/if (${missionActionKillCounts}) {
+												/varset killCountsComplete TRUE
+												/for mmLoop 1 to ${missionActionPullNPC.Size[1]}
+													/if (${missionActionPullNPC[${mmLoop},1].NotEqual[NULL]}) {
+														/call TrackKillCount "${missionActionPullNPC[${mmLoop},1]}"
+														/if (${Macro.Return} < ${missionActionPullNPC[${mmLoop},2]}) /varset killCountsComplete FALSE
+													}
+													/if (${missionActionPullNPC[${mmLoop},1].NotEqual[NULL]} && ${killCountsComplete}) /next mmLoop
+													/if (${killCountsComplete}) /varcalc completeConditionsMet ${completeConditionsMet} + 1
+												} else {
+													/varcalc completeConditionsMet ${completeConditionsMet} + 1
+												}
+											} else /if (${missionActionCompleteCondition[${mmLoop}].Equal[LOOTCOUNT]}) {
+												/if (${missionActionLootMobs}) {
+													/varset lootCountsComplete TRUE
+													/for mmLoop 1 to ${missionActionItem.Size[1]}
+														/call GetItemCount "${missionActionItem[${mmLoop},1]}"
+														/if (${Math.Calc[${Macro.Return}-${missionActionItem[${mmLoop},3]}]} < ${missionActionItem[${mmLoop},2]}) /varset lootCountsComplete FALSE
+														/if (${missionActionItem[${mmLoop},1].NotEqual[NULL]} && ${lootCountsComplete}) /next mmLoop
+														/if (${lootCountsComplete}) /varcalc completeConditionsMet ${completeConditionsMet} + 1
+														}	else {
+															/varcalc completeConditionsMet ${completeConditionsMet} + 1
+														}
+													} else /if (${missionActionCompleteCondition[${mmLoop}].Left[5].Equal[MANA>]}) {
+														/if (${missionCompleteBy.Equal[LEADER]} && ${missionAmLeader}) {
+															/call MissionFollowerStatus STATMANA ${missionActionCompleteCondition[${mmLoop}].Replace[MANA>,]}
+															/if (${Macro.Return.Equal[TRUE]}) /varcalc completeConditionsMet ${completeConditionsMet} + 1
+														} else {
+															/if (${Me.PctMana} >= ${missionActionCompleteCondition[${mmLoop}].Replace[MANA>,]}) /varcalc completeConditionsMet ${completeConditionsMet} + 1
+														}
+													} else /if (${missionActionCompleteCondition[${mmLoop}].Left[3].Equal[HP>]}) {
+														/if (${missionCompleteBy.Equal[LEADER]} && ${missionAmLeader}) {
+															/call MissionFollowerStatus STATHP ${missionActionCompleteCondition[${mmLoop}].Replace[HP>,]}
+															/if (${Macro.Return.Equal[TRUE]}) /varcalc completeConditionsMet ${completeConditionsMet} + 1
+														} else {
+															/if (${Me.PctHPs} >= ${missionActionCompleteCondition[${mmLoop}].Replace[HP>,]}) /varcalc completeConditionsMet ${completeConditionsMet} + 1
+														}
+													} else /if (${missionActionCompleteCondition[${mmLoop}].Left[10].Equal[ENDURANCE>]}) {
+														/if (${missionCompleteBy.Equal[LEADER]} && ${missionAmLeader}) {
+															/call MissionFollowerStatus STATENDURANCE ${missionActionCompleteCondition[${mmLoop}].Replace[ENDURANCE>,]}
+															/if (${Macro.Return.Equal[TRUE]}) /varcalc completeConditionsMet ${completeConditionsMet} + 1
+														} else {
+															/if (${Me.PctEndurance} >= ${missionActionCompleteCondition[${mmLoop}].Replace[ENDURANCE>,]}) /varcalc completeConditionsMet ${completeConditionsMet} + 1
+														}
+													} else {
+														/if (${${Ini[${missionINI},Action${missionCurrentAction},CompleteCondition${mmLoop},FALSE]}}) /varcalc completeConditionsMet ${completeConditionsMet} + 1
+													}
+												/next mmLoop
+
+												/if (${completeConditionsMet} >= ${completeConditionRequire}) {
+												| CompleteConditions met, Action is completed
+													/varset missionPrimaryActionCompleted TRUE
+													/varset missionStatus COMPLETEACTION
+												} else {
+													/varset missionWaitTimer 30s
+												}
+											} else /if (${missionPrimaryActionCompleted}) {
+											| No CompleteConditions, primary action completed so move to COMPLETEACTION
+												/varset missionStatus COMPLETEACTION
+											}
+										} else /if (${missionStatus.Equal[COMPLETEACTION]}) {
+											/if (${missionPrimaryActionCompleted}) {
+											| Do Post Commands
+												/for mmLoop 1 to ${missionActionPostCommand.Size[1]}
+													/if (${missionActionPostCommand.NotEqual[NULL]}) /docommand ${missionActionPostCommand[${mmLoop}]}
+												/next mmLoop
+											}
+
+											/if (${missionAmLeader}) {
+												/if (${missionActionCompleteBy.Equal[LEADER]}) {
+													/varcalc missionCurrentAction ${missionCurrentAction} + 1
+													/varset missionWaitTimer ${missionActionCompleteDelay}
+													/varset missionStatus STARTACTION
+												} else {
+													/varset missionStatus COMPLETEDWAITACTION
+												}
+											} else {
+												/call MissionCommandSend LEADER "STATUS COMPLETEDWAITACTION"
+												/varset missionStatus COMPLETEDWAITACTION
+											}
+										} else /if (${missionStatus.Equal[COMPLETEDWAITACTION]}) {
+											/declare allCompleted				bool local FALSE
+											/declare waitingOnCompleted	bool local FALSE
+
+											/if (${missionAmLeader}) {
+												/if (${missionActionByCommand}) {
+													/if (${missionWaitingOn.NotEqual[NULL]}) {
+														/call MissionFollowerStatus ${missionWaitingOn} COMPLETEDWAITACTION
+														/if (${Macro.Return.Equal[TRUE]}) /varset waitingOnCompleted TRUE
+													}
+													/if (!${waitingOnCompleted}) {
+														/call MissionFollowerStatus FIND IDLEACTION
+														/if (${Macro.Return.NotEqual[NULL]}) {
+														| Should return the first follower that is not currently on IDLEACTION
+															/call MissionCommandSend ${Macro.Return} "SETACTION ${missionCurrentAction}"
+															/call MissionFollowerStatus ${Macro.Return} "DOACTION" TRUE
+															/varset missionWaitingOn ${Macro.Return}
+														} else {
+															/call MissionFollowerStatus ALL COMPLETEDWAITACTION
+															/if (${Macro.Return.NotEqual[TRUE]}) /varset allCompleted TRUE
+														}
+													}
+												} else {
+												| Wait for everyone to complete the action
+													/call MissionFollowerStatus ALL COMPLETEDWAITACTION
+													/if (${Macro.Return.Equal[FALSE]}) /varset allCompleted TRUE
+												}
+												/if (${allCompleted}) {
+												| Move on to the next action
+													/varset missionWaitingOn NULL
+													/varcalc missionCurrentAction ${missionCurrentAction} + 1
+													/varset missionWaitTimer ${missionActionCompleteDelay}
+													/varset missionWaitCondition NULL
+													/varset missionStatus STARTACTION
+												} else {
+													/varset missionWaitTimer 30s
+													/varset missionWaitCondition NULL
+												}
+											}
+										} else /if (${missionStatus.Equal[IDLEACTION]}) {
+										| Idle
+										} else /if (${missionStatus.Equal[COMPLETEMISSION]}) {
+										| Mission completed, clean up and do reset or camp depending on CompleteAction
+											/if (${missionAmLeader} && ${Select[${missionCompleteAction},CAMP,CAMPDESKTOP,ENDMACRO]}) /call MissionCommandSend ALL "SETSTATUS COMPLETEMISSION"
+
+											/varset missionCurrentAction 0
+											/varset missionWaitTimer 0s
+											/varset missionWaitCondition NULL
+											/if (${missionCompleteAction.Equal[CAMP]}) {
+												/camp
+												/endmacro
+											} else /if (${missionCompleteAction.Equal[CAMPDESKTOP]}) {
+												/camp desktop
+												/endmacro
+											} else /if (${missionCompleteAction.Equal[ENDMACRO]}) {
+												/endmacro
+											} else /if (${missionCompleteAction.Equal[IDLE]}) {
+												/call MissionModeEnd "Mission Completed, CompleteAction is set to IDLE"
+											} else /if (${missionCompleteAction.Equal[REPEAT]}) {
+												/if (${missionRepeatCount} > ${missionRunCount} || !${misisonRepeatCount}) {
+													/call MissionModeEnd "Ending the current mission in order to repeat it"
+													/varset missionMode TRUE
+													/varset missionWaitTimer ${Math.Calc[${missionRepeatMinDelay}+${Math.Rand[${missionRepeatMaxDelay} - ${missionRepeatMinDelay}]}]}${If[${missionRepeatDelayType.Length},${missionRepeatDelayType},]}
+												} else {
+													/call MissionModeEnd "We have ran the mission ${missionRunCount} times, repeat count set to ${missionRepeatCount}, going into IDLE mode now."
+												}
+											} else {
+											| CompleteAction not recognized
+												/call MissionModeEnd "Complete action ${missionCompleteAction} is not recognized, defaulting to IDLE"
+											}
+										} else /if (${missionStatus.Equal[ACTIONFAILED]}) {
+											/if (${missionAmLeader}) /call MissionModeEnd "${If[${missionCurrentAction}!=0,Action${missionCurrentAction},An action]} has been failed."
+										}
+									/return
+
+								| --------------------------------------------------------------------------------------------
+								| SUB: Open_Packs
+								| --------------------------------------------------------------------------------------------
+								Sub Open_Packs
+								/varset CurrentSub Open_Packs
+								/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
+								/declare packLoop	int local
+
+								/for packLoop 1 to 10
+									/if (${Me.Inventory[pack${packLoop}].Container} && !${Window[pack${packLoop}].Open}) /itemnotify ${Me.Inventory[pack${packLoop}].InvSlot} rightmouseup
+									/if (${Window[TradeSkillWnd].Open}) {
+										/notify TradeSkillWnd COMBW_ExperimentButton leftmouseup
+										/delay 3
+									}
+								/next packLoop
+							/return
+
+						| --------------------------------------------------------------------------------------------
+						| SUB: Close_Packs
+						| --------------------------------------------------------------------------------------------
+						Sub Close_Packs
+						/varset CurrentSub Close_Packs
+						/call Debug 3 "${CurrentSub} entered DevCommonPremium.inc"
+						/declare packLoop	int local
+
+						/for packLoop 1 to 10
+							/if (${Window[pack${packLoop}].Open}) /itemnotify ${Me.Inventory[pack${packLoop}].InvSlot} rightmouseup
+						/next packLoop
+					/return
+
+				| ========================================================================================================
+				| v2.39 Update Notes
+				|  -Updated summoning routine to stop Inventory Item 'null' messages when summoning
+				|  -Added support for recognizing what a summoned item unfolds to for bots that destroy extra / empty unfolded packs after using whats in them.
+				|  -Disabled TradeCheck routine.  It hasn't worked correctly in a while and so was just pointlessly eating up cycles checking for trade window.
+				|    I hope to restor this functionality in the future, but the Invetory changes made a couple expansions ago may make that impossible without
+				|    some changes to MQ2 to fix it.
+				|  -Fixed a timing issue that was causing Unsafe pc checks to run without delay (essentially ignoring the priority setting for it) when out of combat.
+				|  -Added a #define HIGHERDEBUG /devecholog at the very top of devCommonPremium.  This will be used for any debug statements with a level higher
+				|    than 0 (default level).  The purpose of this is for people that are seeing sluggishness, can disable higher level debug calls
+				|    (which can be numerous and slower) by changing this line to #define HIGHERDEBUG /squelch
+				|
+				| v2.38 Update Notes
+				|  -Updated typo in xtarget add check routine for npc pets
+				|  -Updated corpse check routine to only remove PC pets
+				|  -Updated references of XTarget[].Type to XTarget[].TargetType due to changes in MQ2.
+				|
+				| v2.37 Update Notes
+				|  -Corrected typo in section name for UnsafePCImmediateAction setting (General vs Genearl)
+				|  -Updated mercenary state checks for TLO changes
+				|
+				| v2.36 Update Notes
+				|  -Fixed a bug with group pet buffing that could prevent own pet buffing from working
+				|  -Added the ability to use an XTarget for a main assist
+				|  -New add detection routine that supports usage of any kind of xtarget, should be a little more efficient
+				|    New Hidden INI Setting [General] UseLAHoTT=TRUE, if this is set to FALSE it will not use the
+				|     leadership ability health of targets target to determine if a mob is a true add (this method can be slow waiting on the hott)
+				|     Note: disabling it may slightly lower add detection reliability if not using xtargets, or xtargets are full
+				|  -Add detection routine will now detect NPC pets as well
+				|  -New Setting [General] UnsafePCImmediateAction=FALSE, if TRUE will take UnsafePCAction immediately in combat rather than waiting
+				|    until after combat
+				|  -New setting [Priorities] AssistFrequency=3s, determines how long to wait between checking assist targets (if bot is not the main assist)
+				|    and the bot is using the new CommonGetTarget routine
+				|  -New setting [Priorities] UnsafePCCheck=30s, how long between unsafe pc checks around your camp area.
+				|  -Added debugLvl to allow higher levels of debugging (not every where right now).  This defaults to 0 (debug outputs the same as currently)
+				|    It is set using [General] DebugLevel=0 (a hidden setting).  Currently only the pull routine is using anything beyond debug level 0
+				|    Note: [General] DebugMode=FALSE if set to TRUE will still simply make debug messages that would log only, appear in the MQ2ChatWnd
+				|  -Added some additional checks to handle zone changes.  Will auto set home to the location they are at when a zone change is detected
+				|    and will disable pull mode if enabled when a zone change is detected.
+				|  -Added a 30 second delay to buff checking if a buff check is exited early due to aggro
+				|  -New GetINISetting routine to allow auto create of variables if they do not exist rather than having to declare them seperately
+				|    (uses less memory this way)
+				|  -Unsafe PC Checks tweaked a little for better detection and handling.  Pull routine now checks back at camp location while pulling
+				|    and can be set to return to camp if an unsafe pc is detected, or to take the unsafe pc action where it is.  Added options to
+				|    allow for immediate action, even if in combat.  Be warned this will likely result in character deaths if you have it set to pause
+				|    or camp while you are in combat.  Don't forge the old hidden setting [General] UnsafePCRadius=300 for the radius to look for unsafe pcs
+				|  -Added version requirement checking to devPull.inc, pulling will be disabled if the version does not match the required version
+				|
+				| v2.35 Update Notes
+				|  -Tweaked buff stacking to automatically allow stacking of equal rks of the same spell (mq2 reporst this as
+				|    unable to stack)
+				|  -Corrected a typo preventing pet buffs from working
+				|  -Added pull commands for global pull routine ('pull' enables / disables pulling, 'pullradius RADIUS' sets pull radius to RADIUS)
+				|
+				| v2.34 Update Notes
+				|  -Corrected a problem with reagent detection for some spells causing them not to cast if they required no reagent
+				|
+				| v2.33 Update Notes
+				|  -Changed it so classes with endurance will check endurance for combat spells
+				|  -Added a med mode that will not cast combat spells if it's in med mode (falls below a % mana until it gets
+				|    back up to a % mana) Settings: [General] MedModeManaThreshold=10 MedModeMedTo=80
+				|    If you do not want to use this setting just set the ManaThreshold to 0 and it will never hit it.
+				|    This will user Endurance in place of mana for endurance users
+				|  -Added Priority settings to make it so some things will be checked more often than others
+				|    [General] SpellCoolDown and MinBuffCheckTime are now obsolete and no longer used
+				|  -Added option [Debuffs] DebuffAllDebuffsAtOnce=TRUE/FALSE, if TRUE will cast all debuffs in the debuff routine
+				|    before going to another routine.  If FALSE will only cast one debuff each debuff check.  Note if you have
+				|    multiple debuffs and a long debuff priority then it will not cast the next debuff until the priority time
+				|  -Added option [Debuffs] DebuffAllDebuffsOneTarget=TRUE/FALSE.  This is a hidden setting and defaults to TRUE.
+				|    This option is only used if DebuffAllDebuffsAtOnce=TRUE.  If this option is TRUE it will only perform all debuffs
+				|    on one target regardless of the DebuffAdds setting.  Then it will wait to do the next target during the next debuff check.
+				|    If FALSE, it will debuff all debuffs, on all targets in camp before moving on to another routine (not recommend for healers).
+				|  -Added command 'castwhileinvis' to toggle casting while invis on / off
+				|  -Made some tweaks to the buff stacking checks to correct some problems in some situations like buffing from items
+				|  -Added new pull routine for all classes
+				|  -Added detection for MMOBugs compile to use some more advanced stuff from MMOBugs
+				|  -MMOBugs Only: Added auto detection of required reagents on buffs and combat spells.
+				|
+				| v2.32 Update Notes
+				|  -Added disabling of merc usage if your account status is not sufficient to unsuspend the merc
+				|  -Corrected typo in add check routine that caused XTarget adds to be double checked with direction
+				|  -Updated friend list creation to be sure the pet master is being added if a pet is named after it's master
+				|  -Corrected a typo in the summoning routine that prevented spell based summoning from working
+				|  -Fixed a watchlist error dealing with Pet Type.
+				|  -Corrected a problem with Gift of Mana on spells higher than 95
+				|  -Added a check to disable autobuffs that you don't have the account status for (ie prestige items).
+				|  -Added additional corpse check to group buff routine
+				|  -MainAssist, MainTank, and Puller are now automatically considered friends if not set to group
+				|  -Added a cursor check to the common routine to auto inventory anything that may be on the cursor
+				|  -Buff stacking checks on ranks for spells that have a different Text than their buff name should now work
+				|  -Added new Buff settings for all buff types BuffXDoNotStack and BuffXStack.
+				|    BuffXDoNotStack - spell will not be allowed to stack with spells in this list
+				|    BuffXStack - spells that MQ2 reports will not stack, will still be allowed to stack if in this list
+				|
+				| v2.31 Update Notes
+				|  -Updated summon item routine to work with discs and items to summon items
+				|  -Corrected a bug that prevented Target of Target being used when UseXTarget=FALSE but UseXTargetOnly=TRUE
+				|  -Updated summon item routine to check mana when summoning items
+				|  -Added hidden setting [General] LootOnlyKilledCorpses=TRUE/FALSE - if true will only loot corpses that
+				|    were detected ass adds and killed.  If false will attempt to loot all nearby corpses.  Defaults to TRUE
+				|  -Fixed a problem in add detection that could let the bot check an XTarget's target for add detection.
+				|  -Changed XTarget.Spawn to use Spawn[XTarget.ID] instead.
+				|
+				| v2.30 Update Notes
+				|  -Updated ignore command to support multiple words in the ignore name
+				|  -Removed extra defaultGem declare
+				|  -Added checking to prevent adding a NULL value to the ignore list sometimes causing it to ignore all mobs
+				|  -Added a force target clear in the common combat routine if the target is a corpse.
+				|  -Added a SummonedItems section so that any class can use it to summon any regularly used and summoned items
+				|
+				| v2.29 Update Notes
+				|  -Corrected a typo in GM detection routine that created some spam
+				|  -Added support for reprieve (still uses [General] RespitePct which defaults to 25)
+				|  -Added setting [General] MaxRezWaitTime=0 for the maximum amount of time to wait for a rez after death
+				|    before camping.  If 0 it will wait indefinitely.
+				|  -Added hidden ini setting [General] DefaultGem=GEM1 so you can change the default spell gem
+				|    if for any reason a spell needs to be memmed without a slot being specified
+				|  -Untargetable mobs in the zone will automatically be added to the ignore list now (added by name)
+				|
+				| v2.28 Update Notes
+				|  -Changed merc managemenet code to account for MQ2 bug not properly reporting ${Me.Mercenary} state.
+				|  -Modified spell casting routine to better work with bards
+				|  -Changed INI loading to allow for up to 4 NULL values between entries in the INI so that it will not
+				|    stop loading a section for one NULL setting.
+				|  -All bots that can pull have had [Pull Settings] DefaultMinEnd added.
+				|
+				| v2.27 Update Notes
+				|  -Corrected a typo when loading that prevented correct logging of CastWhileInvis state (did not affect
+				|    function of setting).
+				|  -Corrected a typo affecting rank 25 autobuff recognition
+				|
+				| v2.26 Update Notes
+				|  -Added a /nav stop to the death detection routine to account for nav sometimes not stopping after death
+				|  -Added [General] CastWhileInvis=TRUE, set to FALSE to prevent casting while invis
+				|  -Updated xtarget limit to 10 to account for VoA AAs
+				|  -Fixed WatchBuffAtStart setting applying to the group buff variable instead of the watch buff variable
+				|  -Updated Gift of mana to support Ascendant (VoA level of GOM)
+				|  -Added support for GemTimer to combat spells, buffs, and debuffs
+				|  -Updated custom command triggers to support multiple word commands
+				|
+				| v2.25 Update Notes
+				|  -Made some changes to make follow mode more dependable when used as an on the move bot that
+				|    regularly encounters combat.
+				|  -Fixed a problem with mob alerts not firing correctly
+				|
+				| v2.24 Update Notes
+				|  -Added event to catch when MQ2Navigation can't work in a zone due to No Start reference error.
+				|  -Allowed discs with 0s duration to fire even when there is a disctimer
+				|  -Added equipmentSlot array for searching inventory with Me.Inventory.
+				|  -Added FindItemWithEffect(string effectName) routine to find items equipped with a specific effect.
+				|  -Fixed a problem with spell conditions parsing at load time instead of at the time of running.
+				|  -Fixed buff recast timer so that some single target spells like SoW will more reliably cast each buff check
+				|
+				| v2.23 Update Notes
+				|  -Changed it so home location is updated while following to the current location to enable
+				|    better support for engaging in combat while following.
+				|  -Added setting [General] UnsafePCRadius=300, this is hidden by default.  Will change the range at
+				|    which unsafe pcs are detected
+				|
+				| v2.22 Update Notes
+				|  -Fixed another condition check that could prevent adds from being detected while following on a char
+				|    or while soloing on the mageBot
+				|  -devLoot.inc updated to have /lootupdate aliased command
+				|  -corrected a problem that could prevent some beneficial ae combat spells from casting
+				|  -Fixed a problem preventing out of group characters from assisting due to inability to detect adds
+				|  -Prevented autobuff from trying to use an item that wasn't present on the character
+				|  -Added checks for recovery time in casting spells and buffs, also added checks for recast time in buffs
+				|  -Custom command actions should now parse variables in them when the command is issued
+				|  -Updated CheckForAggro routine to return the ID of the mob that you have aggro on
+				|
+				| v2.21 Update Notes
+				|  -Fixed conflicting variable name dealing with modRods and the magebot2.
+				|  -Added setting [General] SecondaryAssist
+				|  -Added checks for higher ranks of buffs in the buff routine
+				|
+				| v2.20 Update Notes
+				|  -Corrected WatchList loading to auto create the section if it is not created yet.
+				|  -Fixed add detection while in follow mode to detect around the character instead of around the home location.
+				|  -Corrected a problem with add detection when running solo mode on the mageBot.
+				|  -Corrected a problem preventing PB AE spells from being cast if the target was to close.
+				|  -Added support for using mod rods
+				|  -Fixed it so that MQ2Navigation would not attempt to load if UseNavigation was set to false
+				|  -Updated to devMQ2Cast_Spell_Routines.int to avoid future mmobugs update issues
+				|  -Made some changes to start adding support for running on emu servers
+				|  -Added a new INI setting [General] MinDebuffCheckTimer=5s
+				|  -Added variables ${TRUE} and ${FALSE} so that in line Ifs used in conditions with TRUE / FALSE being
+				|    returned will parse their conditions correctly.
+				|
+				| v2.19 Update Notes
+				|  -Fixed a typo in casting routines with discs.
+				|
+				| v2.18 Update Notes
+				|  -Added support for auto loading and using common spells / items / aa for buffing
+				|  -Moved EQDraw loading so that it will not auto load if Navigation is not being used.
+				|  -Modified add check to check distance from camp location instead of player location.
+				|  -Modified to automatically convert spells to Rk. II or Rk. III (requires MQ2Cast_Spell_Routines.inc change)
+				|    This means spells should no longer require Rk at the end of them in INIs to function correctly
+				|
+				| v2.17 Update Notes
+				|  -Changed devMovement.inc to devMovementPremium.inc to avoid conflics with free bots from mmobugs
+				|  -Updated spell casting to support lvl 85 to 90 GOM spells
+				|  -Corrected a problem with the stay command not breaking follow
+				|  -Updated add check to accomodate checking for adds on a pet that is out of line of sight
+				|
+				| v2.16 Update notes
+				|  -Added support for premium mageBot, warriorBot, rangerBot, and necroBot
+				|
+				| v2.15 Update Notes
+				|  -Added support for new paladinbot
+				|  -Added support for healing potions for all bots [General] HealPotName=NULL HealPotPct=50
+				|  -Corrected debuff announcements not parsing %t for /bc
+				|  -Changed namedCount to work off # instead of Spawn.Named
+				|
+				| v2.14 Update Notes
+				|  -Added INI setting [General] WatchBuffAtStart=TRUE/FALSE
+				|  -Corrected problem with some classes targetting watchlist members during buff routine unnecessarily
+				|  -Added maxXTargets variable and fixed all xtarget references to work with up to 7 XTargets
+				|
+				| v2.13 Update Notes
+				|  -Changed spell casting to use endurance on classes that don't have mana for the SpellMinManaX setting.
+				|  -Updated the log message when buffing to correctly refelect the intended target
+				|  -Added a discTimer check in CommonCombatRoutines so that if a disc is no longer running it will not
+				|    prevent another disc from starting.
+				|
+				| v2.12 Update Notes
+				|  -Added custom commands
+				|  -Added settings to turn off specific types of commands (bc, group, tell, echo)
+				|  -Added a check in WaitForRez routine, to continue operations if rez is accepted by another method.
+				|  -Changed EQBC announce messages to parse %t in announcemnts as your targets name
+				|  -Added respite ability support for all melee classes that have it, new INI setting [General] RespitePct=25
+				|  -Added TargetNamed variable to use in place of Target.Named
+				|
+				| v2.11 Update Notes
+				|  -Corrected some combat buff issues
+				|
+				| v2.10 Update Notes
+				|  -Updated for HoT changes
+				|
+				| v2.09 Update Notes
+				|  -Improved compatability checks
+				|  -Corrected a problem with default merc burn % setting
+				|
+				| v2.08 Update Notes
+				|  -Corrected a problem in the corpseCheck routine that would not remove charmed mobs that broke
+				|    more than once per combat.
+				|
+				| v2.07 Update Notes
+				|  -Added aggro aborting to buff check routine
+				|  -Added merc management code
+				|
+				| v2.06 Update Notes
+				|  -Fixed a phantom corpse getting added causing bots to not recognize the last mob in camp
+				|  -Fixed a bug where mercs where being revived and suspended immediately after
+				|
+				| v2.05 Update Notes
+				|  -Added routine CombatCheck(bool AddCheck) for generic combat checking
+				|
+				| v2.04 Update Notes
+				|  -Changed corpse check routine to also check for missing or charmed mobs
+				|
+				| v2.03 Update Notes
+				|  -Fixed a problem that could prevent merc from assisting
+				|
+				| v2.02 Update Notes
+				|  -Corrected a bug that could prevent a buff from auto buffing on a watch list member, do to FALSEly
+				|    thinking it would not stack with NULL.
+				|
+				| v2.01 Update Notes
+				|  -Corrected a couple typos in the INI load routine that was preventing group buffs from working
+				|    as well as buff commands
+				|
+				| v2.00 Update Notes
+				|  -New premium only version of devCommon.inc
+				|
+				| ========================================================================================================
+
+				|Sub added by Chatwiththisname from - Bot40.mac
+				| --------------------------------------------------------------------------------------------
+				| SUB: Debug
+				| --------------------------------------------------------------------------------------------
+				Sub Debug(int level, string message)
+				/if (${DebugLevel} >= ${level}) {
+					/myecho \arDBG${level}: ${message}
+					/mqlog DBG${level}: ${message}
 				}
-			/next mmLoop
-			
-			/if (${completeConditionsMet} >= ${completeConditionRequire}) {
-				| CompleteConditions met, Action is completed
-				/varset missionPrimaryActionCompleted TRUE
-				/varset missionStatus COMPLETEACTION
-			} else {
-				/varset missionWaitTimer 30s
-			}
-		} else /if (${missionPrimaryActionCompleted}) {
-			| No CompleteConditions, primary action completed so move to COMPLETEACTION
-			/varset missionStatus COMPLETEACTION
-		}
-	} else /if (${missionStatus.Equal[COMPLETEACTION]}) {
-		/if (${missionPrimaryActionCompleted}) {
-			| Do Post Commands
-			/for mmLoop 1 to ${missionActionPostCommand.Size[1]}
-				/if (${missionActionPostCommand.NotEqual[NULL]}) /docommand ${missionActionPostCommand[${mmLoop}]}
-			/next mmLoop
-		}
-				
-		/if (${missionAmLeader}) {
-			/if (${missionActionCompleteBy.Equal[LEADER]}) {
-				/varcalc missionCurrentAction ${missionCurrentAction} + 1
-				/varset missionWaitTimer ${missionActionCompleteDelay}
-				/varset missionStatus STARTACTION
-			} else {
-				/varset missionStatus COMPLETEDWAITACTION
-			}
-		} else {
-			/call MissionCommandSend LEADER "STATUS COMPLETEDWAITACTION"
-			/varset missionStatus COMPLETEDWAITACTION
-		}
-	} else /if (${missionStatus.Equal[COMPLETEDWAITACTION]}) {
-		/declare allCompleted				bool local FALSE
-		/declare waitingOnCompleted	bool local FALSE
-
-		/if (${missionAmLeader}) {
-			/if (${missionActionByCommand}) {
-				/if (${missionWaitingOn.NotEqual[NULL]}) {
-					/call MissionFollowerStatus ${missionWaitingOn} COMPLETEDWAITACTION
-					/if (${Macro.Return.Equal[TRUE]}) /varset waitingOnCompleted TRUE
-				}
-				/if (!${waitingOnCompleted}) {
-					/call MissionFollowerStatus FIND IDLEACTION
-					/if (${Macro.Return.NotEqual[NULL]}) {
-						| Should return the first follower that is not currently on IDLEACTION
-						/call MissionCommandSend ${Macro.Return} "SETACTION ${missionCurrentAction}"
-						/call MissionFollowerStatus ${Macro.Return} "DOACTION" TRUE
-						/varset missionWaitingOn ${Macro.Return}
-					} else {
-						/call MissionFollowerStatus ALL COMPLETEDWAITACTION
-						/if (${Macro.Return.NotEqual[TRUE]}) /varset allCompleted TRUE
-					}
-				}
-			} else {
-				| Wait for everyone to complete the action
-				/call MissionFollowerStatus ALL COMPLETEDWAITACTION
-				/if (${Macro.Return.Equal[FALSE]}) /varset allCompleted TRUE
-			}
-			/if (${allCompleted}) {
-				| Move on to the next action
-				/varset missionWaitingOn NULL
-				/varcalc missionCurrentAction ${missionCurrentAction} + 1
-				/varset missionWaitTimer ${missionActionCompleteDelay}
-				/varset missionWaitCondition NULL
-				/varset missionStatus STARTACTION								
-			} else {
-				/varset missionWaitTimer 30s
-				/varset missionWaitCondition NULL
-			}
-		}
-	} else /if (${missionStatus.Equal[IDLEACTION]}) {
-		| Idle
-	} else /if (${missionStatus.Equal[COMPLETEMISSION]}) {
-		| Mission completed, clean up and do reset or camp depending on CompleteAction
-		/if (${missionAmLeader} && ${Select[${missionCompleteAction},CAMP,CAMPDESKTOP,ENDMACRO]}) /call MissionCommandSend ALL "SETSTATUS COMPLETEMISSION"
-		
-		/varset missionCurrentAction 0
-		/varset missionWaitTimer 0s
-		/varset missionWaitCondition NULL
-		/if (${missionCompleteAction.Equal[CAMP]}) {
-			/camp
-			/endmacro
-		} else /if (${missionCompleteAction.Equal[CAMPDESKTOP]}) {
-			/camp desktop
-			/endmacro
-		} else /if (${missionCompleteAction.Equal[ENDMACRO]}) {
-			/endmacro
-		} else /if (${missionCompleteAction.Equal[IDLE]}) {
-			/call MissionModeEnd "Mission Completed, CompleteAction is set to IDLE"
-		} else /if (${missionCompleteAction.Equal[REPEAT]}) {
-			/if (${missionRepeatCount} > ${missionRunCount} || !${misisonRepeatCount}) {
-				/call MissionModeEnd "Ending the current mission in order to repeat it"
-				/varset missionMode TRUE
-				/varset missionWaitTimer ${Math.Calc[${missionRepeatMinDelay}+${Math.Rand[${missionRepeatMaxDelay} - ${missionRepeatMinDelay}]}]}${If[${missionRepeatDelayType.Length},${missionRepeatDelayType},]}
-			} else {
-				/call MissionModeEnd "We have ran the mission ${missionRunCount} times, repeat count set to ${missionRepeatCount}, going into IDLE mode now."
-			}
-		} else {
-			| CompleteAction not recognized
-			/call MissionModeEnd "Complete action ${missionCompleteAction} is not recognized, defaulting to IDLE"
-		}
-	} else /if (${missionStatus.Equal[ACTIONFAILED]}) {
-		/if (${missionAmLeader}) /call MissionModeEnd "${If[${missionCurrentAction}!=0,Action${missionCurrentAction},An action]} has been failed."
-	}
-/return
-
-Sub Open_Packs
-	/declare packLoop	int local
-
-	/for packLoop 1 to 10
-		/if (${Me.Inventory[pack${packLoop}].Container} && !${Window[pack${packLoop}].Open}) /itemnotify ${Me.Inventory[pack${packLoop}].InvSlot} rightmouseup
-		/if (${Window[TradeSkillWnd].Open}) {
-			/notify TradeSkillWnd COMBW_ExperimentButton leftmouseup
-			/delay 3
-		}
-	/next packLoop
-/return
-
-Sub Close_Packs
-	/declare packLoop	int local
-
-	/for packLoop 1 to 10
-		/if (${Window[pack${packLoop}].Open}) /itemnotify ${Me.Inventory[pack${packLoop}].InvSlot} rightmouseup
-	/next packLoop
-/return
-
-| ========================================================================================================
-| v2.39 Update Notes
-|  -Updated summoning routine to stop Inventory Item 'null' messages when summoning
-|  -Added support for recognizing what a summoned item unfolds to for bots that destroy extra / empty unfolded packs after using whats in them.
-|  -Disabled TradeCheck routine.  It hasn't worked correctly in a while and so was just pointlessly eating up cycles checking for trade window.
-|    I hope to restor this functionality in the future, but the Invetory changes made a couple expansions ago may make that impossible without
-|    some changes to MQ2 to fix it.
-|  -Fixed a timing issue that was causing Unsafe pc checks to run without delay (essentially ignoring the priority setting for it) when out of combat.
-|  -Added a #define HIGHERDEBUG /devecholog at the very top of devCommonPremium.  This will be used for any debug statements with a level higher 
-|    than 0 (default level).  The purpose of this is for people that are seeing sluggishness, can disable higher level debug calls 
-|    (which can be numerous and slower) by changing this line to #define HIGHERDEBUG /squelch
-| 
-| v2.38 Update Notes
-|  -Updated typo in xtarget add check routine for npc pets
-|  -Updated corpse check routine to only remove PC pets
-|  -Updated references of XTarget[].Type to XTarget[].TargetType due to changes in MQ2.
-| 
-| v2.37 Update Notes
-|  -Corrected typo in section name for UnsafePCImmediateAction setting (General vs Genearl)
-|  -Updated mercenary state checks for TLO changes
-| 
-| v2.36 Update Notes
-|  -Fixed a bug with group pet buffing that could prevent own pet buffing from working
-|  -Added the ability to use an XTarget for a main assist
-|  -New add detection routine that supports usage of any kind of xtarget, should be a little more efficient
-|    New Hidden INI Setting [General] UseLAHoTT=TRUE, if this is set to FALSE it will not use the 
-|     leadership ability health of targets target to determine if a mob is a true add (this method can be slow waiting on the hott)
-|     Note: disabling it may slightly lower add detection reliability if not using xtargets, or xtargets are full
-|  -Add detection routine will now detect NPC pets as well
-|  -New Setting [General] UnsafePCImmediateAction=FALSE, if TRUE will take UnsafePCAction immediately in combat rather than waiting
-|    until after combat
-|  -New setting [Priorities] AssistFrequency=3s, determines how long to wait between checking assist targets (if bot is not the main assist)
-|    and the bot is using the new CommonGetTarget routine
-|  -New setting [Priorities] UnsafePCCheck=30s, how long between unsafe pc checks around your camp area.
-|  -Added debugLvl to allow higher levels of debugging (not every where right now).  This defaults to 0 (debug outputs the same as currently)
-|    It is set using [General] DebugLevel=0 (a hidden setting).  Currently only the pull routine is using anything beyond debug level 0
-|    Note: [General] DebugMode=FALSE if set to TRUE will still simply make debug messages that would log only, appear in the MQ2ChatWnd
-|  -Added some additional checks to handle zone changes.  Will auto set home to the location they are at when a zone change is detected
-|    and will disable pull mode if enabled when a zone change is detected.
-|  -Added a 30 second delay to buff checking if a buff check is exited early due to aggro
-|  -New GetINISetting routine to allow auto create of variables if they do not exist rather than having to declare them seperately
-|    (uses less memory this way)
-|  -Unsafe PC Checks tweaked a little for better detection and handling.  Pull routine now checks back at camp location while pulling
-|    and can be set to return to camp if an unsafe pc is detected, or to take the unsafe pc action where it is.  Added options to
-|    allow for immediate action, even if in combat.  Be warned this will likely result in character deaths if you have it set to pause
-|    or camp while you are in combat.  Don't forge the old hidden setting [General] UnsafePCRadius=300 for the radius to look for unsafe pcs
-|  -Added version requirement checking to devPull.inc, pulling will be disabled if the version does not match the required version
-| 
-| v2.35 Update Notes
-|  -Tweaked buff stacking to automatically allow stacking of equal rks of the same spell (mq2 reporst this as
-|    unable to stack)
-|  -Corrected a typo preventing pet buffs from working
-|  -Added pull commands for global pull routine ('pull' enables / disables pulling, 'pullradius RADIUS' sets pull radius to RADIUS)
-| 
-| v2.34 Update Notes
-|  -Corrected a problem with reagent detection for some spells causing them not to cast if they required no reagent
-| 
-| v2.33 Update Notes
-|  -Changed it so classes with endurance will check endurance for combat spells
-|  -Added a med mode that will not cast combat spells if it's in med mode (falls below a % mana until it gets
-|    back up to a % mana) Settings: [General] MedModeManaThreshold=10 MedModeMedTo=80
-|    If you do not want to use this setting just set the ManaThreshold to 0 and it will never hit it.
-|    This will user Endurance in place of mana for endurance users
-|  -Added Priority settings to make it so some things will be checked more often than others
-|    [General] SpellCoolDown and MinBuffCheckTime are now obsolete and no longer used
-|  -Added option [Debuffs] DebuffAllDebuffsAtOnce=TRUE/FALSE, if TRUE will cast all debuffs in the debuff routine
-|    before going to another routine.  If FALSE will only cast one debuff each debuff check.  Note if you have
-|    multiple debuffs and a long debuff priority then it will not cast the next debuff until the priority time
-|  -Added option [Debuffs] DebuffAllDebuffsOneTarget=TRUE/FALSE.  This is a hidden setting and defaults to TRUE.
-|    This option is only used if DebuffAllDebuffsAtOnce=TRUE.  If this option is TRUE it will only perform all debuffs
-|    on one target regardless of the DebuffAdds setting.  Then it will wait to do the next target during the next debuff check.
-|    If FALSE, it will debuff all debuffs, on all targets in camp before moving on to another routine (not recommend for healers).
-|  -Added command 'castwhileinvis' to toggle casting while invis on / off
-|  -Made some tweaks to the buff stacking checks to correct some problems in some situations like buffing from items
-|  -Added new pull routine for all classes
-|  -Added detection for MMOBugs compile to use some more advanced stuff from MMOBugs
-|  -MMOBugs Only: Added auto detection of required reagents on buffs and combat spells.
-|  
-| v2.32 Update Notes
-|  -Added disabling of merc usage if your account status is not sufficient to unsuspend the merc
-|  -Corrected typo in add check routine that caused XTarget adds to be double checked with direction
-|  -Updated friend list creation to be sure the pet master is being added if a pet is named after it's master
-|  -Corrected a typo in the summoning routine that prevented spell based summoning from working
-|  -Fixed a watchlist error dealing with Pet Type.
-|  -Corrected a problem with Gift of Mana on spells higher than 95
-|  -Added a check to disable autobuffs that you don't have the account status for (ie prestige items).
-|  -Added additional corpse check to group buff routine
-|  -MainAssist, MainTank, and Puller are now automatically considered friends if not set to group
-|  -Added a cursor check to the common routine to auto inventory anything that may be on the cursor
-|  -Buff stacking checks on ranks for spells that have a different Text than their buff name should now work
-|  -Added new Buff settings for all buff types BuffXDoNotStack and BuffXStack.
-|    BuffXDoNotStack - spell will not be allowed to stack with spells in this list
-|    BuffXStack - spells that MQ2 reports will not stack, will still be allowed to stack if in this list
-| 
-| v2.31 Update Notes
-|  -Updated summon item routine to work with discs and items to summon items
-|  -Corrected a bug that prevented Target of Target being used when UseXTarget=FALSE but UseXTargetOnly=TRUE
-|  -Updated summon item routine to check mana when summoning items
-|  -Added hidden setting [General] LootOnlyKilledCorpses=TRUE/FALSE - if true will only loot corpses that
-|    were detected ass adds and killed.  If false will attempt to loot all nearby corpses.  Defaults to TRUE
-|  -Fixed a problem in add detection that could let the bot check an XTarget's target for add detection.
-|  -Changed XTarget.Spawn to use Spawn[XTarget.ID] instead.
-| 
-| v2.30 Update Notes
-|  -Updated ignore command to support multiple words in the ignore name
-|  -Removed extra defaultGem declare
-|  -Added checking to prevent adding a NULL value to the ignore list sometimes causing it to ignore all mobs
-|  -Added a force target clear in the common combat routine if the target is a corpse.
-|  -Added a SummonedItems section so that any class can use it to summon any regularly used and summoned items
-| 
-| v2.29 Update Notes
-|  -Corrected a typo in GM detection routine that created some spam
-|  -Added support for reprieve (still uses [General] RespitePct which defaults to 25)
-|  -Added setting [General] MaxRezWaitTime=0 for the maximum amount of time to wait for a rez after death
-|    before camping.  If 0 it will wait indefinitely.
-|  -Added hidden ini setting [General] DefaultGem=GEM1 so you can change the default spell gem
-|    if for any reason a spell needs to be memmed without a slot being specified
-|  -Untargetable mobs in the zone will automatically be added to the ignore list now (added by name)
-| 
-| v2.28 Update Notes
-|  -Changed merc managemenet code to account for MQ2 bug not properly reporting ${Me.Mercenary} state.
-|  -Modified spell casting routine to better work with bards
-|  -Changed INI loading to allow for up to 4 NULL values between entries in the INI so that it will not
-|    stop loading a section for one NULL setting.
-|  -All bots that can pull have had [Pull Settings] DefaultMinEnd added.
-| 
-| v2.27 Update Notes
-|  -Corrected a typo when loading that prevented correct logging of CastWhileInvis state (did not affect
-|    function of setting).
-|  -Corrected a typo affecting rank 25 autobuff recognition
-| 
-| v2.26 Update Notes
-|  -Added a /nav stop to the death detection routine to account for nav sometimes not stopping after death
-|  -Added [General] CastWhileInvis=TRUE, set to FALSE to prevent casting while invis
-|  -Updated xtarget limit to 10 to account for VoA AAs
-|  -Fixed WatchBuffAtStart setting applying to the group buff variable instead of the watch buff variable
-|  -Updated Gift of mana to support Ascendant (VoA level of GOM)
-|  -Added support for GemTimer to combat spells, buffs, and debuffs
-|  -Updated custom command triggers to support multiple word commands
-| 
-| v2.25 Update Notes
-|  -Made some changes to make follow mode more dependable when used as an on the move bot that
-|    regularly encounters combat.
-|  -Fixed a problem with mob alerts not firing correctly
-| 
-| v2.24 Update Notes
-|  -Added event to catch when MQ2Navigation can't work in a zone due to No Start reference error.
-|  -Allowed discs with 0s duration to fire even when there is a disctimer
-|  -Added equipmentSlot array for searching inventory with Me.Inventory.
-|  -Added FindItemWithEffect(string effectName) routine to find items equipped with a specific effect.
-|  -Fixed a problem with spell conditions parsing at load time instead of at the time of running.
-|  -Fixed buff recast timer so that some single target spells like SoW will more reliably cast each buff check
-| 
-| v2.23 Update Notes
-|  -Changed it so home location is updated while following to the current location to enable
-|    better support for engaging in combat while following.
-|  -Added setting [General] UnsafePCRadius=300, this is hidden by default.  Will change the range at
-|    which unsafe pcs are detected
-| 
-| v2.22 Update Notes
-|  -Fixed another condition check that could prevent adds from being detected while following on a char
-|    or while soloing on the mageBot
-|  -devLoot.inc updated to have /lootupdate aliased command
-|  -corrected a problem that could prevent some beneficial ae combat spells from casting
-|  -Fixed a problem preventing out of group characters from assisting due to inability to detect adds
-|  -Prevented autobuff from trying to use an item that wasn't present on the character
-|  -Added checks for recovery time in casting spells and buffs, also added checks for recast time in buffs
-|  -Custom command actions should now parse variables in them when the command is issued
-|  -Updated CheckForAggro routine to return the ID of the mob that you have aggro on
-| 
-| v2.21 Update Notes
-|  -Fixed conflicting variable name dealing with modRods and the magebot2.
-|  -Added setting [General] SecondaryAssist
-|  -Added checks for higher ranks of buffs in the buff routine
-| 
-| v2.20 Update Notes
-|  -Corrected WatchList loading to auto create the section if it is not created yet.
-|  -Fixed add detection while in follow mode to detect around the character instead of around the home location.
-|  -Corrected a problem with add detection when running solo mode on the mageBot.
-|  -Corrected a problem preventing PB AE spells from being cast if the target was to close.
-|  -Added support for using mod rods
-|  -Fixed it so that MQ2Navigation would not attempt to load if UseNavigation was set to false
-|  -Updated to devMQ2Cast_Spell_Routines.int to avoid future mmobugs update issues
-|  -Made some changes to start adding support for running on emu servers
-|  -Added a new INI setting [General] MinDebuffCheckTimer=5s
-|  -Added variables ${TRUE} and ${FALSE} so that in line Ifs used in conditions with TRUE / FALSE being
-|    returned will parse their conditions correctly.
-| 
-| v2.19 Update Notes
-|  -Fixed a typo in casting routines with discs.
-| 
-| v2.18 Update Notes
-|  -Added support for auto loading and using common spells / items / aa for buffing
-|  -Moved EQDraw loading so that it will not auto load if Navigation is not being used.
-|  -Modified add check to check distance from camp location instead of player location.
-|  -Modified to automatically convert spells to Rk. II or Rk. III (requires MQ2Cast_Spell_Routines.inc change)
-|    This means spells should no longer require Rk at the end of them in INIs to function correctly
-| 
-| v2.17 Update Notes
-|  -Changed devMovement.inc to devMovementPremium.inc to avoid conflics with free bots from mmobugs
-|  -Updated spell casting to support lvl 85 to 90 GOM spells
-|  -Corrected a problem with the stay command not breaking follow
-|  -Updated add check to accomodate checking for adds on a pet that is out of line of sight
-| 
-| v2.16 Update notes
-|  -Added support for premium mageBot, warriorBot, rangerBot, and necroBot
-| 
-| v2.15 Update Notes
-|  -Added support for new paladinbot
-|  -Added support for healing potions for all bots [General] HealPotName=NULL HealPotPct=50
-|  -Corrected debuff announcements not parsing %t for /bc
-|  -Changed namedCount to work off # instead of Spawn.Named
-|  
-| v2.14 Update Notes
-|  -Added INI setting [General] WatchBuffAtStart=TRUE/FALSE
-|  -Corrected problem with some classes targetting watchlist members during buff routine unnecessarily
-|  -Added maxXTargets variable and fixed all xtarget references to work with up to 7 XTargets
-| 
-| v2.13 Update Notes
-|  -Changed spell casting to use endurance on classes that don't have mana for the SpellMinManaX setting.
-|  -Updated the log message when buffing to correctly refelect the intended target
-|  -Added a discTimer check in CommonCombatRoutines so that if a disc is no longer running it will not
-|    prevent another disc from starting.
-| 
-| v2.12 Update Notes
-|  -Added custom commands
-|  -Added settings to turn off specific types of commands (bc, group, tell, echo)
-|  -Added a check in WaitForRez routine, to continue operations if rez is accepted by another method.
-|  -Changed EQBC announce messages to parse %t in announcemnts as your targets name
-|  -Added respite ability support for all melee classes that have it, new INI setting [General] RespitePct=25
-|  -Added TargetNamed variable to use in place of Target.Named
-| 
-| v2.11 Update Notes
-|  -Corrected some combat buff issues
-| 
-| v2.10 Update Notes
-|  -Updated for HoT changes
-| 
-| v2.09 Update Notes
-|  -Improved compatability checks
-|  -Corrected a problem with default merc burn % setting
-| 
-| v2.08 Update Notes
-|  -Corrected a problem in the corpseCheck routine that would not remove charmed mobs that broke
-|    more than once per combat.
-| 
-| v2.07 Update Notes
-|  -Added aggro aborting to buff check routine
-|  -Added merc management code
-| 
-| v2.06 Update Notes
-|  -Fixed a phantom corpse getting added causing bots to not recognize the last mob in camp
-|  -Fixed a bug where mercs where being revived and suspended immediately after
-| 
-| v2.05 Update Notes
-|  -Added routine CombatCheck(bool AddCheck) for generic combat checking
-| 
-| v2.04 Update Notes
-|  -Changed corpse check routine to also check for missing or charmed mobs
-| 
-| v2.03 Update Notes
-|  -Fixed a problem that could prevent merc from assisting
-| 
-| v2.02 Update Notes
-|  -Corrected a bug that could prevent a buff from auto buffing on a watch list member, do to FALSEly
-|    thinking it would not stack with NULL.
-| 
-| v2.01 Update Notes
-|  -Corrected a couple typos in the INI load routine that was preventing group buffs from working
-|    as well as buff commands
-| 
-| v2.00 Update Notes
-|  -New premium only version of devCommon.inc
-| 
-| ========================================================================================================
-
-
+			/return
+|  [+++  Formatted by MQ2f using tabs for indents +++]
