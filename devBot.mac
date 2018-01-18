@@ -1,0 +1,26 @@
+| --------------------------------------------------------------------------------------------
+| SUB: Main
+| --------------------------------------------------------------------------------------------
+Sub Main (string iniNameStr)
+	/declare macStr string outer
+	/if (${Me.Class.ShortName.Equal[BRD]}) /varset macStr bardbot
+	/if (${Me.Class.ShortName.Equal[BST]}) /varset macStr beastlordbot
+	/if (${Me.Class.ShortName.Equal[BER]}) /varset macStr berserkerbot
+	/if (${Me.Class.ShortName.Equal[CLR]}) /varset macStr clericbot2
+	/if (${Me.Class.ShortName.Equal[DRU]}) /varset macStr druidbot
+	/if (${Me.Class.ShortName.Equal[ENC]}) /varset macStr enchanterbot
+	/if (${Me.Class.ShortName.Equal[MAG]}) /varset macStr magebot2
+	/if (${Me.Class.ShortName.Equal[MNK]}) /varset macStr monkbot
+	/if (${Me.Class.ShortName.Equal[NEC]}) /varset macStr necrobot
+	/if (${Me.Class.ShortName.Equal[PAL]}) /varset macStr paladinbot
+	/if (${Me.Class.ShortName.Equal[RNG]}) /varset macStr rangerbot
+	/if (${Me.Class.ShortName.Equal[ROG]}) /varset macStr roguebot
+	/if (${Me.Class.ShortName.Equal[SHM]}) /varset macStr shamanbot
+	/if (${Me.Class.ShortName.Equal[SHD]}) /varset macStr skbot2
+	/if (${Me.Class.ShortName.Equal[WAR]}) /varset macStr warriorbot
+	/if (${Me.Class.ShortName.Equal[WIZ]}) /varset macStr wizardbot
+	/mac ${macStr} ${iniNameStr}
+/return
+
+
+|  [+++  Formatted by MQ2f using tabs for indents +++]

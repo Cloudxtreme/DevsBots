@@ -1,103 +1,106 @@
 | =================================================================================================
-| 									   BardBot v1.29
+| 									   BardBot v2.5
 | 									Written By: Devestator
-| 													
-| 													
+|
+|
 | USAGE: /macro bardBot <IniName>
-| 													
-| 													
-| Description:												
+|
+|
+| Description:
 |  This is a bot meant to automate the role of a bard in a group.
-| 													
-| 													
-| Requirements:												
-|  MQ2Cast_Spell_Routines.inc										
+|
+|
+| Requirements:
+|  MQ2Cast_Spell_Routines.inc
 |  devMovement.inc
-|  devCommon.inc											
-|  bardBotSettings.ini (you can create custom INIs nameing them bardBotSettings_name.ini			
+|  devCommon.inc
+|  bardBotSettings.ini (you can create custom INIs nameing them bardBotSettings_name.ini
 |  PLUGIN: MQ2Cast
-|  PLUGIN: MQ2Debuffs													
+|  PLUGIN: MQ2Debuffs
 |  PLUGIN: MQ2Exchange
 |  PLUGIN: MQ2MoveUtils
-| 
+|
+| v2.30 Updated Notes
+|  -Changed ${Me.Aura[1].Name.Equal.....} to ${Me.Aura[1].Find[....]} to try and fix issue with aura spam.
+|
 | v1.29 Update Notes
 |  -Updated for 09082017 MQ2 Patch that makes a lot of changes with undefined variables and breaks function calls relying on Not defined to set defaults
-| 
+|
 | v1.27 Update Notes
 |  -Added a check to avoid singing songs when CastWhileInvis is false.
-| 
+|
 | v1.26 Update Notes
 |  -Updates for MQ2 patch changing spell timers
-| 
+|
 | v1.25 Update Notes
 |  -Added support for up to 4 out of combat songs
-| 
+|
 | v1.24 Update Notes
 |  -Converted to common get target routine
 |  -Updated to allow combat with npc pets
-| 
+|
 | v1.23 Update Notes
 |  -Converted to global pull routine
-| 
+|
 | v1.22 Update Notes
 |  -Updated out of combat song to cast if the bard is set to pull and the group is not ready due to mana or hp
 |  -Updated out of combat song to cast if it's going to be more than 10 seconds before the bard goes to pull again
 |    (was previously 15 seconds)
-| 
+|
 | v1.21 Update Notes
 |  -Updated pull routine to not target mob to check for HPs until it gets closer, and also checks for
 |    unfriend PCs withing a radius of 50 of the mob before going to pull it.
 |  -Changed maximum item / spell range to 180 to accomadate new default /target distance
-| 
+|
 | v1.20 Update Notes
 |  -Moved bard specific settings to [Bard_General] section
 |  -Added the options [Bard_General] UseTwist=TRUE/FALSE UseMelody=TRUE/FALSE
 |    If both are FALSE will use my own combat song twist method, otherwise Melody has priority over Twist.
-| 
+|
 | v1.19 Update Notes
 |  -Change the code to check for dead tanks / clerics before pulling to work for mercs
 |  -Add PullZRadius setting to PullSettings
 |  -Added endurance check to pull routine
-| 
+|
 | v1.18 Update Notes
 |  -Added a z distance check when lulling adds in the pull routine
-| 
+|
 | v1.17 Update Notes
 |  -Corected typo in pull routine
-| 
+|
 | v1.16 Update Notes
 |  -Added [Songs] AuraText= to fix aura recasting a lot
-| 
+|
 | v1.15 Update Notes
 |  -Modified to automatically convert songs to Rk. II or Rk. III
 |  -Fixed pulling to not pull if a merc tank or healer is dead
-| 
+|
 | v1.14 Update Notes
 |  -Added a timeout to song casting to prevent hangs if a song does not fire correctly for some reason
-| 
+|
 | v1.13 Update Notes
 |  -Fixed xtarget references to work with up to 7 xTargets.
-| 
+|
 | v1.12 Update Notes
 |  -Fixed a possible bug dealing with pulling range in the pulling routine
-| 
+|
 | v1.11 Update Notes
 |  -Added a small delay after canceling a song before casting a mez song to keep from
 |    casting to fast and putting the spell on an extended cooldown
 |  -Added animation check back to mez verification to try and add more reliability to mezzing.
 |  -Corrected problem with epic command that could cause bardBot to get stuck trying to cancel twist.
-| 
+|
 | v1.10 Update Notes
 |  -Added some delays to starting combat songs after mezzes
 |  -Added a delay to attempting to use AE mez
 |  -Squelch /twist output
-| 
+|
 | v1.09 Update Notes
 |  -Corrected the pull aggro check to not come back true if you have a non Auto Hater xtarget
-| 
+|
 | v1.08 Update Notes
 |  -Corrected a problem that could cause the bard to ignore aggro when pulling
-| 
+|
 | v1.06 Update Notes
 |  -Added AE Mez support
 |  -Added option to not start combat songs until after assist
@@ -108,152 +111,170 @@
 | 	AEMezMinMobs=3
 | 	AEMezAnnounce=Announcement
 | 	CombatSongOnAssist=FALSE
-| 
+|
 | v1.05 Update Notes
 |  -Added mez announcements [Songs] MezAnnounceAttempt MezAnnounceSuccess
-| 
+|
 | v1.04 Update Notes
 |  -Fixed a bug that would cause the macro to hang when trying to play some songs in the combat section
-| 
+|
 | v1.03 Update Notes
 |  -Made it so that you can use songs in the combat section
-| 
+|
 | v1.02 Update Notes
 |  -Added command Epic, will force an epic 1.5 or 2.0 click if not on cool down
-|  -Fixed a problem with the pull routine that could cause it not to return to the home location 
+|  -Fixed a problem with the pull routine that could cause it not to return to the home location
 |    when pulling without a path.
-| 
+|
 | v1.01 Update Notes
 |  -Some minor bug fixes here and there
-| 
+|
 | ==================================================================================================
 
-#include devCommonPremium.inc
-|#include bardBotSettings.ini
+	#include devCommonPremium.inc
 
-#event MezCastFail "You are not sufficient level to use this item#*#"
-#event MezCastFail "Your spell is interrupted#*#"
-#event MezCastFail "Your gate is too unstable, and collapses#*#"
-#event MezCastFail "You *CANNOT* cast spells, you have been silenced#*#"
-#event MezCastFail "You can't cast spells while invulnerable#*#"
-#event MezCastFail "Your casting has been interrupted#*#"
-#event MezCastFail "This spell does not work here#*#"
-#event MezCastFail "You can't cast spells while stunned#*#"
-#event MezCastFail "Your spell did not take hold#*#"
-#event MezCastFail "You must be standing to cast a spell#*#"
-#event MezCastFail "You can only cast this spell in the outdoors#*#"
-#event MezCastFail "You cannot see your target#*#"
-#event MezCastFail "Your target cannot be mesmerized#*#"
-#event MezCastFail "Your target looks unaffected#*#"
-#event MezCastFail "You miss a note bringing your song to a close#*#"
-#event MezCastFail "You must first select a target for this spell#*#"
-#event MezCastFail "This spell only works on#*#"
-#event MezCastFail "You must first target a group member#*#"
-#event MezCastFail "Spell recast time not yet met#*#"
-#event MezCastFail "Insufficient Mana to cast this spell#*#"
-#event MezCastFail "Your target is out of range, get closer#*#"
-#event MezCastFail "You haven't recovered yet#*#"
-#event MezCastFail "Spell recovery time not yet met#*#"
-#event MezCastFail "Your target resisted the#*#spell#*#"
-#event MezCastFail "Your song ends."
+	#event MezCastFail "You are not sufficient level to use this item#*#"
+	#event MezCastFail "Your spell is interrupted#*#"
+	#event MezCastFail "Your gate is too unstable, and collapses#*#"
+	#event MezCastFail "You *CANNOT* cast spells, you have been silenced#*#"
+	#event MezCastFail "You can't cast spells while invulnerable#*#"
+	#event MezCastFail "Your casting has been interrupted#*#"
+	#event MezCastFail "This spell does not work here#*#"
+	#event MezCastFail "You can't cast spells while stunned#*#"
+	#event MezCastFail "Your spell did not take hold#*#"
+	#event MezCastFail "You must be standing to cast a spell#*#"
+	#event MezCastFail "You can only cast this spell in the outdoors#*#"
+	#event MezCastFail "You cannot see your target#*#"
+	#event MezCastFail "Your target cannot be mesmerized#*#"
+	#event MezCastFail "Your target looks unaffected#*#"
+	#event MezCastFail "You miss a note bringing your song to a close#*#"
+	#event MezCastFail "You must first select a target for this spell#*#"
+	#event MezCastFail "This spell only works on#*#"
+	#event MezCastFail "You must first target a group member#*#"
+	#event MezCastFail "Spell recast time not yet met#*#"
+	#event MezCastFail "Insufficient Mana to cast this spell#*#"
+	#event MezCastFail "Your target is out of range, get closer#*#"
+	#event MezCastFail "You haven't recovered yet#*#"
+	#event MezCastFail "Spell recovery time not yet met#*#"
+	#event MezCastFail "Your target resisted the#*#spell#*#"
+	#event MezCastFail "Your song ends."
 
-#event MezBroke "#1#has been awakened by#2#"
+	#event MezBroke "#1#has been awakened by#2#"
 
+| --------------------------------------------------------------------------------------------
+| SUB: main
+| --------------------------------------------------------------------------------------------
 Sub main(string iniNameStr)
-	/declare meVersion									float outer 1.29
+	/delay 10
+	/declare meVersion									float outer 2.5
 	/declare myName											string outer bardbot
 	/declare myClass										string outer BRD
-	
+
 	/squelch /mqlog clear
-	
+
 	/call CommonInit
-	/varset reqCommon	2.51
-	/varset reqMovement  1.74
+	/varset reqCommon	3.6
+	/varset reqMovement  2.74
 	/varset debugMode FALSE
-	/varset debugLvl 0
-	
+
 	/call EchoLog "BardBot Initialized" true
 	/call EchoLog "Loading variables..." true
-	/if (${iniNameStr.Equal[NULL]} || ${iniNameStr.Equal[default]}) {
+	/if (!${Bool[${iniNameStr}]} || ${iniNameStr.Equal[default]}) {
 		/varset iniName bardBotSettings.ini
+		/myecho \ay${iniName} is the name of INI.
 	} else {
 		/varset iniName bardBotSettings_${iniNameStr}.ini
+		/myecho \ay${iniName} is the name of INI.
 	}
-	
+
 	/call LoadSettings
-	
+
 	/varset targCount 0
 	/declare currID											int local 0
-	/if (${Me.Casting.ID}!=${Spell[${oocSong}].ID}) {
+	/if (${Me.Casting.ID}!= ${Spell[${oocSong}].ID}) {
 		/melody
 		/stop
 		/if (${Twist.Twisting}) /squelch /squelch /twist clear
 	}
 	/delay 2
-	
-	/declare oocSongsCount							int local 0
-	:mainLoop
-		/doevents
-		/if (${Me.Aura[1].Name.Equal[${auraSong}]} || ${Me.Aura[2].Name.Equal[${auraSong}]} || ${Me.Aura[1].Name.Equal[${auraText}]} || ${Me.Aura[2].Name.Equal[${auraText}]}) {
-			| Work around for MQ2 aura bug
-		} else {
-			/if (${auraSong.NotEqual[NULL]} && ${auraGem} && (${castWhileInvis} || !${Me.Invis})) /call CastSong "${auraSong}" ${auraGem}
-		}
-		/call BardCombatCheck
-		/if (!${inCombat} && !${followMode}) {
-			/if (!${minBuffCheckTimer}) /call buffCheck
-			/call CommonRoutines
-			/call BardCombatCheck
-		} else /if (${inCombat}) {
-			/if (${followMode}) /squelch /stick off
-			/melody
-			/if (${Twist.Twisting}) /squelch /twist clear
-			/call Combat
-			/melody
-			/if (${Twist.Twisting}) /squelch /twist clear
-			/if (${followMode}) {
-				/squelch /target ID ${followTargID}
-				/delay 1s ${Target.ID}==${followTargID}
-				/if (${Target.ID} && ${Target.ID}==${followTargID}) {
-					/squelch /stick hold 10
-				} else {
-					/call EchoLog "\ayThe follow target, \ag${followTarg} \aocould not be found again after combat, disabling follow mode."
-					/varset followMode FALSE
-				}
-			}
-		} 
 
-		/if (!${Me.Casting.ID} && !${inCombat} && (!${pullMode} || (${pullMode} && ${pullTimer} > 100) || (${pullMode} && (${pullResult.Equal[PULL_FAIL_GROUP]} || ${pullResult.Equal[PULL_FAIL_NO_MOBS]})))) {
-			| /call CastSong "${oocSong}" ${oocGem} 1 FALSE
-			/varset oocSongsCount 0
-			/for nArray 1 to 4
-				/if (${oocSongs[${nArray},2]}) {
-					/varcalc oocSongsCount ${oocSongsCount} + 1
-					/call MemCheck "${oocSongs[${nArray},1]}" ${oocSongs[${nArray},2]}
-				}
-			/next nArray
-			/if (${oocSongsCount} > 1) {
-				/if (${useMelody} || (!${useMelody} && !${useTwist})) {
-					/melody ${oocSongs[1,2]} ${oocSongs[2,2]} ${oocSongs[3,2]} ${oocSongs[4,2]}
-				} else /if (${useTwist}) {
-					/twist ${oocSongs[1,2]} ${oocSongs[2,2]} ${oocSongs[3,2]} ${oocSongs[4,2]}
-				}
-			} else /if (${oocSongs[1,2]}) {
-				/call CastSong "${oocSongs[1,1]}" ${oocSongs[1,2]} 1 FALSE
+	/declare oocSongsCount							int local 0
+:mainLoop
+	/doevents
+	/if (${Me.Aura[1].Find[${auraSong}]} || ${Me.Aura[2].Find[${auraSong}]} || ${Me.Aura[1].Find[${auraText}]} || ${Me.Aura[2].Find[${auraText}]}) {
+	| Work around for MQ2 aura bug
+	} else {
+		/if (${auraSong.NotEqual[NULL]} && ${auraGem} && (${castWhileInvis} || !${Me.Invis})) /call CastSong "${auraSong}" ${auraGem}
+	}
+	/call BardCombatCheck True
+	/if (!${inCombat} && !${followMode}) {
+		/if (!${minBuffCheckTimer}) /call buffCheck
+		/call CommonRoutines
+		/call BardCombatCheck True
+	} else /if (${inCombat}) {
+		/if (${followMode}) /squelch /stick off
+		/melody
+		/if (${Twist.Twisting}) /squelch /twist clear
+		/call Combat
+		/melody
+		/if (${Twist.Twisting}) /squelch /twist clear
+		/if (${followMode}) {
+			/squelch /target ID ${followTargID}
+			/delay 1s ${Target.ID}==${followTargID}
+			/if (${Target.ID} && ${Target.ID}==${followTargID}) {
+				/squelch /stick hold 10
+			} else {
+				/call EchoLog "\ayThe follow target, \ag${followTarg} \aocould not be found again after combat, disabling follow mode."
+				/varset followMode FALSE
 			}
 		}
-		/if (${Me.Moving} || (${pullMode} && ${pullTimer} < 150 && ${pullTimer} > 0)) /varset sitTimer 3s
-		/if (${outOfCombatSit} && ${allowSit} && !${Me.Sitting} && !${sitTimer} && !${Me.Mount.ID} && !${followMode} && !${Me.Moving} && !${inCombat} && ${oocSongsCount}<=1) /sit on
+	}
+
+	/if (!${Me.Casting.ID} && !${inCombat} && (!${pullMode} || (${pullMode} && ${pullTimer} > 100) || (${pullMode} && (${pullResult.Equal[PULL_FAIL_GROUP]} || ${pullResult.Equal[PULL_FAIL_NO_MOBS]})))) {
+	| /call CastSong "${oocSong}" ${oocGem} 1 FALSE
+		/varset oocSongsCount 0
+		/for nArray 1 to 4
+			/if (${oocSongs[${nArray},2]}) {
+				/varcalc oocSongsCount ${oocSongsCount} + 1
+				/call MemCheck "${oocSongs[${nArray},1]}" ${oocSongs[${nArray},2]}
+			}
+		/next nArray
+		/if (${oocSongsCount} > 1) {
+			/if (${useMelody} || (!${useMelody} && !${useTwist})) {
+				/squelch /melody ${oocSongs[1,2]} ${oocSongs[2,2]} ${oocSongs[3,2]} ${oocSongs[4,2]}
+			} else /if (${useTwist} && !${Twist.Twisting} && ${Twist.List.Equal[${oocSongs[1,2]} ${oocSongs[2,2]} ${oocSongs[3,2]} ${oocSongs[4,2]} ]}) {
+				/if (${Me.Sitting}) /stand
+				/squelch /twist ${oocSongs[1,2]} ${oocSongs[2,2]} ${oocSongs[3,2]} ${oocSongs[4,2]}
+			}
+		} else /if (${oocSongs[1,2]}) {
+			/if (${useMelody} || (!${useMelody} && !${useTwist})) {
+				/squelch /melody ${oocSongs[1,2]}
+			} else /if (${useTwist} && !${Twist.Twisting} && !${Twist.List.Equal[${oocSongs[1,2]} ]}) {
+				/if (${Me.Sitting}) /stand
+				/squelch /twist ${oocSongs[1,2]}
+				/delay 32
+			}
+		|/call CastSong "${oocSongs[1,1]}" ${oocSongs[1,2]} 1 FALSE
+		}
+	}
+	/if (${Me.Moving} || (${pullMode} && ${pullTimer} < 150 && ${pullTimer} > 0)) /varset sitTimer 3s
+	/if (${outOfCombatSit} && ${allowSit} && !${Me.Sitting} && !${sitTimer} && !${Me.Mount.ID} && !${followMode} && !${Me.Moving} && !${inCombat} && ${oocSongsCount}<=1) /sit on
 	/goto :mainLoop
 /return
 
+| --------------------------------------------------------------------------------------------
+| SUB: AfterDeath
+| --------------------------------------------------------------------------------------------
 Sub AfterDeath
 
 /return
 
+| --------------------------------------------------------------------------------------------
+| SUB: BardCombatCheck
+| --------------------------------------------------------------------------------------------
 Sub BardCombatCheck(bool AddCheck)
 	/if (${AddCheck} == NULL) /varset AddCheck TRUE
-	/if (${AddCheck}) /call CheckForAdds ${campRadius} ${Me.ID} false true
+	/if (${AddCheck}) /call CheckForAdds ${campRadius} ${Me.ID} false true false
 	/if (!${inCombat} && (${lTargCount} > 0 || ${Me.CombatState.Equal[Combat]})) {
 		/if (${Me.Sitting}) /stand
 		/varset inCombat true
@@ -269,19 +290,22 @@ Sub BardCombatCheck(bool AddCheck)
 		/varset totalMezzed 0
 		/varset pullTimer ${pullRestTime}
 		/if (${minBuffCheckTimer} < 150) /varset minBuffCheckTimer 15s
-	}		
+	}
 /return
 
+| --------------------------------------------------------------------------------------------
+| SUB: BotCommands
+| --------------------------------------------------------------------------------------------
 Sub BotCommands(string rFrom,string rMsg, bool fromEQBC)
 	/if (${fromEQBC} == NULL) /varset fromEQBC FALSE
 	/declare hMsg				string local COMPLETED_NOTFOUND
 	/declare rFromID		int local 0
 
 	/varset rFromID ${Spawn[pc ${rFrom}].ID}
-	
-	| ==========================
-	| Bot specific commands
-	| ==========================
+
+| ==========================
+| Bot specific commands
+| ==========================
 	/declare paramCount								int local
 	/varcalc paramCount ${rMsg.Count[ ]} + 1
 	/declare cParams[${paramCount}]		string local
@@ -307,7 +331,7 @@ Sub BotCommands(string rFrom,string rMsg, bool fromEQBC)
 	} else /if (${strCommand.Equal[aemez]}) {
 	| ==========================
 	| aemez, toggles ae mez on or off
-	| ==========================		
+	| ==========================
 		/if (${aeMezEnabled}) {
 			/varset aeMezEnabled FALSE
 		} else {
@@ -317,7 +341,7 @@ Sub BotCommands(string rFrom,string rMsg, bool fromEQBC)
 	} else /if (${strCommand.Equal[staybehind]}) {
 	| ==========================
 	| StayBehind, toggles getting behind the mob on and off
-	| ==========================		
+	| ==========================
 		/if (${stayBehind}) {
 			/varset stayBehind FALSE
 		} else {
@@ -325,12 +349,12 @@ Sub BotCommands(string rFrom,string rMsg, bool fromEQBC)
 		}
 		/varset hMsg StayBehind set to: \ag${stayBehind}
 	} else /if (${strCommand.Equal[epic]}) {
-		| ==========================
-		| Epic - Clicks epic 1.5 or 2.0 if you have it and it dosn't have a timer
-		| ==========================
+	| ==========================
+	| Epic - Clicks epic 1.5 or 2.0 if you have it and it dosn't have a timer
+	| ==========================
 		/declare epicTry					int local 0
 		/declare clickTried				bool local FALSE
-		:epicRetry
+	:epicRetry
 		/if (${FindItem[Prismatic Dragon Blade].InvSlot} && !${FindItem[Prismatic Dragon Blade].Timer}) {
 			/if (${Me.Casting.Skill.Find[instrument]} || ${Me.Casting.Skill.Find[Sing]} || ${Twist.Twisting}) {
 				/melody
@@ -365,10 +389,16 @@ Sub BotCommands(string rFrom,string rMsg, bool fromEQBC)
 	}
 /return ${hMsg}
 
+| --------------------------------------------------------------------------------------------
+| SUB: CastCall
+| --------------------------------------------------------------------------------------------
 Sub CastCall
-	| Just an empty casting call routine
+| Just an empty casting call routine
 /return
 
+| --------------------------------------------------------------------------------------------
+| SUB: CastSong
+| --------------------------------------------------------------------------------------------
 Sub CastSong(string songName, int songGem, int maxTries, bool endSong, string onCallRoutine, bool immediateInterrupt)
 	/if (${songGem} == NULL || !${songGem}) /return
 	/if (${maxTries} == NULL) /varset maxTries 2
@@ -377,9 +407,9 @@ Sub CastSong(string songName, int songGem, int maxTries, bool endSong, string on
 	/declare castTimer					timer local 0s
 	/declare resAttempts				int local 1
 	/declare castTimeout				timer local 0s
-	
-	/if (!${castWhileInivis} && ${Me.Invis}) /return ABORT_INVIS
-	
+
+	/if (!${castWhileInvis} && ${Me.Invis}) /return ABORT_INVIS
+
 	/if (${Me.Casting.ID} && ${immediateInterrupt}) {
 		/stop
 		/if (${Twist.Twisting}) /squelch /twist clear
@@ -389,7 +419,7 @@ Sub CastSong(string songName, int songGem, int maxTries, bool endSong, string on
 			/melody
 			/stop
 		} else {
-			:waitForCast
+		:waitForCast
 			/if (${Me.Casting.ID}) /goto :waitForCast
 		}
 		/delay 3
@@ -405,68 +435,114 @@ Sub CastSong(string songName, int songGem, int maxTries, bool endSong, string on
 	} else {
 		/varset songGem ${Me.Gem[${songName}]}
 	}
-	
-	:castAttempt
+
+:castAttempt
 	/doevents flush MezCastFail
 	/varset CastResult CAST_SUCCESS
 	/varset castTimer ${Math.Calc[${Spell[${Me.Gem[${songGem}]}].MyCastTime.Float} + .2]}s
 	/if (${Me.Sitting}) /stand
 	/varset castTimeout 20s
 	/cast ${songGem}
-	:castingLoop
-		/doevents MezCastFail
-		/if (${CastResult.Equal[CAST_RECOVERY]}) /goto :castAttempt
-		/if ((${CastResult.Equal[CAST_INTERRUPTED]} || ${CastResult.Equal[CAST_RESIST]}) && ${resAttempts} < ${maxTries}) {
-			/varcalc resAttempts ${resAttempts} + 1
-			/melody
-			/stop
-			/if (${Twist.Twisting}) /squelch /twist clear
-			/delay 1s !${Me.Casting.ID}
-			/goto :castAttempt
-		}
-		/if (${onCallRoutine.NotEqual[NULL]}) /call ${onCallRoutine}
+:castingLoop
+	/doevents MezCastFail
+	/if (${CastResult.Equal[CAST_RECOVERY]}) /goto :castAttempt
+	/if ((${CastResult.Equal[CAST_INTERRUPTED]} || ${CastResult.Equal[CAST_RESIST]}) && ${resAttempts} < ${maxTries}) {
+		/varcalc resAttempts ${resAttempts} + 1
+		/melody
+		/stop
+		/if (${Twist.Twisting}) /squelch /twist clear
+		/delay 1s !${Me.Casting.ID}
+		/goto :castAttempt
+	}
+|/call Debug 1 "if onCallRoutine.NotEqual[NULL] it's /call onCallRoutine variable ~ Potential Spam"
+|/if (${onCallRoutine.NotEqual[NULL]}) {
+|	/call Debug 1 "onCallRoutine: ${onCallRoutine} Bool of onCallRoutine: ${Bool[${onCallRoutine}]}"
+|	/call ${onCallRoutine}
+|}
+
 	/if (${castTimer} && ${Me.Casting.ID} && ${castTimeout}) /goto :castingLoop
 	/if (${endSong}) /melody
 	/if (!${castTimeout}) /varset CastResult CAST_TIMEOUT
 /return
 
+| --------------------------------------------------------------------------------------------
+| SUB: Combat
+| --------------------------------------------------------------------------------------------
 Sub Combat
 	/declare currID										int local 0
 	/declare behindCheck							timer local 0s
 	/declare mezTarg									bool local FALSE
 	/declare mezCheck									bool local FALSE
 	/declare fadeCast									bool local FALSE
-	| /declare engageMerc								bool local TRUE
+| /declare engageMerc								bool local TRUE
 	/call EchoLog "Entering combat." TRUE
-	
+
 	/for nArray 1 to 4
 		/call MemCheck "${combatSong${nArray}}" ${combatGem${nArray}}
 	/next nArray
 	/varset twistPos 1
-	:combatLoop
-		/if (${Me.PctHPs} < ${fadeHP} && ${Me.CurrentMana} > 800 && !${fadeCast}) {
-			/if ((${mainTank.NotEqual[NULL]} && ((${Spawn[${mainTank}].ID} && ${Spawn[${mainTank}].Type.NotEqual[Corpse]}) || ${fadeWhenTankDead})) || (${mainTank.Equal[NULL]} && ${fadeWhenTankDead})) {
-				/if (${Me.Casting.ID}) {
-					/melody
+:combatLoop
+	/if (${Me.PctHPs} < ${fadeHP} && ${Me.CurrentMana} > 800 && !${fadeCast}) {
+		/if ((${mainTank.NotEqual[NULL]} && ((${Spawn[${mainTank}].ID} && ${Spawn[${mainTank}].Type.NotEqual[Corpse]}) || ${fadeWhenTankDead})) || (${mainTank.Equal[NULL]} && ${fadeWhenTankDead})) {
+			/if (${Me.Casting.ID}) {
+				/melody
+				/stop
+				/if (${Twist.Twisting}) /squelch /twist clear
+				/delay 1s !${Me.Casting.ID}
+			}
+			/call MQ2Cast "Fading Memories" alt
+			/varset fadeCast TRUE
+		}
+	}
+	/if (${Me.PctHPs} > ${fadeHP}) /varset fadeCast FALSE
+	/doevents
+	/call BardCombatCheck True
+	/if (${inCombat}) {
+		/if (${totalMezzed} < 3 && !${combatSongOnAssist} && !${combatSongDelay}) {
+			/if (${useMelody} && !${Me.Casting.ID}) {
+				/melody ${combatGem1} ${combatGem2} ${combatGem3} ${combatGem4}
+			} else /if (${useTwist} && !${Twist.Twisting} && !${Twist.List.Equal[${combatGem1} ${combatGem2} ${combatGem3} ${combatGem4} ]}) {
+				/squelch /twist ${combatGem1} ${combatGem2} ${combatGem3} ${combatGem4}
+			} else /if ((${combatSong${twistPos}.NotEqual[NULL]} || ${combatGem${twistPos}}) && !${twistTimer} && !${Me.GemTimer[${combatGem${twistPos}}]}) {
+			| /call CastSong "${combatSong${twistPos}}" ${combatGem${twistPos}} 2 TRUE
+				/if (${Me.Casting.ID}==${twistID}) {
 					/stop
-					/if (${Twist.Twisting}) /squelch /twist clear
 					/delay 1s !${Me.Casting.ID}
+					/delay 2
 				}
-				/call MQ2Cast "Fading Memories" alt
-				/varset fadeCast TRUE
+				/cast ${combatGem${twistPos}}
+				/varset twistID ${Spell[${Me.Gem[${combatGem${twistPos}}]}].ID}
+				/varset twistTimer ${Math.Calc[${Spell[${Me.Gem[${combatGem${twistPos}}]}].MyCastTime.Float} + .1]}s
+				/varcalc twistPos ${twistPos} + 1
+				/if (${twistPos}>5) /varset twistPos 1
+			} else /if (((${combatSong${twistPos}.Equal[NULL]} && !${combatGem${twistPos}}) || ${Me.GemTimer[${combatGem${twistPos}}]}) && !${twistTimer}) {
+				/varcalc twistPos ${twistPos} + 1
+				/if (${twistPos}>5) /varset twistPos 1
 			}
 		}
-		/if (${Me.PctHPs} > ${fadeHP}) /varset fadeCast FALSE
-		/doevents
-		/call BardCombatCheck
-		/if (${inCombat}) {
-			/if (${totalMezzed} < 3 && !${combatSongOnAssist} && !${combatSongDelay}) {
+		/call CommonCombatRoutines
+		/varset mezCheck FALSE
+
+		/varset currID ${Target.ID}
+		/call CommonGetTarget
+		/if (${Target.ID} && ${Target.ID}!=${currID}) /varset mezCheck TRUE
+
+	| /call PositionCheckDefault
+		/if (${mezEnabled}) /call MezRoutine
+		/if (${mezCheck} && ${mezEnabled}) {
+			/call MezList CHECK ${Target.ID}
+			/varset mezTarg ${Macro.Return}
+		} else {
+			/varset mezTarg FALSE
+		}
+		/if (${Target.ID} && (${Target.PctHPs} < ${assistPct} || ${mainAssist.Equal[${Me.CleanName}]}) && ${Math.Distance[${homeY},${homeX}:${Target.Y},${Target.X}]} < ${campRadius} && !${mezTarg} && (${Target.Type.Equal[npc]} || (${Target.Type.Equal[PET]} && ${Target.Master.Type.NotEqual[PC]}))) {
+			/if (${totalMezzed} < 3 && ${combatSongOnAssist} && !${combatSongDelay}) {
 				/if (${useMelody} && !${Me.Casting.ID}) {
 					/melody ${combatGem1} ${combatGem2} ${combatGem3} ${combatGem4}
 				} else /if (${useTwist} && !${Twist.Twisting}) {
- 					/squelch /twist ${combatGem1} ${combatGem2} ${combatGem3} ${combatGem4}					
+					/squelch /twist ${combatGem1} ${combatGem2} ${combatGem3} ${combatGem4}
 				} else /if ((${combatSong${twistPos}.NotEqual[NULL]} || ${combatGem${twistPos}}) && !${twistTimer} && !${Me.GemTimer[${combatGem[${twistPos}]}]}) {
-					| /call CastSong "${combatSong${twistPos}}" ${combatGem${twistPos}} 2 TRUE
+				| /call CastSong "${combatSong${twistPos}}" ${combatGem${twistPos}} 2 TRUE
 					/if (${Me.Casting.ID}==${twistID}) {
 						/stop
 						/delay 1s !${Me.Casting.ID}
@@ -479,95 +555,75 @@ Sub Combat
 					/if (${twistPos}>5) /varset twistPos 1
 				} else /if (((${combatSong${twistPos}.Equal[NULL]} && !${combatGem${twistPos}}) || ${Me.GemTimer[${combatGem[${twistPos}]}]}) && !${twistTimer}) {
 					/varcalc twistPos ${twistPos} + 1
-					/if (${twistPos}>5) /varset twistPos 1						
+					/if (${twistPos}>5) /varset twistPos 1
 				}
 			}
-			/call CommonCombatRoutines
-			/varset mezCheck FALSE
-			
-			/varset currID ${Target.ID}
-			/call CommonGetTarget
-			/if (${Target.ID} && ${Target.ID}!=${currID}) /varset mezCheck TRUE
-						
-			| /call PositionCheckDefault
-			/if (${mezEnabled}) /call MezRoutine
-			/if (${mezCheck} && ${mezEnabled}) {
-				/call MezList CHECK ${Target.ID}
-				/varset mezTarg ${Macro.Return}
-			} else {
-				/varset mezTarg FALSE
+		| /if (!${Me.Casting.ID} && ${totalMezzed} < 3 && ${combatSongOnAssist} && !${combatSongDelay}) /melody ${combatGem1} ${combatGem2} ${combatGem3} ${combatGem4}
+		| /if (!${Me.Casting.ID} && ${totalMezzed} < 3 && ${combatSongOnAssist} && !${combatSongDelay} && !${Twist.Twisting}) /squelch /twist ${combatGem1} ${combatGem2} ${combatGem3} ${combatGem4}
+			/if (${Target.Distance} > 15)	/call MoveToSpawn ${Target.ID} 12 TRUE
+			/if (${Target.ID} && ${Math.Abs[${Math.Calc[${Target.HeadingTo.Degrees} - ${Me.Heading.Degrees}]}]} > 10) /face nolook
+			/if (${Target.Distance} < 5) {
+				/keypress back hold
+				/delay 2
+				/keypress back
 			}
-			/if (${Target.ID} && (${Target.PctHPs} < ${assistPct} || ${mainAssist.Equal[${Me.CleanName}]}) && ${Math.Distance[${homeY},${homeX}:${Target.Y},${Target.X}]} < ${campRadius} && !${mezTarg} && (${Target.Type.Equal[npc]} || (${Target.Type.Equal[PET]} && ${Target.Master.Type.NotEqual[PC]}))) {
-				/if (${totalMezzed} < 3 && ${combatSongOnAssist} && !${combatSongDelay}) {
-					/if (${useMelody} && !${Me.Casting.ID}) {
-						/melody ${combatGem1} ${combatGem2} ${combatGem3} ${combatGem4}
-					} else /if (${useTwist} && !${Twist.Twisting}) {
-	 					/squelch /twist ${combatGem1} ${combatGem2} ${combatGem3} ${combatGem4}					
-					} else /if ((${combatSong${twistPos}.NotEqual[NULL]} || ${combatGem${twistPos}}) && !${twistTimer} && !${Me.GemTimer[${combatGem[${twistPos}]}]}) {
-						| /call CastSong "${combatSong${twistPos}}" ${combatGem${twistPos}} 2 TRUE
-						/if (${Me.Casting.ID}==${twistID}) {
-							/stop
-							/delay 1s !${Me.Casting.ID}
-							/delay 2
-						}
-						/cast ${combatGem${twistPos}}
-						/varset twistID ${Spell[${Me.Gem[${combatGem${twistPos}}]}].ID}
-						/varset twistTimer ${Math.Calc[${Spell[${Me.Gem[${combatGem${twistPos}}]}].MyCastTime.Float} + .1]}s
-						/varcalc twistPos ${twistPos} + 1
-						/if (${twistPos}>5) /varset twistPos 1
-					} else /if (((${combatSong${twistPos}.Equal[NULL]} && !${combatGem${twistPos}}) || ${Me.GemTimer[${combatGem[${twistPos}]}]}) && !${twistTimer}) {
-						/varcalc twistPos ${twistPos} + 1
-						/if (${twistPos}>5) /varset twistPos 1						
-					}
-				}
-				| /if (!${Me.Casting.ID} && ${totalMezzed} < 3 && ${combatSongOnAssist} && !${combatSongDelay}) /melody ${combatGem1} ${combatGem2} ${combatGem3} ${combatGem4}				
-				| /if (!${Me.Casting.ID} && ${totalMezzed} < 3 && ${combatSongOnAssist} && !${combatSongDelay} && !${Twist.Twisting}) /squelch /twist ${combatGem1} ${combatGem2} ${combatGem3} ${combatGem4}
-				/if (${Target.Distance} > 15)	/call MoveToSpawn ${Target.ID} 12 TRUE
-				/if (${Target.ID} && ${Math.Abs[${Math.Calc[${Target.HeadingTo.Degrees} - ${Me.Heading.Degrees}]}]} > 10) /face nolook
-				/if (${Target.Distance} < 5) {
-					/keypress back hold
-					/delay 2
-					/keypress back
-				}
-				/if (${stayBehind} && !${Stick.Behind} && !${behindCheck}) {
-					/squelch /stick behind ${Target.Distance}
-					/varset behindCheck 10s
-				} else /if (${Stick.Status.Equal[ON]} && ${Stick.Behind}) {
-					/squelch /stick off
-				}
-				/if (!${Me.Combat}) /attack on
+			/if (${stayBehind} && !${Stick.Behind} && !${behindCheck}) {
+				/squelch /stick behind ${Target.Distance}
+				/varset behindCheck 10s
+			} else /if (${Stick.Status.Equal[ON]} && ${Stick.Behind}) {
+				/squelch /stick off
+			}
+			/if (!${Me.Combat}) /attack on
 
-				/if (${caCount}) {
-					/for nArray 1 to ${caCount}
-						/if (${caName[${nArray}].NotEqual[NULL]}) {
-							/if ((!${Defined[caTimer${nArray}]} || !${caTimer${nArray}}) && (${Me.CombatAbilityReady[${caName[${nArray}]}]} || ${Me.AbilityReady[${caName[${nArray}]}]})) {
+			/if (${caCount}) {
+				/for nArray 1 to ${caCount}
+					/if (${caName[${nArray}].NotEqual[NULL]}) {
+						/if (!${Defined[caTimer${nArray}]}) {
+							/declare caTimer${nArray} timer outer 0
+							/if (!${caTimer${nArray}} && (${Me.CombatAbilityReady[${caName[${nArray}]}]} || ${Me.AbilityReady[${caName[${nArray}]}]})) {
 								/doability "${caName[${nArray}]}"
-								:caCast
-							/if (${Me.Casting.ID} && ${Me.Casting.ID}==${Spell[${caName[${nArray}]}].ID}) /goto :caCast
+							:caCast
+								/if (${Me.Casting.ID} && ${Me.Casting.ID}==${Spell[${caName[${nArray}]}].ID}) /goto :caCast
+								/if (!${Defined[caTimer${nArray}]}) /declare caTimer${nArray}			timer outer 0s
+								/varset caTimer${nArray} ${caDly[${nArray}]}
+								/goto :exitAbility
+							}
+						} else /if (!${caTimer${nArray}}) {
+							/if (!${caTimer${nArray}} && (${Me.CombatAbilityReady[${caName[${nArray}]}]} || ${Me.AbilityReady[${caName[${nArray}]}]})) {
+								/doability "${caName[${nArray}]}"
+							:caCast
+								/if (${Me.Casting.ID} && ${Me.Casting.ID}==${Spell[${caName[${nArray}]}].ID}) /goto :caCast
 								/if (!${Defined[caTimer${nArray}]}) /declare caTimer${nArray}			timer outer 0s
 								/varset caTimer${nArray} ${caDly[${nArray}]}
 								/goto :exitAbility
 							}
 						}
-					/next nArray
-					:exitAbility
-				}
-				/if (${csCount} && ${totalMezzed} < 3) /call CastSpell
-			} else {
-				/if (${Me.Combat}) /attack off
-				/call BardCombatCheck
+					}
+				/next nArray
+			:exitAbility
 			}
+			/if (${csCount} && ${totalMezzed} < 3) /call CastSpell
 		} else {
-			/varset sitTimer 10s
-			/return
+			/if (${Me.Combat}) /attack off
+			/call BardCombatCheck True
 		}
+	} else {
+		/varset sitTimer 10s
+	/return
+}
 	/goto :combatLoop
 /return
 
+| --------------------------------------------------------------------------------------------
+| SUB: Event_MezBroke
+| --------------------------------------------------------------------------------------------
 Sub Event_MezBroke(rLine,string rMob,string rBy)
 	/varset mamtTargetTimer 0s
 /return
 
+| --------------------------------------------------------------------------------------------
+| SUB: Event_MezCastFail
+| --------------------------------------------------------------------------------------------
 Sub Event_MezCastFail(string rLine)
 	/if (${rLine.Find[You are not sufficient level to use this Item]}) {
 		/varset CastResult CAST_LOWLEVEL
@@ -610,20 +666,23 @@ Sub Event_MezCastFail(string rLine)
 	} else /if (${rLine.Find[Your target is out of range get closer]}) {
 		/varset CastResult CAST_OUTOFRANGE
 	} else /if (${rLine.Find[You haven't recovered yet]}) { | '
-		/varset CastResult CAST_RECOVERY
-	} else /if (${rLine.Find[Spell recovery time not yet met]}) {
-		/varset CastResult CAST_RECOVERY
-	} else /if (${rLine.Find[Your target resisted the]}) {
-		/varset CastResult CAST_RESIST
+	/varset CastResult CAST_RECOVERY
+} else /if (${rLine.Find[Spell recovery time not yet met]}) {
+	/varset CastResult CAST_RECOVERY
+} else /if (${rLine.Find[Your target resisted the]}) {
+	/varset CastResult CAST_RESIST
 	}	else /if (${rLine.Find[Your song ends]}) {
 		/varset CastResult CAST_INTERRUPTED
 	}
 /return
 
+| --------------------------------------------------------------------------------------------
+| SUB: LoadSettings
+| --------------------------------------------------------------------------------------------
 Sub LoadSettings
-	| ===================================
-	|  Load general settings
-	| ===================================
+| ===================================
+|  Load general settings
+| ===================================
 	/declare stayBehind						bool outer FALSE
 	/declare fadeHP								int outer 50
 	/declare fadeWhenTankDead			bool outer FALSE
@@ -632,9 +691,9 @@ Sub LoadSettings
 	/call GetINISetting ${iniName} General FadeWhenTankDead fadeWhenTankDead FALSE FALSE
 	/call GetINISetting ${iniName} General StayBehind stayBehind TRUE FALSE
 
-	| ===================================
-	| Load Bard_General
-	| ===================================
+| ===================================
+| Load Bard_General
+| ===================================
 	/declare useTwist							bool outer FALSE
 	/declare useMelody						bool outer FALSE
 	/call GetINISetting ${iniName} Bard_General UseTwist useTwist FALSE FALSE
@@ -642,11 +701,10 @@ Sub LoadSettings
 	/call GetINISetting ${iniName} Bard_General FadeHP fadeHP ${fadeHP}
 	/call GetINISetting ${iniName} Bard_General FadeWhenTankDead fadeWhenTankDead ${fadeWhenTankDead}
 	/call GetINISetting ${iniName} Bard_General StayBehind stayBehind ${stayBehind}
-	
-	
-	| ===================================
-	|  Load songs
-	| ===================================
+
+| ===================================
+|  Load songs
+| ===================================
 	/declare mezSong							string outer
 	/declare mezGem								int outer
 	/declare aeMezSong						string outer
@@ -666,7 +724,7 @@ Sub LoadSettings
 	/declare aeMezAnnounce				string outer
 	/declare combatSongOnAssist		bool outer
 	/declare aeMezMinMobs					int outer
-	
+
 	/declare combatSong1					string outer
 	/declare combatSong2					string outer
 	/declare combatSong3					string outer
@@ -678,7 +736,7 @@ Sub LoadSettings
 	/declare combatGem4						int outer
 	/declare combatGem5						int outer
 	/declare combatSongDelay			timer outer 0s
-	
+
 	/call GetINISetting ${iniName} Songs MezAtStart mezEnabled TRUE
 	/varset aeMezEnabled ${mezEnabled}
 	/call GetINISetting ${iniName} Songs MezSong mezSong NULL
@@ -701,26 +759,26 @@ Sub LoadSettings
 	/call GetINISetting ${iniName} Songs AuraText auraText ${auraSong}
 	/call GetINISetting ${iniName} Songs AuraGem auraGem 0
 	/call GetINISetting ${iniName} Songs CombatSongOnAssist combatSongOnAssist FALSE
-	
+
 	/varset aeMezMinMobs ${Ini[${iniName},Songs,AEMezMinMobs,3]}
-	
-	/for nArray 1 to 4	
+
+	/for nArray 1 to 4
 		/call GetINISetting ${iniName} Songs CombatSong${nArray} combatSong${nArray} NULL
 		/call GetINISetting ${iniName} Songs CombatGem${nArray} combatGem${nArray} ${nArray}
 	/next nArray
 	/call GetINISetting ${iniName} Songs CombatSong5 combatSong5 NULL FALSE
 	/call GetINISetting ${iniName} Songs CombatGem5 combatGem5 0 FALSE
-	
-	| ===================================
-	|  Load combat abilities
-	| ===================================
+
+| ===================================
+|  Load combat abilities
+| ===================================
 	/declare caCount							int outer
 	/call GetINIArrayCount ${iniName} CombatAbilities AbilityName NULL
 	/varset caCount ${Macro.Return}
 	/call EchoLog "Loading ${caCount} Combat Abilitie(s)" true
 	/declare caName[${caCount}]		string outer
 	/declare caDly[${caCount}]		string outer
-	
+
 	/if (${caCount}) {
 		/for nArray 1 to ${caCount}
 			/call GetINISetting ${iniName} CombatAbilities AbilityName${nArray} caName[${nArray}] NULL
@@ -731,16 +789,15 @@ Sub LoadSettings
 	/call GetINISetting ${iniName} CombatAbilities AbilityName${Math.Calc[${caCount}+1].Int} NULL NULL
 	/call GetINISetting ${iniName} CombatAbilities AbiltyReuse${Math.Calc[${caCount}+1].Int} NULL 0s
 
-	
 	/call CommonLoad
-	
+
 	/varset doDebuffs FALSE
 	/varset doGroupBuffs FALSE
 	/varset doPetBuffs FALSE
-	
-	| ===================================
-	|  Final Var Setup
-	| ===================================
+
+| ===================================
+|  Final Var Setup
+| ===================================
 	/declare mezCheckTimer				timer outer 0s
 	/declare aeMezTimer						timer outer 0s
 	/declare totalMezzed					int outer 0
@@ -753,7 +810,7 @@ Sub LoadSettings
 	/declare twistPos							int outer 0
 	/declare twistTimer						timer outer 0s
 	/declare twistID							int outer 0
-	
+
 	/call EchoLog "BardBot \agv${meVersion}\ao, written by \awDevestator\ao, initiated"
 	/call EchoLog "Looting Corpses: \ag${lootCorpses}"
 	/call EchoLog "Main Tank: \ag${mainTank}"
@@ -766,10 +823,13 @@ Sub LoadSettings
 	/if (${useTwist} && !${useMelody}) /call EchoLog "Using Twist: \ag${useTwist}"
 	/if (${useMelody}) /call EchoLog "Using Melody: \ag${useMelody}"
 	/if (${pullMode}) /call EchoLog "Pull Path: \ag${pullPath}"
-	
+
 	/squelch /plugin MQ2Twist
 /return
 
+| --------------------------------------------------------------------------------------------
+| SUB: MemCheck
+| --------------------------------------------------------------------------------------------
 Sub MemCheck(string SongName,int SongGem)
 	/if (${SongName.Equal[NULL]} || !${SongName.Length} || !${SongGem}) /return
 	/if (${Me.Book[${SongName}]}) {
@@ -788,6 +848,9 @@ Sub MemCheck(string SongName,int SongGem)
 	}
 /return
 
+| --------------------------------------------------------------------------------------------
+| SUB: Mez
+| --------------------------------------------------------------------------------------------
 Sub Mez(int mezTargID)
 	/declare attackOn				bool local FALSE
 	/declare prevTarg				int local 0
@@ -817,18 +880,18 @@ Sub Mez(int mezTargID)
 		/call EchoLog "Attempting to mez ${Target.CleanName} | ${Target.ID} with ${mezSong}" true
 		/call Announce "${mezAnnounceAttempt}"
 		/call CastSong "${mezSong}" ${mezGem} 2 TRUE CastCall TRUE
-		
+
 		/if (${CastResult.Equal[CAST_SUCCESS]}) {
-			/call MezList ADD ${Target.ID} 130
+			/call MezList ADD ${Target.ID} ${Spell[${mezSong}].Duration.TotalSeconds}
 			/call Announce "${mezAnnounceSuccess}"
-			/call EchoLog "${Target.CleanName} | ${Target.ID} successfully mezzed, Total Mezzed: ${totalMezzed}" true	
+			/call EchoLog "${Target.CleanName} | ${Target.ID} successfully mezzed, Total Mezzed: ${totalMezzed}" true
 			/varset combatSongDelay 2s
 		} else /if (${CastResult.Equal[CAST_IMMUNE]}) {
-			/call EchoLog "${Target.CleanName} | ${Target.ID} is immune to mezzes, not attempting anymore." true	
+			/call EchoLog "${Target.CleanName} | ${Target.ID} is immune to mezzes, not attempting anymore." true
 			/call MezList ADD ${Target.ID} 30m
 		} else /if (${CastResult.Equal[CAST_TAKEHOLD]}) {
-			/call EchoLog "${Target.CleanName} | ${Target.ID} could not be mezzed, due to mez not taking hold, waiting to try again." true	
-			/call timer mezTrack ${Target.ID} 130
+			/call EchoLog "${Target.CleanName} | ${Target.ID} could not be mezzed, due to mez not taking hold, waiting to try again." true
+			/call timer mezTrack ${Target.ID} 130s NULL
 		} else {
 			/call EchoLog "${Target.CleanName} | ${Target.ID} mez attempt failed, reason: ${CastResult}" true
 			/varset combatSongDelay 2s
@@ -843,17 +906,20 @@ Sub Mez(int mezTargID)
 	}
 /return
 
-Sub MezList(string Action, int AddID, string setTimer) 
+| --------------------------------------------------------------------------------------------
+| SUB: MezList
+| --------------------------------------------------------------------------------------------
+Sub MezList(string Action, int AddID, string setTimer)
 	/if (${Action.Equal[NULL]}) /varset Action UPDATE
-	/if (${setTimer.Equal[NULL]}) /varset setTimer ${Spell[${singleMez}].Duration.Float}s
+	/if (${setTimer.Equal[NULL]}) /varset setTimer ${Spell[${mezSong}].Duration.TotalSeconds}s
 	/declare mlArray							int local 0
 	/declare hReturn							string local FALSE
-	
+
 	/if (${Action.Equal[UPDATE]}) {
 		/for mlArray 1 to ${targCount}
 			/if (${Spawn[${targArray[${mlArray}]}].Type.Equal[NPC]}) {
 				/call MezTimerCheck ${targArray[${mlArray}]}
-				/varset isMezzed[${mlArray}] ${Macro.Return}	
+				/varset isMezzed[${mlArray}] ${Macro.Return}
 			} else {
 				/varset isMezzed[${mlArray}] FALSE
 			}
@@ -871,7 +937,9 @@ Sub MezList(string Action, int AddID, string setTimer)
 						/call MezVerify ${AddID}
 						/varset isMezzed[${mlArray}] ${Macro.Return}
 						/varset hReturn ${isMezzed[${mlArray}]}
-						/if (!${isMezzed[${mlArray}]}) /call timer mezTrack ${AddID} 0s
+						/if (!${isMezzed[${mlArray}]}) {
+							/call timer mezTrack ${AddID} 0s NULL
+						}
 						/goto :mChecked
 					}
 				/next mlArray
@@ -889,20 +957,20 @@ Sub MezList(string Action, int AddID, string setTimer)
 				}
 			/next mlArray
 		}
-		:mChecked
+	:mChecked
 	} else /if (${Action.Equal[ADD]}) {
 		/if (${Defined[AddID]}) {
 			/for mlArray 1 to ${targCount}
 				/if (${targArray[${mlArray}]}==${AddID}) {
 					/varset isMezzed[${mlArray}] TRUE
-					/call timer mezTrack ${Target.ID} ${setTimer}
+					/call timer mezTrack ${Target.ID} ${setTimer}s NULL
 					/goto :mAdded
 				}
 			/next mlArray
-			:mAdded
+		:mAdded
 		}
 	}
-	
+
 	/if (${Action.NotEqual[CLEAN]}) {
 		/varset totalMezzed 0
 		/for mlArray 1 to ${targCount}
@@ -911,6 +979,9 @@ Sub MezList(string Action, int AddID, string setTimer)
 	}
 /return ${hReturn}
 
+| --------------------------------------------------------------------------------------------
+| SUB: MezRoutine
+| --------------------------------------------------------------------------------------------
 Sub MezRoutine
 	/if (${mezCheckTimer}) /return
 	/if (!${mezGem} || !${mezEnabled}) /return
@@ -919,7 +990,7 @@ Sub MezRoutine
 	/declare currID						int local 0
 	/declare needMaTarg				bool local TRUE
 	/declare needMtTarg				bool local TRUE
-	
+
 	/call MezList UPDATE
 	/call GetMATarget
 	/call GetMTTarget
@@ -928,52 +999,60 @@ Sub MezRoutine
 	/if (${Math.Calc[${lTargCount}-${totalMezzed}]} >= ${aeMezMinMobs} && ${aeMezSong.NotEqual[NULL]} && ${aeMezGem} && !${aeMezTimer}) {
 		/call Announce "${aeMezAnnounce}"
 		/call EchoLog "Attempting to ae mez with ${aeMezSong}.  Living mobs: ${lTargCount} Mezzed Mobs: ${totalMezzed} Min Mobs: ${aeMezMinMobs}" TRUE
-		/call CastSong "${aeMezSong}" ${aeMezGem}
-		/varset aeMezTimer 30s
+		/if (!${Me.GemTimer[${aeMezSong})]}) {
+			/call CastSong "${aeMezSong}" ${aeMezGem}
+		}
+		/varset aeMezTimer ${Spell[${aeMezSong}].Duration.TotalSeconds}s
 	} else {
 		/for nArray 1 to ${targCount}
 			/doevents
 			/if (${Spawn[${targArray[${nArray}]}].Assist} && ${useAssist}) /varset maTargID ${targArray[${nArray}]}
 			/if (${Spawn[${targArray[${nArray}]}].ID} && ${Spawn[${targArray[${nArray}]}].Type.Equal[NPC]} && ${Spawn[${targArray[${nArray}]}].LineOfSight}) {
-				/if ((${targArray[${nArray}]}!=${maTargID} && ${targArray[${nArray}]}!=${mtTargID})) {			
+				/if ((${targArray[${nArray}]}!=${maTargID} && ${targArray[${nArray}]}!=${mtTargID})) {
 					/call MezList CHECK ${targArray[${nArray}]}
 					/if (${Macro.Return.Equal[FALSE]} && ${totalMezzed}<3) /call Mez ${targArray[${nArray}]}
 				}
 			}
-		/next nArray	
+		/next nArray
 	}
 /return
 
+| --------------------------------------------------------------------------------------------
+| SUB: MezTimerCheck
+| --------------------------------------------------------------------------------------------
 Sub MezTimerCheck(int mezTargID)
 	/if (${mezTargID}) {
-		/call timer mezTrack ${mezTargID}
-		/return ${Macro.Return}
-	}
+		/call timer mezTrack ${mezTargID} NULL NULL
+	/return ${Macro.Return}
+}
 /return FALSE
 
+| --------------------------------------------------------------------------------------------
+| SUB: MezVerify
+| --------------------------------------------------------------------------------------------
 Sub MezVerify(int vID)
 	/if (${vID} == NULL) /return TRUE
 	/declare retValue					bool local TRUE
-	
-	/call timer attempts ${vID}
+
+	/call timer attempts ${vID} NULL NULL
 	/if (${Macro.Return.Equal[FALSE]}) {
 		/call MezTimerCheck ${vID}
 		/if (${Macro.Return.Equal[FALSE]}) {
-			/varset retValue FALSE		
+			/varset retValue FALSE
 		} else /if (${Spawn[${vID}].Moving}) {
 			/call EchoLog "${Spawn[${vID}].CleanName} | ${vID} does not seem to be mezzed because it's moving" TRUE
 			/varset retValue FALSE
 		} else 	/if (!${Select[${Spawn[${vID}].Animation}, 26, 32, 71, 72, 110, 111]}) {
 			/call EchoLog "${Spawn[${vID}].CleanName} | ${vID} does not seem to be mezzed based on it's animation" TRUE
-		 	/varset retValue FALSE
-		} else {		
-			/call timer inspect ${vID}
+			/varset retValue FALSE
+		} else {
+			/call timer inspect ${vID} NULL NULL
 			/if (${Me.LAInspectBuffs} && ${Macro.Return.Equal[FALSE]} && !${Me.Combat}) {
 				/squelch /target ID ${vID}
 				/delay 1s ${Target.ID}==${vID}
 				/delay 2s ${Target.BuffCount}
-				/call timer inspect ${vID} 30s
-				/if (${Target.Buff[${mezSong}].ID} && ${Target.Buff[${mezSong}].Duration.Float} > 4.5) {
+				/call timer inspect ${vID} 30s NULL
+				/if (${Target.Buff[${mezSong}].ID} && ${Target.Buff[${mezSong}].Duration.TotalSeconds} > 5) {
 					/varset retValue TRUE
 				} else {
 					/call EchoLog "${Spawn[${vID}].CleanName} | ${vID} does not seem to be mezzed based on it's buff list using leadership ability inspect buffs" TRUE
@@ -981,7 +1060,7 @@ Sub MezVerify(int vID)
 				}
 			}
 		}
-		
+
 		/if (!${retValue}) {
 			/if (!${Defined[mezAttempts${vID}]}) /declare mezAttempts${vID} int outer 0
 			/varcalc mezAttempts${vID} ${mezAttempts${vID}} + 1
@@ -991,3 +1070,4 @@ Sub MezVerify(int vID)
 		/varset retValue TRUE
 	}
 /return ${retValue}
+|  [+++  Formatted by MQ2f using tabs for indents +++]
